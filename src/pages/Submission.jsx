@@ -370,16 +370,27 @@ export default function Submission({ formData, onBack, isDark = false, onToggleD
                 <div id="submission-print-area" className="px-6 pb-6 pt-4" style={{ borderTop: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #F3F4F6' }}>
 
                   {/* Print-only document header — hidden on screen, shown when printing */}
-                  <div className="print-only items-center justify-between mb-3 pb-2" style={{ borderBottom: '1.5px solid #E5E7EB' }}>
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
-                      <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>
-                        {[applicant.entity, applicant.effectiveDate ? `Eff. ${applicant.effectiveDate}` : null, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
-                      </p>
+                  <div className="print-only flex-col mb-4">
+                    {/* Branding row */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8, marginBottom: 8, borderBottom: '1.5px solid #E5E7EB' }}>
+                      <img src={norbielinkLogo} alt="NorbieLink" style={{ height: 22, objectFit: 'contain' }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 8, color: '#9CA3AF', letterSpacing: '0.08em', fontWeight: 600 }}>POWERED BY</span>
+                        <img src={btisLogo} alt="btis" style={{ height: 18, objectFit: 'contain' }} />
+                      </div>
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <p style={{ fontSize: 9, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Commercial Auto Application</p>
-                      <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>#{SUBMISSION_ID} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    {/* Applicant + submission info row */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
+                        <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>
+                          {[applicant.entity, applicant.effectiveDate ? `Eff. ${applicant.effectiveDate}` : null, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
+                        </p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: 9, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Commercial Auto Application</p>
+                        <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>#{SUBMISSION_ID} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                      </div>
                     </div>
                   </div>
 
