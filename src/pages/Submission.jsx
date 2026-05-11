@@ -112,6 +112,7 @@ function Confetti() {
 export default function Submission({ formData, onBack, isDark = false, onToggleDark }) {
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [showConfetti, setShowConfetti] = useState(true)
+  const [showEmailPreview, setShowEmailPreview] = useState(false)
 
   useEffect(() => {
     const t = setTimeout(() => setShowConfetti(false), 4500)
@@ -779,24 +780,16 @@ export default function Submission({ formData, onBack, isDark = false, onToggleD
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-navy">Email Confirmation</p>
                   <p className="text-xs text-gray-400 mt-1 mb-3 leading-relaxed">Here's a preview of the confirmation email that will be sent.</p>
-                  {/* Scaled email preview */}
-                  <div className="rounded-xl overflow-hidden" style={{ border: '1px solid #E5E7EB' }}>
-                    <iframe
-                      srcDoc={buildEmailPreview({ applicant, submissionId: SUBMISSION_ID })}
-                      title="Email Preview"
-                      scrolling="no"
-                      style={{
-                        width: '600px',
-                        height: '560px',
-                        border: 'none',
-                        display: 'block',
-                        transformOrigin: 'top left',
-                        transform: 'scale(0.42)',
-                        marginBottom: '-328px',
-                        pointerEvents: 'none',
-                      }}
-                    />
-                  </div>
+                  <button
+                    onClick={() => setShowEmailPreview(true)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-all"
+                    style={{ background: 'linear-gradient(88.09deg,rgba(92,46,212,0.08) 0%,rgba(166,20,195,0.08) 100%)', border: '1px solid rgba(92,46,212,0.2)', color: '#5C2ED4' }}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    Preview Confirmation Email
+                  </button>
                 </div>
               </div>
             </div>
@@ -805,6 +798,52 @@ export default function Submission({ formData, onBack, isDark = false, onToggleD
 
         </aside>
       </div>
+
+      {/* Email Preview Modal */}
+      {showEmailPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+          onClick={() => setShowEmailPreview(false)}
+        >
+          <div
+            className="relative w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl"
+            style={{ maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-3 shrink-0"
+              style={{ background: 'white', borderBottom: '1px solid #E5E7EB' }}>
+              <div className="flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="url(#emailModalG)" viewBox="0 0 24 24" strokeWidth={1.8}>
+                  <defs>
+                    <linearGradient id="emailModalG" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/>
+                    </linearGradient>
+                  </defs>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                <span className="text-sm font-bold text-navy">Confirmation Email Preview</span>
+              </div>
+              <button
+                onClick={() => setShowEmailPreview(false)}
+                className="w-7 h-7 flex items-center justify-center rounded-lg transition hover:bg-gray-100"
+                style={{ color: '#9CA3AF' }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+            {/* iframe — full size, scrollable */}
+            <iframe
+              srcDoc={buildEmailPreview({ applicant, submissionId: SUBMISSION_ID })}
+              title="Email Preview"
+              style={{ flex: 1, border: 'none', background: '#F3F4F6', minHeight: '500px' }}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   )
