@@ -1,33 +1,31 @@
 import { useState, useRef } from 'react'
+import { CARRIERS, eligibleCarriers, PROJECT_TYPE_CONFIG } from '../lib/projectTypeConfig'
 
-function getSectionCompletion(formData) {
+// Generic completion: a bucket counts as "done" if it has any truthy value.
+function getSectionCompletion(formData, sectionKeys) {
   const results = {}
-  const a = formData.applicant || {}
-  results[1] = !!(a.namedInsured && a.entity && a.effectiveDate && a.email && a.phone)
-  const vs = formData.vehicles?.vehicles || []
-  results[2] = vs.length > 0 && vs.every(v => v.year && v.make && v.model)
-  const ds = formData.drivers?.drivers || []
-  results[3] = ds.length > 0 && ds.every(d => d.firstName && d.lastName)
-  const e = formData.eligibility || {}
-  results[4] = Object.keys(e).length >= 7
-  const c = formData.coverage || {}
-  results[5] = !!(c.liabilityLimit)
-  results[6] = formData.additionalInsured?.hasAdditional !== undefined
-  results[7] = formData.lossPayee?.hasPayee !== undefined
-  results[8] = formData.priorHistory?.hasCurrent !== undefined
-  results[9] = formData.claims?.hasClaims !== undefined
-  results[10] = !!(formData.payment?.planDuration)
+  sectionKeys.forEach((key) => {
+    const bucket = formData[key]
+    if (!bucket) { results[key] = false; return }
+    results[key] = Object.values(bucket).some(v => v !== '' && v !== undefined && v !== null && v !== false)
+  })
   return results
 }
 
-export default function RightPanel({ onFormReview, formData = {}, pulseUpload = false, isDark = false }) {
+export default function RightPanel({ onFormReview, formData = {}, pulseUpload = false, isDark = false, projectType, state }) {
   const [files, setFiles] = useState([])
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef()
 
-  const completion = getSectionCompletion(formData)
+  const cfg = projectType ? PROJECT_TYPE_CONFIG[projectType] : null
+  const sectionKeys = cfg?.steps?.map(s => s.key) || []
+  const totalCount = sectionKeys.length || 1
+  const completion = getSectionCompletion(formData, sectionKeys)
   const completedCount = Object.values(completion).filter(Boolean).length
-  const progressPct = Math.round((completedCount / 10) * 100)
+  const progressPct = Math.round((completedCount / totalCount) * 100)
+
+  const carrierIds = eligibleCarriers(projectType, (state || formData.applicant?.state || '').toUpperCase())
+  const eligibleCarriersList = carrierIds.map(id => Object.values(CARRIERS).find(c => c.id === id)).filter(Boolean)
 
   const addFiles = (newFiles) => {
     const arr = Array.from(newFiles).map(f => ({ name: f.name, size: f.size, id: Math.random() }))
@@ -136,6 +134,36 @@ export default function RightPanel({ onFormReview, formData = {}, pulseUpload = 
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Eligible Carriers preview */}
+        {eligibleCarriersList.length > 0 && (
+          <div className="mb-4 rounded-2xl overflow-hidden" style={{ border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #F3F4F6' }}>
+            <div className="px-4 py-3" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : '#F9FAFB' }}>
+              <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#9CA3AF' }}>
+                Quoting With
+              </p>
+            </div>
+            <div className="px-4 py-3 space-y-2">
+              {eligibleCarriersList.map(c => (
+                <div key={c.id} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[12px] font-semibold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{c.program}</p>
+                    <p className="text-[10px] text-gray-400">{c.name}</p>
+                  </div>
+                  <span
+                    className="text-[9px] font-bold tracking-wide px-1.5 py-0.5 rounded"
+                    style={{
+                      background: c.type === 'Admitted' ? 'rgba(115,201,183,0.18)' : 'rgba(252,165,165,0.18)',
+                      color: c.type === 'Admitted' ? '#0D8B73' : '#B91C1C',
+                    }}
+                  >
+                    {c.type === 'Admitted' ? 'ADM' : 'E&S'}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

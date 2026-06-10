@@ -1,35 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import norbielinkLogo from '../assets/norbielink-logo.png'
 import btisLogo from '../assets/btislogo.png'
-import bananaImg from '../assets/banana.png'
 import jungleImg from '../assets/jungle.png'
 import norbieCircleImg from '../assets/norbie-circle-00.png'
+import { ALL_STATES, PROJECT_TYPES, PROJECT_TYPE_CONFIG, GAIC_APPROVED_STATES } from '../lib/projectTypeConfig'
 
-const ALL_STATES = [
-  'AL - Alabama','AK - Alaska','AZ - Arizona','AR - Arkansas','CA - California',
-  'CO - Colorado','CT - Connecticut','DE - Delaware','FL - Florida','GA - Georgia',
-  'HI - Hawaii','ID - Idaho','IL - Illinois','IN - Indiana','IA - Iowa',
-  'KS - Kansas','KY - Kentucky','LA - Louisiana','ME - Maine','MD - Maryland',
-  'MA - Massachusetts','MI - Michigan','MN - Minnesota','MS - Mississippi','MO - Missouri',
-  'MT - Montana','NE - Nebraska','NV - Nevada','NH - New Hampshire','NJ - New Jersey',
-  'NM - New Mexico','NY - New York','NC - North Carolina','ND - North Dakota','OH - Ohio',
-  'OK - Oklahoma','OR - Oregon','PA - Pennsylvania','RI - Rhode Island','SC - South Carolina',
-  'SD - South Dakota','TN - Tennessee','TX - Texas','UT - Utah','VT - Vermont',
-  'VA - Virginia','WA - Washington','WV - West Virginia','WI - Wisconsin','WY - Wyoming',
-]
+const STATE_OPTIONS = ALL_STATES.map((abbr) => abbr)
 
-const APPROVED_STATES = ['AZ - Arizona', 'CA - California', 'CO - Colorado', 'FL - Florida', 'GA - Georgia', 'PA - Pennsylvania', 'TX - Texas']
-
-const APPROVED_CATEGORIES = [
-  'Contractors',
-  'Food Trucks',
-  'Service Vehicles (locksmiths, dry cleaners, pest control, etc.)',
-  'Manufacturing, Wholesale, or Retail (without filings)',
-  'Restaurants (No Delivery)',
-  'Farming',
-]
-
-// Custom dropdown — no native <select>
+// Searchable dropdown (kept from commercial-auto's pattern)
 function Dropdown({ value, onChange, options, placeholder, searchable = false }) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -45,11 +23,8 @@ function Dropdown({ value, onChange, options, placeholder, searchable = false })
     ? options.filter(o => o.toLowerCase().includes(query.toLowerCase()))
     : options
 
-  const handleSelect = (opt) => { onChange(opt); setOpen(false); setQuery('') }
-
   return (
     <div ref={ref} className="relative w-full">
-      {/* Trigger */}
       <button
         type="button"
         onClick={() => setOpen(v => !v)}
@@ -71,45 +46,43 @@ function Dropdown({ value, onChange, options, placeholder, searchable = false })
         </svg>
       </button>
 
-      {/* Dropdown panel */}
       {open && (
         <div
-          className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl overflow-hidden"
-          style={{
-            background: 'white',
-            border: '1px solid #E5E7EB',
-            boxShadow: 'none',
-          }}
+          className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl overflow-hidden bg-white"
+          style={{ border: '1px solid #E5E7EB' }}
         >
-          {/* Options list */}
+          {searchable && (
+            <div className="px-3 py-2 border-b border-gray-100">
+              <input
+                autoFocus
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search…"
+                className="w-full text-sm px-2 py-1.5 rounded-md focus:outline-none"
+              />
+            </div>
+          )}
           <div className="overflow-y-auto" style={{ maxHeight: '220px' }}>
-            {options.length === 0
+            {filtered.length === 0
               ? <p className="text-sm text-gray-400 text-center py-4">No results</p>
-              : options.map(opt => {
+              : filtered.map(opt => {
                   const selected = opt === value
                   return (
                     <button
                       key={opt}
                       type="button"
-                      onClick={() => handleSelect(opt)}
+                      onClick={() => { onChange(opt); setOpen(false); setQuery('') }}
                       className="w-full text-left px-4 py-2.5 text-sm transition-all flex items-center justify-between gap-2"
                       style={{
                         background: selected ? 'linear-gradient(88.09deg, rgba(92,46,212,0.07) 0%, rgba(166,20,195,0.07) 100%)' : 'transparent',
                         color: selected ? '#A614C3' : '#374151',
                         fontWeight: selected ? 600 : 400,
                       }}
-                      onMouseEnter={e => { if (!selected) e.currentTarget.style.background = '#F9FAFB' }}
-                      onMouseLeave={e => { if (!selected) e.currentTarget.style.background = 'transparent' }}
                     >
                       <span>{opt}</span>
                       {selected && (
                         <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
-                          <path d="M5 13l4 4L19 7" stroke="url(#ddCheckG)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                          <defs>
-                            <linearGradient id="ddCheckG" x1="0%" y1="0%" x2="100%" y2="0%">
-                              <stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/>
-                            </linearGradient>
-                          </defs>
+                          <path d="M5 13l4 4L19 7" stroke="#A614C3" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       )}
                     </button>
@@ -123,33 +96,60 @@ function Dropdown({ value, onChange, options, placeholder, searchable = false })
   )
 }
 
+// Project type cards — 6 options that drive the entire flow
+const PROJECT_TYPE_CARDS = [
+  { id: PROJECT_TYPES.GROUND_UP,                 title: 'New Construction',         subtitle: 'Ground-up build, no existing structure',          icon: 'construction' },
+  { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING,  title: 'Remodel (No ES)',          subtitle: 'Renovation — covers new work only',               icon: 'remodel-no' },
+  { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,     title: 'Remodel (With ES)',        subtitle: 'Renovation — covers new work + existing building',icon: 'remodel-with' },
+  { id: PROJECT_TYPES.VACANT_DWELLING,           title: 'Vacant Dwelling',          subtitle: 'Currently vacant residential property',           icon: 'dwelling' },
+  { id: PROJECT_TYPES.VACANT_LAND,               title: 'Vacant Land',              subtitle: 'Undeveloped land (bridged to USLI)',              icon: 'land', external: true },
+  { id: PROJECT_TYPES.VACANT_COMMERCIAL,         title: 'Vacant Commercial',        subtitle: 'Vacant commercial building (bridged to USLI)',    icon: 'commercial', external: true },
+]
+
+function CardIcon({ icon }) {
+  // Lightweight inline SVG icons keyed by the project type
+  const stroke = 'url(#cardG)'
+  const grad = (
+    <defs>
+      <linearGradient id="cardG" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/>
+      </linearGradient>
+    </defs>
+  )
+  const paths = {
+    construction: <path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
+    'remodel-no': <path d="M3 21h18M5 21V11l5-3 5 3M14 21V8m0 0L19 5v16M9 21v-4h2v4" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
+    'remodel-with': <path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5M9 12h6M9 8h6" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
+    dwelling: <path d="M3 12L12 4l9 8M5 10v11h14V10M10 21v-5h4v5" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
+    land: <path d="M2 18l5-5 4 4 7-9 4 5M2 21h20" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
+    commercial: <path d="M3 21V7l9-3 9 3v14M3 21h18M8 12h2m4 0h2M8 16h2m4 0h2M8 8h2m4 0h2" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
+  }
+  return (
+    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24">
+      {grad}
+      {paths[icon] || paths.construction}
+    </svg>
+  )
+}
+
 export default function PageZero({ onStart }) {
   const [state, setState] = useState('')
-  const [riskCategory, setRiskCategory] = useState('')
-  const [declined, setDeclined] = useState(false)
+  const [projectType, setProjectType] = useState('')
 
-  const canCheck = state && riskCategory
+  const canCheck = state && projectType
+  const cfg = projectType ? PROJECT_TYPE_CONFIG[projectType] : null
 
-  const handleCheck = () => {
+  // GAIC programmed-states warning (BR flows only)
+  const showGAICWarning = cfg && cfg.carriers?.includes('gaic') && state && !GAIC_APPROVED_STATES.includes(state)
+  const willBridge = !!cfg?.bridgeToUSLI
+
+  const handleStart = () => {
     if (!canCheck) return
-    const approved = APPROVED_STATES.includes(state) && APPROVED_CATEGORIES.includes(riskCategory)
-    if (approved) {
-      onStart({ state, riskCategory })
-    } else {
-      setDeclined(true)
-    }
-  }
-
-  const handleReset = () => {
-    setState('')
-    setRiskCategory('')
-    setDeclined(false)
+    onStart({ state, projectType })
   }
 
   return (
     <div className="min-h-screen bg-white font-montserrat flex flex-col">
-
-      {/* Header */}
       <header className="flex items-center justify-between bg-white border-b border-gray-100 px-5 md:px-8 shrink-0" style={{ height: '56px' }}>
         <img src={norbielinkLogo} alt="NorbieLink" className="h-7 md:h-8" />
         <div className="flex items-center gap-1.5 md:gap-2">
@@ -158,119 +158,114 @@ export default function PageZero({ onStart }) {
         </div>
       </header>
 
-      {/* Body */}
       <div className="flex flex-1">
+        {/* Left — selection panel */}
+        <div className="flex-1 md:w-1/2 md:flex-none overflow-y-auto relative" style={{ borderRight: '1px solid #F3F4F6' }}>
+          <img src={jungleImg} alt="" className="md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style={{ opacity: 0.06 }}/>
 
-        {/* Left — form panel (full width on mobile, 50% on desktop) */}
-        <div className="flex-1 md:w-1/2 md:flex-none overflow-y-auto relative"
-          style={{ borderRight: '1px solid #F3F4F6' }}>
+          <div className="relative z-10 min-h-full flex flex-col justify-center py-10 px-6 md:px-[8%]">
+            <div className="w-full max-w-xl mx-auto">
 
-          {/* Mobile: subtle jungle bg behind form */}
-          <img
-            src={jungleImg} alt=""
-            className="md:hidden absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-            style={{ opacity: 0.06 }}
-          />
+              {/* Title */}
+              <div className="mb-7 md:mb-9">
+                <p className="text-xs md:text-sm font-bold tracking-widest uppercase text-gradient mb-2 md:mb-3">
+                  Builder's Risk Insurance
+                </p>
+                <h1 className="text-3xl md:text-4xl font-bold text-navy leading-tight mb-2 md:mb-3">
+                  Three Markets.<br />
+                  <span className="text-gradient">One Application.</span>
+                </h1>
+                <p className="text-sm md:text-base text-gray-500 leading-relaxed">
+                  Tell us about your project — we'll match it to the right carrier.
+                </p>
+              </div>
 
-          <div className="relative z-10 min-h-full flex flex-col justify-center items-center py-10 px-6 md:px-[10%]">
-            <div className="w-full max-w-xl">
+              {/* State dropdown */}
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-navy mb-2">Project State</label>
+                <Dropdown
+                  value={state}
+                  onChange={setState}
+                  options={STATE_OPTIONS}
+                  placeholder="Where is the project located?"
+                  searchable
+                />
+              </div>
 
-              {!declined ? (
-                <>
-                  {/* Title */}
-                  <div className="mb-8 md:mb-10">
-                    <p className="text-xs md:text-sm font-bold tracking-widest uppercase text-gradient mb-2 md:mb-3">
-                      Commercial Auto Insurance
-                    </p>
-                    <h1 className="text-3xl md:text-4xl font-bold text-navy leading-tight mb-2 md:mb-3">
-                      Get Multiple Quotes.<br />
-                      <span className="text-gradient">One Easy Application.</span>
-                    </h1>
-                    <p className="text-sm md:text-base text-gray-500 leading-relaxed">
-                      First, let's start with the basics...
-                    </p>
-                  </div>
+              {/* Project type cards */}
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-navy mb-2.5">Project Type</label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {PROJECT_TYPE_CARDS.map((card) => {
+                    const selected = card.id === projectType
+                    return (
+                      <button
+                        key={card.id}
+                        type="button"
+                        onClick={() => setProjectType(card.id)}
+                        className="text-left rounded-xl px-3 py-3 transition-all relative"
+                        style={{
+                          background: selected ? 'linear-gradient(135deg, rgba(92,46,212,0.06), rgba(166,20,195,0.06))' : 'white',
+                          border: selected ? '1.5px solid #A614C3' : '1.5px solid #E5E7EB',
+                          boxShadow: selected ? '0 4px 16px rgba(92,46,212,0.12)' : 'none',
+                        }}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <div className="shrink-0 mt-0.5"><CardIcon icon={card.icon}/></div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-[13px] font-bold leading-tight" style={{ color: selected ? '#5C2ED4' : '#1F1B47' }}>
+                                {card.title}
+                              </p>
+                              {card.external && (
+                                <span className="text-[8px] font-bold tracking-wide px-1.5 py-0.5 rounded" style={{ background: 'rgba(115,201,183,0.18)', color: '#0D8B73' }}>
+                                  USLI
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[10.5px] text-gray-400 mt-0.5 leading-snug">{card.subtitle}</p>
+                          </div>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
 
-                  <div className="space-y-4 md:space-y-5">
-                    {/* State dropdown */}
-                    <div>
-                      <label className="block text-sm font-semibold text-navy mb-2">Location of Vehicle</label>
-                      <Dropdown
-                        value={state}
-                        onChange={v => { setState(v); setDeclined(false) }}
-                        options={ALL_STATES}
-                        placeholder="Select which state the vehicle is located."
-                        searchable
-                      />
-                    </div>
-
-                    {/* Risk category dropdown */}
-                    <div>
-                      <label className="block text-sm font-semibold text-navy mb-2">Acceptable Risk Categories</label>
-                      <Dropdown
-                        value={riskCategory}
-                        onChange={v => { setRiskCategory(v); setDeclined(false) }}
-                        options={APPROVED_CATEGORIES}
-                        placeholder="Select from our accepted categories."
-                      />
-                    </div>
-
-                    {/* Check Appetite button */}
-                    <button
-                      onClick={handleCheck}
-                      disabled={!canCheck}
-                      className="w-full py-4 rounded-xl text-base font-bold text-white transition-all"
-                      style={canCheck
-                        ? { background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)', boxShadow: '0 4px 20px rgba(92,46,212,0.3)' }
-                        : { background: '#E5E7EB', color: '#9CA3AF', cursor: 'not-allowed' }
-                      }
-                    >
-                      Check Appetite
-                    </button>
-                  </div>
-
-                </>
-              ) : (
-                /* Decline message */
-                <div className="text-center py-6">
-                  {/* 4 🍌 4 */}
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <span className="font-black text-[#FCDF50] select-none" style={{ fontSize: '5rem', lineHeight: 1 }}>4</span>
-                    <img src={bananaImg} alt="banana" className="w-28 h-28 md:w-36 md:h-36 object-contain" />
-                    <span className="font-black text-[#FCDF50] select-none" style={{ fontSize: '5rem', lineHeight: 1 }}>4</span>
-                  </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-navy mb-2">
-                    Well banana...
-                  </h2>
-                  <p className="text-base text-gray-500 leading-relaxed mb-1">
-                    We don't have an appetite for that one.
-                  </p>
-                  <p className="text-sm text-gray-400 mb-7">
-                    {!APPROVED_STATES.includes(state)
-                      ? `We're not currently writing in ${state}.`
-                      : `That risk category isn't in our current appetite.`
-                    } Try a different selection.
-                  </p>
-                  <button
-                    onClick={handleReset}
-                    className="w-full py-4 rounded-xl text-base font-bold text-white transition-all hover:opacity-90"
-                    style={{ background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)', boxShadow: '0 4px 20px rgba(92,46,212,0.3)' }}
-                  >
-                    Try Again
-                  </button>
+              {/* GAIC programmed-states warning */}
+              {showGAICWarning && !willBridge && (
+                <div className="mb-4 px-3.5 py-2.5 rounded-xl text-[11px]" style={{ background: 'rgba(254,243,199,0.7)', border: '1px solid #FDE68A', color: '#92400E' }}>
+                  <span className="font-bold">Heads up: </span>
+                  Great American (OneShot) isn't programmed in <span className="font-semibold">{state}</span> yet. You'll still get a Navigators (B-Risk) quote.
                 </div>
               )}
 
+              {/* USLI bridge notice */}
+              {willBridge && (
+                <div className="mb-4 px-3.5 py-2.5 rounded-xl text-[11px]" style={{ background: 'rgba(219,234,254,0.6)', border: '1px solid #BFDBFE', color: '#1E40AF' }}>
+                  <span className="font-bold">This risk class is bridged to USLI.</span> We'll collect basic info and pass it to USLI's quote portal.
+                </div>
+              )}
+
+              {/* CTA */}
+              <button
+                onClick={handleStart}
+                disabled={!canCheck}
+                className="w-full py-3.5 rounded-xl text-base font-bold text-white transition-all"
+                style={canCheck
+                  ? { background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)', boxShadow: '0 4px 20px rgba(92,46,212,0.3)' }
+                  : { background: '#E5E7EB', color: '#9CA3AF', cursor: 'not-allowed' }
+                }
+              >
+                {willBridge ? 'Continue to USLI Bridge' : 'Start Application'}
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Right — illustration panel (desktop only) */}
-        <div className="hidden md:flex relative overflow-hidden shrink-0 items-center justify-center"
-          style={{ width: '50%', background: 'white' }}>
-          {/* Faded jungle bg */}
+        {/* Right — illustration panel */}
+        <div className="hidden md:flex relative overflow-hidden shrink-0 items-center justify-center" style={{ width: '50%', background: 'white' }}>
           <img src={jungleImg} alt="" className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none" style={{ opacity: 0.25 }} />
-          {/* Norbie circle image */}
           <img
             src={norbieCircleImg}
             alt="Norbie"
@@ -278,7 +273,6 @@ export default function PageZero({ onStart }) {
             style={{ width: '500px', height: '500px', objectFit: 'contain' }}
           />
         </div>
-
       </div>
     </div>
   )

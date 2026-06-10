@@ -7,34 +7,35 @@ const DARK_JUNGLE_OPACITY = 0.6    // jungle bg opacity in dark mode
 const DARK_BORDER_RIGHT   = '1px solid rgba(255,255,255,0.12)' // sidebar right border in dark mode
 // ────────────────────────────────────────────────────────────
 
-function getSectionCompletion(formData) {
+// Generic completion check: a section is "done" if its bucket in formData has at least 1 truthy field.
+// Each section page writes to a bucket keyed by its `key` (from projectTypeConfig SECTIONS).
+function getSectionCompletion(formData, steps) {
   const results = {}
-  const a = formData.applicant || {}
-  results[1] = !!(a.namedInsured && a.entity && a.effectiveDate && a.email && a.phone)
-  const vs = formData.vehicles?.vehicles || []
-  results[2] = vs.length > 0 && vs.every(v => v.year && v.make && v.model)
-  const ds = formData.drivers?.drivers || []
-  results[3] = ds.length > 0 && ds.every(d => d.firstName && d.lastName)
-  const e = formData.eligibility || {}
-  results[4] = Object.keys(e).length >= 7
-  const c = formData.coverage || {}
-  results[5] = !!(c.liabilityLimit)
-  results[6] = formData.additionalInsured?.hasAdditional !== undefined
-  results[7] = formData.lossPayee?.hasPayee !== undefined
-  results[8] = formData.priorHistory?.hasCurrent !== undefined
-  results[9] = formData.claims?.hasClaims !== undefined
-  results[10] = !!(formData.payment?.plan)
+  steps.forEach((step) => {
+    const bucket = formData[step.key]
+    if (!bucket) { results[step.id] = false; return }
+    const truthy = Object.values(bucket).some(v => v !== '' && v !== undefined && v !== null && v !== false)
+    results[step.id] = truthy
+  })
   return results
 }
 
-export default function Sidebar({ steps, activeStep, onStepClick, formData = {}, onCheckErrors, showSubmission, isDark, onToggleDark }) {
-  const completion = useMemo(() => getSectionCompletion(formData), [formData])
+// Generate a session-stable submission number (BR + 7 digits)
+let _cachedSubmissionId = null
+function getSubmissionId() {
+  if (_cachedSubmissionId) return _cachedSubmissionId
+  _cachedSubmissionId = 'BR' + Math.floor(1000000 + Math.random() * 9000000)
+  return _cachedSubmissionId
+}
+
+export default function Sidebar({ steps, activeStep, onStepClick, formData = {}, onCheckErrors, showSubmission, isDark, onToggleDark, flowTitle = "Builder's Risk" }) {
+  const completion = useMemo(() => getSectionCompletion(formData, steps), [formData, steps])
   const completedCount = Object.values(completion).filter(Boolean).length
   const totalCount = steps.length
-  const progressPct = Math.round((completedCount / totalCount) * 100)
+  const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
 
   const allSteps = showSubmission
-    ? [...steps, { id: 11, label: 'Submission', key: 'submission' }]
+    ? [...steps, { id: steps.length + 1, label: 'Submission', key: 'submission' }]
     : steps
 
   return (
@@ -48,8 +49,12 @@ export default function Sidebar({ steps, activeStep, onStepClick, formData = {},
 
       {/* Title */}
       <div className="px-5 pt-5 pb-3 relative z-10">
-        <h2 className="text-base font-bold leading-tight" style={{ color: isDark ? '#F9FAFB' : undefined }}>Commercial Auto</h2>
-        <p className="text-xs mt-0.5" style={{ color: isDark ? '#9CA3AF' : '#9CA3AF' }}>Submission Number: CA0094894</p>
+        <h2 className="text-base font-bold leading-tight" style={{ color: isDark ? '#F9FAFB' : undefined }}>{flowTitle}</h2>
+        <p className="text-xs mt-0.5" style={{ color: isDark ? '#9CA3AF' : '#9CA3AF' }}>Submission Number: {getSubmissionId()}</p>
+        <div className="mt-2 mb-1 h-1 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6' }}>
+          <div className="h-full rounded-full transition-all" style={{ width: `${progressPct}%`, background: 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)' }} />
+        </div>
+        <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{completedCount}/{totalCount} sections · {progressPct}% complete</p>
         <div className="mt-3" style={{ borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }} />
       </div>
 
@@ -57,8 +62,8 @@ export default function Sidebar({ steps, activeStep, onStepClick, formData = {},
       <nav className="flex-1 py-1 px-3 overflow-y-auto sidebar-nav relative z-10">
         {allSteps.map((step) => {
           const isActive = step.id === activeStep
-          const isDone = step.id <= 10 ? completion[step.id] : false
-          const isSubmissionStep = step.id === 11
+          const isSubmissionStep = step.id === steps.length + 1
+          const isDone = isSubmissionStep ? showSubmission : !!completion[step.id]
 
           return (
             <div key={step.id} className="relative mb-0.5">
