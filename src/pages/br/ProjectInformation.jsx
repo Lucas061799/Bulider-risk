@@ -45,8 +45,7 @@ export default function ProjectInformation({ formData, updateFormData, errorFiel
         <Input label="Specify duration" value={data.durationOther} onChange={set('durationOther')} className="max-w-xs" />
       )}
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Project Location</p>
+      <div className="pt-3">
         <AddressAutocomplete
           label="Street Address"
           required
@@ -66,8 +65,7 @@ export default function ProjectInformation({ formData, updateFormData, errorFiel
         </div>
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Project Details</p>
+      <div className="pt-3">
         <div className="space-y-5">
           <FormGrid>
             <Select label="Structure Type" required options={STRUCTURE_TYPES} value={data.structureType} onChange={set('structureType')} placeholder="Select…" />
@@ -96,7 +94,7 @@ export default function ProjectInformation({ formData, updateFormData, errorFiel
         </div>
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
+      <div className="pt-3">
         <Textarea
           label="Project Description (minimum 10 words)"
           required

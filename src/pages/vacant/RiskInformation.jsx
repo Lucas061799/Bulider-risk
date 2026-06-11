@@ -28,8 +28,7 @@ export default function VacRiskInformation({ formData, updateFormData }) {
         <Select label="Project Duration" options={DURATION_OPTIONS} value={data.duration} onChange={set('duration')} placeholder="Select…" />
       </FormGrid>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Property Characteristics</p>
+      <div className="pt-3">
         <div className="space-y-4">
           <FormGrid>
             <Select label="Construction Type" options={CONSTRUCTION_TYPES} value={data.constructionType} onChange={set('constructionType')} placeholder="Select…" />

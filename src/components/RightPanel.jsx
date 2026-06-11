@@ -1,5 +1,7 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { CARRIERS, eligibleCarriers, PROJECT_TYPE_CONFIG } from '../lib/projectTypeConfig'
+
+const BRAND_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)'
 
 // Generic completion: a bucket counts as "done" if it has any truthy value.
 function getSectionCompletion(formData, sectionKeys) {
@@ -12,7 +14,128 @@ function getSectionCompletion(formData, sectionKeys) {
   return results
 }
 
-export default function RightPanel({ onFormReview, formData = {}, pulseUpload = false, isDark = false, projectType, state }) {
+// Builder's Risk premium estimate. Same shape as GL-Bop's — a base figure,
+// then per-carrier multipliers. Real ratings will come from carrier APIs
+// later; for now this is a directional UX-only estimate.
+function estimatePremium(formData, projectType) {
+  const coverage = formData.coverage || {}
+  const vacValues = formData.vacValues || {}
+  const project = formData.project || formData.vacRisk || {}
+
+  const toNum = (v) => Number(String(v || '').replace(/[^0-9.]/g, '')) || 0
+
+  const cv =
+    toNum(coverage.completedValue) ||
+    toNum(coverage.remodelValue) ||
+    (toNum(coverage.newWorkValue) + toNum(coverage.existingValue)) ||
+    (toNum(vacValues.newWorkValue) + toNum(vacValues.existingValue))
+
+  if (cv <= 0) return 0
+
+  // Rate per $1k of insured value
+  const isVacant = projectType === 'vacant_dwelling'
+  const ratePer1k = isVacant ? 1.20 : 0.45
+
+  // Construction-type multiplier — fire resistive cheaper, frame more expensive
+  const ct = (project.constructionType || '').toLowerCase()
+  let ctMult = 1.0
+  if (ct.includes('fire')) ctMult = 0.85
+  else if (ct.includes('frame') || ct.includes('wood')) ctMult = 1.15
+  else if (ct.includes('masonry') || ct.includes('non-combust')) ctMult = 0.95
+  else if (ct.includes('steel')) ctMult = 0.90
+
+  // Duration multiplier
+  const dur = project.duration || ''
+  let durMult = 1.0
+  if (dur.includes('3')) durMult = 0.65
+  else if (dur.includes('6')) durMult = 0.85
+  else if (dur.includes('12')) durMult = 1.0
+
+  return Math.max((cv / 1000) * ratePer1k * ctMult * durMult, 300)
+}
+
+// Carrier per-program multiplier (illustrative)
+const CARRIER_MULTIPLIER = {
+  gaic: 1.00,
+  navigators: 1.08,
+  atrium: 0.95,
+}
+
+const money = (n) => '$' + Math.round(n).toLocaleString()
+
+function LoadingPriceTicker({ isDark = false }) {
+  return (
+    <div
+      className="shrink-0 relative flex items-center justify-center"
+      style={{ width: 24, height: 24 }}
+      title="Calculating quote…"
+      aria-label="Calculating quote"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="absolute inset-0 animate-spin" style={{ animationDuration: '1.1s' }}>
+        <defs>
+          <linearGradient id="rpSpinG" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/>
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="12" r="10" stroke={isDark ? 'rgba(255,255,255,0.10)' : '#E5E7EB'} strokeWidth="2"/>
+        <path d="M22 12a10 10 0 0 0-10-10" stroke="url(#rpSpinG)" strokeWidth="2" strokeLinecap="round"/>
+      </svg>
+      <span className="relative text-[11px] font-bold" style={{
+        background: BRAND_GRADIENT,
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+      }}>$</span>
+    </div>
+  )
+}
+
+function SkeletonRow({ isDark = false }) {
+  const skelClass = isDark ? 'skel-dark' : 'skel'
+  return (
+    <div
+      className="rounded-xl px-3 py-3 flex items-center gap-3"
+      style={{
+        background: isDark ? 'rgba(255,255,255,0.03)' : '#FAFAFB',
+        border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
+      }}
+    >
+      <div className={`${skelClass} w-9 h-9 rounded-xl shrink-0`} />
+      <div className="flex-1 flex items-center justify-between gap-2">
+        <div className={`${skelClass} h-3 rounded w-14`} />
+        <div className={`${skelClass} h-3 rounded w-12`} />
+      </div>
+      <style>{`
+        .skel { background: linear-gradient(90deg, #EEF2F7 0%, #F8FAFC 50%, #EEF2F7 100%); background-size: 200% 100%; animation: skelShimmer 1.4s ease-in-out infinite; }
+        .skel-dark { background: linear-gradient(90deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0.06) 100%); background-size: 200% 100%; animation: skelShimmer 1.4s ease-in-out infinite; }
+        @keyframes skelShimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+      `}</style>
+    </div>
+  )
+}
+
+// Small monogram chip used in place of a real carrier logo for now
+function CarrierMark({ name, size = 'sm' }) {
+  const dim = size === 'lg' ? 56 : 40
+  const initials = name.split(/[\s(]/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
+  return (
+    <div
+      className="rounded-xl flex items-center justify-center shrink-0 font-bold"
+      style={{
+        width: dim,
+        height: dim,
+        background: 'white',
+        border: '1px solid #E5E7EB',
+        fontSize: size === 'lg' ? 16 : 13,
+        color: '#5C2ED4',
+      }}
+    >
+      {initials}
+    </div>
+  )
+}
+
+export default function RightPanel({ onFormReview, formData = {}, isDark = false, projectType, state, inSubmission = false }) {
   const [files, setFiles] = useState([])
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef()
@@ -24,8 +147,36 @@ export default function RightPanel({ onFormReview, formData = {}, pulseUpload = 
   const completedCount = Object.values(completion).filter(Boolean).length
   const progressPct = Math.round((completedCount / totalCount) * 100)
 
-  const carrierIds = eligibleCarriers(projectType, (state || formData.applicant?.state || '').toUpperCase())
-  const eligibleCarriersList = carrierIds.map(id => Object.values(CARRIERS).find(c => c.id === id)).filter(Boolean)
+  // Eligible carriers for this risk × state combo
+  const carrierIds = useMemo(
+    () => eligibleCarriers(projectType, (state || formData.applicant?.state || '').toUpperCase()),
+    [projectType, state, formData.applicant?.state]
+  )
+
+  const base = useMemo(() => estimatePremium(formData, projectType), [formData, projectType])
+  const showPrices = base > 0
+  const readyToQuote = carrierIds.length > 0
+
+  // Sort cheapest-first; the hero card is the BEST price
+  const quotes = useMemo(() => {
+    return carrierIds
+      .map(id => Object.values(CARRIERS).find(c => c.id === id))
+      .filter(Boolean)
+      .map(c => ({ ...c, premium: base * (CARRIER_MULTIPLIER[c.id] || 1) }))
+      .sort((a, b) => a.premium - b.premium)
+  }, [carrierIds, base])
+
+  // Brief skeleton shimmer when carriers list flips from empty → ready,
+  // or when base premium first becomes available.
+  const [priming, setPriming] = useState(false)
+  useEffect(() => {
+    if (readyToQuote && showPrices) {
+      setPriming(true)
+      const t = setTimeout(() => setPriming(false), 900)
+      return () => clearTimeout(t)
+    }
+  }, [readyToQuote, showPrices])
+  const showSkeleton = !readyToQuote || priming
 
   const addFiles = (newFiles) => {
     const arr = Array.from(newFiles).map(f => ({ name: f.name, size: f.size, id: Math.random() }))
@@ -45,7 +196,9 @@ export default function RightPanel({ onFormReview, formData = {}, pulseUpload = 
       <div className="p-5 flex-1 overflow-y-auto sidebar-nav">
 
         {/* Title */}
-        <h2 className="text-lg font-bold mb-3" style={{ color: isDark ? '#F9FAFB' : undefined }}>Submission in Progress</h2>
+        <h2 className="text-lg font-bold mb-3" style={{ color: isDark ? '#F9FAFB' : undefined }}>
+          {inSubmission ? 'Submission Status' : 'Quote in Progress'}
+        </h2>
 
         {/* Auto-saved + % row */}
         <div className="flex items-center justify-between mb-2">
@@ -67,123 +220,178 @@ export default function RightPanel({ onFormReview, formData = {}, pulseUpload = 
 
         {/* Progress bar */}
         <div className="w-full h-1.5 rounded-full overflow-hidden mb-4" style={{ background: isDark ? 'rgba(255,255,255,0.08)' : '#F3F4F6' }}>
-          <div
-            className="h-full rounded-full transition-all duration-500"
-            style={{ width: `${progressPct}%`, background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)' }}
-          />
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progressPct}%`, background: BRAND_GRADIENT }} />
         </div>
 
         {/* Divider */}
         <div className="mb-5" style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#F3F4F6'}` }} />
 
-        {/* Upload & Save Time */}
-        <div className={`mb-4 rounded-2xl overflow-hidden transition-all ${pulseUpload ? 'upload-pulse' : ''}`} style={{ border: isDark ? '1px solid rgba(92,46,212,0.25)' : '1px solid #E5E7EB', background: isDark ? 'rgba(92,46,212,0.12)' : 'white' }}>
-          <div className="px-4 pt-4 pb-4">
-            <h3 className="text-base font-bold text-navy leading-tight mb-0.5">Upload & Save Time!</h3>
-            <div className="flex items-center gap-1.5 mb-3">
-              <p className="text-[11px] text-gray-500 font-medium whitespace-nowrap">Competitor quote or ACORD form?</p>
-              <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center shrink-0 text-white text-[8px] font-bold" style={{ background: '#73C9B7' }}>i</div>
-            </div>
-
-            {/* Drop zone wraps everything — dashed border = drag affordance */}
+        {/* ============================ Submission Status (after submit) ============================ */}
+        {inSubmission && (
+          <div className="mb-5">
+            {/* Submitted hero card */}
             <div
-              onDragOver={e => { e.preventDefault(); setDragging(true) }}
-              onDragLeave={() => setDragging(false)}
-              onDrop={e => { e.preventDefault(); setDragging(false); addFiles(e.dataTransfer.files) }}
-              className={`rounded-xl border-2 border-dashed transition-all px-3 pt-3 pb-3 ${dragging ? 'border-[#5C2ED4] bg-[#5C2ED4]/5' : 'border-[#A614C3]/25'}`}
+              className="rounded-2xl px-5 py-5 mb-4 flex flex-col items-center text-center"
+              style={{
+                background: isDark ? 'rgba(124,58,237,0.18)' : 'rgba(124,58,237,0.06)',
+                border: `1.5px solid ${isDark ? '#A78BFA' : '#7C3AED'}`,
+                boxShadow: '0 4px 20px rgba(92,46,212,0.10)',
+              }}
             >
-              <input ref={inputRef} type="file" multiple accept=".pdf,.jpg,.png" className="hidden" onChange={e => addFiles(e.target.files)} />
-
-              {/* Hint text above button */}
-              <p className="text-center text-[10px] text-gray-400 mb-2">
-                Drop a file or <span className="font-semibold text-gray-500">drag &amp; drop</span> · PDF, JPG, PNG · Max 10MB
-              </p>
-
-              {/* Upload button */}
-              <button
-                onClick={() => inputRef.current?.click()}
-                className="w-full py-2.5 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 active:scale-[0.98]"
-                style={{ background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)' }}
-              >
-                Upload Here
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Uploaded files list */}
-        {files.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {files.map(f => (
-              <div key={f.id} className="flex items-center justify-between rounded-xl px-3 py-2" style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'white', border: isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #F3F4F6' }}>
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 border border-gray-200 rounded-lg flex items-center justify-center shrink-0">
-                    <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-semibold text-gray-700 truncate max-w-[120px]">{f.name}</p>
-                    <p className="text-[9px] text-gray-400">{formatSize(f.size)}</p>
-                  </div>
-                </div>
-                <button onClick={e => { e.stopPropagation(); removeFile(f.id) }}>
-                  <svg className="w-3.5 h-3.5 text-red-400 hover:text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2" style={{ background: 'linear-gradient(135deg, rgba(115,201,183,0.22), rgba(92,46,212,0.10))' }}>
+                <svg className="w-6 h-6" fill="none" stroke="#0D8B73" strokeWidth="2.4" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
               </div>
-            ))}
+              <p className="text-[11px] font-bold tracking-widest uppercase" style={{
+                background: BRAND_GRADIENT,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                Application Submitted
+              </p>
+              <p className="text-[13px] font-semibold mt-1" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>
+                Awaiting carrier selection
+              </p>
+            </div>
+
+            {/* Next steps */}
+            <div className="mb-2">
+              <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: '#9CA3AF' }}>
+                Next Steps
+              </p>
+              <div className="space-y-4">
+                {[
+                  { n: 1, label: 'Select a carrier', done: false, active: true },
+                  { n: 2, label: 'Firm quote returns', done: false, active: false },
+                  { n: 3, label: 'Bind & issue', done: false, active: false },
+                ].map(step => (
+                  <div key={step.n} className="flex items-center gap-3">
+                    <span
+                      className="w-8 h-8 rounded-full text-[12px] font-bold flex items-center justify-center shrink-0"
+                      style={{
+                        background: 'linear-gradient(88.09deg, rgba(92,46,212,0.18) 0%, rgba(166,20,195,0.18) 100%)',
+                        ...(step.active ? { boxShadow: '0 0 0 3px rgba(124,58,237,0.14)' } : {}),
+                        opacity: step.active ? 1 : 0.55,
+                      }}
+                    >
+                      <span style={{
+                        background: BRAND_GRADIENT,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}>{step.n}</span>
+                    </span>
+                    <span
+                      className="text-[13px]"
+                      style={{
+                        fontWeight: step.active ? 700 : 500,
+                        color: step.active ? (isDark ? '#F9FAFB' : '#111827') : '#9CA3AF',
+                      }}
+                    >
+                      {step.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Eligible Carriers preview */}
-        {eligibleCarriersList.length > 0 && (
-          <div className="mb-4 rounded-2xl overflow-hidden" style={{ border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #F3F4F6' }}>
-            <div className="px-4 py-3" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : '#F9FAFB' }}>
-              <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#9CA3AF' }}>
-                Quoting With
-              </p>
+        {/* ============================ Live Quotes (pre-submission) ============================ */}
+        {!inSubmission && (
+        <div className="mb-5">
+          {/* Hero best-price card */}
+          {showSkeleton ? (
+            <div
+              className="rounded-2xl px-5 py-6 mb-3 flex flex-col items-center gap-3"
+              style={{
+                background: isDark ? 'rgba(255,255,255,0.03)' : '#FAFAFB',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
+              }}
+            >
+              <div className={`${isDark ? 'skel-dark' : 'skel'} w-14 h-14 rounded-xl`} />
+              <div className={`${isDark ? 'skel-dark' : 'skel'} h-8 w-32 rounded`} />
+              <div className={`${isDark ? 'skel-dark' : 'skel'} h-3 w-20 rounded`} />
             </div>
-            <div className="px-4 py-3 space-y-2">
-              {eligibleCarriersList.map(c => (
-                <div key={c.id} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[12px] font-semibold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{c.program}</p>
-                    <p className="text-[10px] text-gray-400">{c.name}</p>
-                  </div>
-                  <span
-                    className="text-[9px] font-bold tracking-wide px-1.5 py-0.5 rounded"
-                    style={{
-                      background: c.type === 'Admitted' ? 'rgba(115,201,183,0.18)' : 'rgba(252,165,165,0.18)',
-                      color: c.type === 'Admitted' ? '#0D8B73' : '#B91C1C',
-                    }}
-                  >
-                    {c.type === 'Admitted' ? 'ADM' : 'E&S'}
+          ) : showPrices ? (() => {
+            const top = quotes[0]
+            return (
+              <div
+                className="w-full rounded-2xl px-5 py-5 mb-3 flex flex-col items-center text-center relative overflow-hidden"
+                style={{
+                  background: 'white',
+                  border: '1.5px solid #7C3AED',
+                  boxShadow: '0 4px 20px rgba(92,46,212,0.10)',
+                }}
+              >
+                <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider text-white" style={{ background: BRAND_GRADIENT }}>
+                  BEST
+                </div>
+                <CarrierMark name={top.name} size="lg" />
+                <div className="mt-3">
+                  <span className="text-3xl font-bold" style={{
+                    background: BRAND_GRADIENT,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}>
+                    {money(top.premium)}
                   </span>
                 </div>
-              ))}
-            </div>
+                <p className="text-[12px] font-semibold mt-1" style={{ color: isDark ? '#F9FAFB' : '#1F2937' }}>
+                  {top.program}
+                </p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{top.name}</p>
+                <p className="text-[10px] text-gray-400 mt-2">Estimated Premium</p>
+              </div>
+            )
+          })() : (
+            <p className="text-[11px] text-gray-400 mb-3 leading-snug">
+              {readyToQuote
+                ? 'Enter completed value to see live estimates.'
+                : 'Select a project type and state to see live estimates.'}
+            </p>
+          )}
+
+          {/* Remaining carriers list */}
+          <div className="space-y-2">
+            {showSkeleton
+              ? Array.from({ length: 2 }).map((_, i) => <SkeletonRow key={i} isDark={isDark} />)
+              : (showPrices ? quotes.slice(1) : quotes).map(q => (
+                  <div
+                    key={q.id}
+                    className="w-full rounded-xl px-3 py-3 flex items-center gap-3"
+                    style={{
+                      background: isDark ? 'rgba(255,255,255,0.04)' : 'white',
+                      border: `1.5px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}`,
+                    }}
+                  >
+                    <CarrierMark name={q.name} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold truncate" style={{ color: isDark ? '#F9FAFB' : '#374151' }}>
+                        {q.program}
+                      </p>
+                      <p className="text-[10px] text-gray-400 truncate">{q.name}</p>
+                    </div>
+                    {showPrices ? (
+                      <div className="text-right shrink-0">
+                        <div className="text-sm font-bold leading-tight" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>
+                          {money(q.premium)}
+                        </div>
+                        <div className="text-[9px] text-gray-400">per term</div>
+                      </div>
+                    ) : (
+                      <LoadingPriceTicker isDark={isDark} />
+                    )}
+                  </div>
+                ))
+            }
           </div>
+        </div>
         )}
 
-        {/* Form Review button */}
-        <button
-          onClick={onFormReview}
-          className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition"
-          style={{
-            color: isDark ? '#D8B4FE' : '#A614C3',
-            border: isDark ? '1px solid rgba(216,180,254,0.35)' : '1px solid rgba(166,20,195,0.3)',
-            background: isDark ? 'rgba(167,139,250,0.08)' : 'white',
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(167,139,250,0.15)' : 'rgba(166,20,195,0.06)'}
-          onMouseLeave={e => e.currentTarget.style.background = isDark ? 'rgba(167,139,250,0.08)' : 'white'}
-        >
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          Form Review
-        </button>
 
       </div>
     </aside>

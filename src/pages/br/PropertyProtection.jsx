@@ -25,15 +25,13 @@ export default function PropertyProtection({ formData, updateFormData }) {
       </div>
 
       <div>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Fire Distance</p>
         <FormGrid>
           <Input label="Distance to Nearest Fire Hydrant" value={data.fireHydrantDistance} onChange={set('fireHydrantDistance')} placeholder="ft / mi (Google API)" />
           <Input label="Distance to Nearest Fire Station" value={data.fireStationDistance} onChange={set('fireStationDistance')} placeholder="mi (Google API)" />
         </FormGrid>
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Jobsite Security (check all that apply)</p>
+      <div className="pt-3">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {SECURITY_OPTIONS.map(opt => (
             <Checkbox key={opt} label={opt} checked={security.includes(opt)} onChange={() => toggleSecurity(opt)} />
@@ -44,7 +42,7 @@ export default function PropertyProtection({ formData, updateFormData }) {
         )}
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
+      <div className="pt-3">
         <RadioGroup
           label="Is there an active wildfire within 50 miles?"
           options={['Yes', 'No']}

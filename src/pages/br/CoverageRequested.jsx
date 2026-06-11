@@ -37,7 +37,6 @@ export default function CoverageRequested({ formData, updateFormData, projectTyp
   return (
     <div className="w-full space-y-5">
       <div>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Project Value</p>
 
         {mode === 'completed_value' && (
           <MoneyInput label="Completed Value (excluding land)" required value={data.completedValue} onChange={set('completedValue')} />
@@ -79,8 +78,7 @@ export default function CoverageRequested({ formData, updateFormData, projectTyp
         )}
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Optional Coverages</p>
+      <div className="pt-3">
         <div className="space-y-5">
           <FormGrid>
             <Select label="Temporary Storage" options={LIMIT_OPTIONS} value={data.tempStorage} onChange={set('tempStorage')} placeholder="Select…" />
@@ -93,9 +91,8 @@ export default function CoverageRequested({ formData, updateFormData, projectTyp
         </div>
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
+      <div className="pt-3">
         <div className="flex items-center gap-2 mb-3">
-          <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Liability Selection</p>
           <InfoButton title="General Liability vs Premises Liability">
             <GLvsPremisesInfo />
           </InfoButton>

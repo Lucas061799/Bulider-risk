@@ -50,7 +50,7 @@ export default function VacConditionalContractor({ formData, updateFormData }) {
             </>
           )}
 
-          <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
+          <div className="pt-3">
             <RadioGroup
               label="Are load-bearing members of the existing structure being modified, removed, or added?"
               options={['Yes', 'No']}

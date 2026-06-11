@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { HardHat, Paintbrush, Hammer, Home, Trees, Building2 } from 'lucide-react'
 import norbielinkLogo from '../assets/norbielink-logo.png'
 import btisLogo from '../assets/btislogo.png'
 import jungleImg from '../assets/jungle.png'
@@ -96,39 +97,73 @@ function Dropdown({ value, onChange, options, placeholder, searchable = false })
   )
 }
 
-// Project type cards — 6 options that drive the entire flow
-const PROJECT_TYPE_CARDS = [
-  { id: PROJECT_TYPES.GROUND_UP,                 title: 'New Construction',         subtitle: 'Ground-up build, no existing structure',          icon: 'construction' },
-  { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING,  title: 'Remodel (No ES)',          subtitle: 'Renovation — covers new work only',               icon: 'remodel-no' },
-  { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,     title: 'Remodel (With ES)',        subtitle: 'Renovation — covers new work + existing building',icon: 'remodel-with' },
-  { id: PROJECT_TYPES.VACANT_DWELLING,           title: 'Vacant Dwelling',          subtitle: 'Currently vacant residential property',           icon: 'dwelling' },
-  { id: PROJECT_TYPES.VACANT_LAND,               title: 'Vacant Land',              subtitle: 'Undeveloped land (bridged to USLI)',              icon: 'land', external: true },
-  { id: PROJECT_TYPES.VACANT_COMMERCIAL,         title: 'Vacant Commercial',        subtitle: 'Vacant commercial building (bridged to USLI)',    icon: 'commercial', external: true },
+// Project type rows grouped by underwriting flow. The first group goes through
+// the full BR marketplace (GAIC/Navigators/Atrium). The Vacant Land + Vacant
+// Commercial options bridge straight to USLI; Vacant Dwelling is its own
+// Atrium flow but visually lives with the other Vacant options.
+const PROJECT_TYPE_GROUPS = [
+  {
+    label: 'Construction & Renovation',
+    hint: 'Builder’s Risk marketplace',
+    items: [
+      { id: PROJECT_TYPES.GROUND_UP,                title: 'New Construction',   subtitle: 'Ground-up build, no existing structure',  icon: 'construction' },
+      { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, title: 'Remodel (No ES)',    subtitle: 'Renovation — covers new work only',   icon: 'remodel-no' },
+      { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,    title: 'Remodel (With ES)',  subtitle: 'Renovation — covers new + existing', icon: 'remodel-with' },
+    ],
+  },
+  {
+    label: 'Vacant Property',
+    hint: 'Atrium + USLI partners',
+    items: [
+      { id: PROJECT_TYPES.VACANT_DWELLING,   title: 'Vacant Dwelling',  subtitle: 'Currently vacant residential property', icon: 'dwelling' },
+      { id: PROJECT_TYPES.VACANT_LAND,       title: 'Vacant Land',      subtitle: 'Undeveloped land',                      icon: 'land',       external: true },
+      { id: PROJECT_TYPES.VACANT_COMMERCIAL, title: 'Vacant Commercial',subtitle: 'Vacant commercial building',            icon: 'commercial', external: true },
+    ],
+  },
 ]
 
-function CardIcon({ icon }) {
-  // Lightweight inline SVG icons keyed by the project type
-  const stroke = 'url(#cardG)'
-  const grad = (
-    <defs>
-      <linearGradient id="cardG" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/>
-      </linearGradient>
-    </defs>
-  )
-  const paths = {
-    construction: <path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
-    'remodel-no': <path d="M3 21h18M5 21V11l5-3 5 3M14 21V8m0 0L19 5v16M9 21v-4h2v4" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
-    'remodel-with': <path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5M9 12h6M9 8h6" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
-    dwelling: <path d="M3 12L12 4l9 8M5 10v11h14V10M10 21v-5h4v5" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
-    land: <path d="M2 18l5-5 4 4 7-9 4 5M2 21h20" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
-    commercial: <path d="M3 21V7l9-3 9 3v14M3 21h18M8 12h2m4 0h2M8 16h2m4 0h2M8 8h2m4 0h2" stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>,
+// Icons from lucide-react — same family as shadcn/ui, Tailwind UI, etc.
+// Wrapper adds the soft-purple rounded-square chip behind each.
+const ICON_MAP = {
+  construction:    HardHat,    // Ground-up new build
+  'remodel-no':    Paintbrush, // Renovation, no existing structure
+  'remodel-with':  Hammer,     // Renovation incl. existing structure
+  dwelling:        Home,       // Vacant residential dwelling
+  land:            Trees,          // Undeveloped land
+  commercial:      Building2,  // Vacant commercial building
+}
+
+// Maps a project type to a short carrier-route hint shown on the card footer.
+function getCarrierHint(id) {
+  switch (id) {
+    case PROJECT_TYPES.GROUND_UP:
+    case PROJECT_TYPES.REMODEL_WITHOUT_EXISTING:
+    case PROJECT_TYPES.REMODEL_WITH_EXISTING:
+      return 'GAIC · Navigators'
+    case PROJECT_TYPES.VACANT_DWELLING:
+      return 'Atrium (Lloyd’s)'
+    case PROJECT_TYPES.VACANT_LAND:
+    case PROJECT_TYPES.VACANT_COMMERCIAL:
+      return 'Bridged to USLI'
+    default:
+      return ''
   }
+}
+
+function CardIcon({ icon, selected = false }) {
+  const Lucide = ICON_MAP[icon] || HardHat
   return (
-    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24">
-      {grad}
-      {paths[icon] || paths.construction}
-    </svg>
+    <span
+      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all"
+      style={{
+        background: selected
+          ? 'linear-gradient(135deg, #5C2ED4 0%, #A614C3 100%)'
+          : 'linear-gradient(135deg, rgba(92,46,212,0.10), rgba(166,20,195,0.07))',
+        boxShadow: selected ? '0 4px 12px rgba(92,46,212,0.25)' : 'none',
+      }}
+    >
+      <Lucide size={20} strokeWidth={1.8} color={selected ? '#FFFFFF' : '#5C2ED4'}/>
+    </span>
   )
 }
 
@@ -169,61 +204,75 @@ export default function PageZero({ onStart }) {
               {/* Title */}
               <div className="mb-7 md:mb-9">
                 <p className="text-xs md:text-sm font-bold tracking-widest uppercase text-gradient mb-2 md:mb-3">
-                  Builder's Risk Insurance
+                  Builder's Risk Marketplace
                 </p>
                 <h1 className="text-3xl md:text-4xl font-bold text-navy leading-tight mb-2 md:mb-3">
-                  Three Markets.<br />
-                  <span className="text-gradient">One Application.</span>
+                  Get Multiple Quotes.<br />
+                  <span className="text-gradient">One Easy Application.</span>
                 </h1>
                 <p className="text-sm md:text-base text-gray-500 leading-relaxed">
-                  Tell us about your project — we'll match it to the right carrier.
+                  Tell us about your business — we'll match it to the right carrier.
                 </p>
               </div>
 
-              {/* State dropdown */}
+              {/* Project type — compact horizontal cards */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-navy mb-2">Project State</label>
-                <Dropdown
-                  value={state}
-                  onChange={setState}
-                  options={STATE_OPTIONS}
-                  placeholder="Where is the project located?"
-                  searchable
-                />
-              </div>
-
-              {/* Project type cards */}
-              <div className="mb-5">
-                <label className="block text-sm font-semibold text-navy mb-2.5">Project Type</label>
-                <div className="grid grid-cols-2 gap-2.5">
-                  {PROJECT_TYPE_CARDS.map((card) => {
+                <label className="block text-sm font-semibold text-navy mb-2.5">Business Type</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {PROJECT_TYPE_GROUPS.flatMap(g => g.items).map((card) => {
                     const selected = card.id === projectType
                     return (
                       <button
                         key={card.id}
                         type="button"
                         onClick={() => setProjectType(card.id)}
-                        className="text-left rounded-xl px-3 py-3 transition-all relative"
+                        className="text-left rounded-xl transition-all relative px-3 py-2.5"
                         style={{
-                          background: selected ? 'linear-gradient(135deg, rgba(92,46,212,0.06), rgba(166,20,195,0.06))' : 'white',
-                          border: selected ? '1.5px solid #A614C3' : '1.5px solid #E5E7EB',
-                          boxShadow: selected ? '0 4px 16px rgba(92,46,212,0.12)' : 'none',
+                          background: selected
+                            ? 'linear-gradient(135deg, rgba(92,46,212,0.05) 0%, rgba(166,20,195,0.03) 100%)'
+                            : 'white',
+                          boxShadow: selected
+                            ? '0 0 0 1.5px #A614C3, 0 4px 14px rgba(92,46,212,0.12)'
+                            : '0 0 0 1px #EAECEF',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!selected) e.currentTarget.style.boxShadow = '0 0 0 1px #C9BFE0, 0 3px 10px rgba(92,46,212,0.06)'
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!selected) e.currentTarget.style.boxShadow = '0 0 0 1px #EAECEF'
                         }}
                       >
-                        <div className="flex items-start gap-2.5">
-                          <div className="shrink-0 mt-0.5"><CardIcon icon={card.icon}/></div>
+                        {/* Top-right selected check */}
+                        {selected && (
+                          <span
+                            className="absolute top-2 right-2 w-[15px] h-[15px] rounded-full flex items-center justify-center"
+                            style={{ background: 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)', boxShadow: '0 1.5px 6px rgba(92,46,212,0.3)' }}
+                          >
+                            <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
+                              <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          </span>
+                        )}
+
+                        <div className="flex items-center gap-2.5">
+                          <CardIcon icon={card.icon} selected={selected} />
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5">
-                              <p className="text-[13px] font-bold leading-tight" style={{ color: selected ? '#5C2ED4' : '#1F1B47' }}>
+                            <div className="flex items-center gap-1 flex-wrap">
+                              <p className="text-[12.5px] font-bold leading-tight" style={{ color: selected ? '#5C2ED4' : '#1F1B47' }}>
                                 {card.title}
                               </p>
                               {card.external && (
-                                <span className="text-[8px] font-bold tracking-wide px-1.5 py-0.5 rounded" style={{ background: 'rgba(115,201,183,0.18)', color: '#0D8B73' }}>
+                                <span
+                                  className="text-[8px] font-bold px-1.5 py-0.5 rounded shrink-0"
+                                  style={{ background: 'rgba(115,201,183,0.18)', color: '#0D8B73', letterSpacing: '0.04em' }}
+                                >
                                   USLI
                                 </span>
                               )}
                             </div>
-                            <p className="text-[10.5px] text-gray-400 mt-0.5 leading-snug">{card.subtitle}</p>
+                            <p className="text-[10px] leading-snug mt-0.5" style={{ color: '#9CA3AF' }}>
+                              {card.subtitle}
+                            </p>
                           </div>
                         </div>
                       </button>
@@ -232,17 +281,34 @@ export default function PageZero({ onStart }) {
                 </div>
               </div>
 
-              {/* GAIC programmed-states warning */}
+              {/* State dropdown */}
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-navy mb-2">Location of Business</label>
+                <Dropdown
+                  value={state}
+                  onChange={setState}
+                  options={STATE_OPTIONS}
+                  placeholder="Select which state the business is located."
+                  searchable
+                />
+              </div>
+
+              {/* GAIC programmed-states notice */}
               {showGAICWarning && !willBridge && (
-                <div className="mb-4 px-3.5 py-2.5 rounded-xl text-[11px]" style={{ background: 'rgba(254,243,199,0.7)', border: '1px solid #FDE68A', color: '#92400E' }}>
-                  <span className="font-bold">Heads up: </span>
-                  Great American (OneShot) isn't programmed in <span className="font-semibold">{state}</span> yet. You'll still get a Navigators (B-Risk) quote.
+                <div className="mb-4 flex items-start gap-2 px-3.5 py-2.5 rounded-xl" style={{ background: 'rgba(92,46,212,0.06)', border: '1px solid rgba(92,46,212,0.12)' }}>
+                  <svg className="w-3.5 h-3.5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24">
+                    <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="url(#noticeG)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <defs><linearGradient id="noticeG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/></linearGradient></defs>
+                  </svg>
+                  <p className="text-[11px] leading-relaxed" style={{ color: '#5C2ED4' }}>
+                    Great American (OneShot) isn't programmed in <span className="font-semibold">{state}</span> yet. You'll still get a Navigators (B-Risk) quote.
+                  </p>
                 </div>
               )}
 
               {/* USLI bridge notice */}
               {willBridge && (
-                <div className="mb-4 px-3.5 py-2.5 rounded-xl text-[11px]" style={{ background: 'rgba(219,234,254,0.6)', border: '1px solid #BFDBFE', color: '#1E40AF' }}>
+                <div className="mb-4 px-3.5 py-2.5 rounded-xl text-[11px]" style={{ background: 'linear-gradient(135deg, rgba(92,46,212,0.06), rgba(166,20,195,0.06))', border: '1px solid rgba(166,20,195,0.25)', color: '#5C2ED4' }}>
                   <span className="font-bold">This risk class is bridged to USLI.</span> We'll collect basic info and pass it to USLI's quote portal.
                 </div>
               )}

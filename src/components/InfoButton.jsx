@@ -24,18 +24,17 @@ export default function InfoButton({ title, children, size = 'sm', label }) {
     return () => document.removeEventListener('mousedown', handler)
   }, [open])
 
-  const dim = size === 'xs' ? 'w-3.5 h-3.5 text-[8px]' : 'w-4 h-4 text-[9px]'
+  const dim = size === 'xs' ? 'w-3.5 h-3.5 text-[8px]' : 'w-4 h-4 text-[10px]'
 
   return (
     <span className="relative inline-flex items-center" ref={btnRef}>
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(v => !v) }}
-        className={`${dim} rounded-full flex items-center justify-center font-bold text-white shrink-0 transition-all`}
+        className={`${dim} rounded-full flex items-center justify-center font-bold text-white shrink-0 transition-all hover:scale-110`}
         style={{
-          background: open
-            ? 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
-            : '#73C9B7',
+          background: 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)',
+          boxShadow: open ? '0 2px 8px rgba(92,46,212,0.4)' : '0 1px 3px rgba(92,46,212,0.25)',
         }}
         title={typeof title === 'string' ? title : undefined}
         aria-label={`More info: ${typeof title === 'string' ? title : 'details'}`}

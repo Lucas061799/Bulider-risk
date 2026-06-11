@@ -29,7 +29,7 @@ export default function ExistingStructure({ formData, updateFormData }) {
         />
       </FormGrid>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
+      <div className="pt-3">
         <RadioGroup
           label="Are load-bearing members of the existing structure being modified, removed, or added?"
           options={['Yes', 'No']}
@@ -71,10 +71,7 @@ export default function ExistingStructure({ formData, updateFormData }) {
         </div>
       )}
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">
-          System Upgrades — Last Update Year
-        </p>
+      <div className="pt-3">
         <FormGrid cols={2}>
           <Input label="Roofing" value={data.roofingYear} onChange={set('roofingYear')} placeholder="YYYY" />
           <Input label="Heating" value={data.heatingYear} onChange={set('heatingYear')} placeholder="YYYY" />

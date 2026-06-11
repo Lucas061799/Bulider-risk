@@ -45,8 +45,7 @@ export default function ApplicantInformation({ formData, updateFormData, errorFi
           <Input label="Zip" value={data.zip} onChange={set('zip')} placeholder="00000" />
         </FormGrid>
 
-        <div className="pt-3 mt-2" style={{ borderTop: '1px dashed #E5E7EB' }}>
-          <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Inspection Contact</p>
+        <div className="pt-3 mt-2">
           <FormGrid cols={3}>
             <Input label="Contact Name" value={data.inspContactName} onChange={set('inspContactName')} />
             <Input label="Phone" required type="tel" value={data.phone} onChange={set('phone')} placeholder="(555) 000-0000" error={hasError('phone')} />
@@ -54,8 +53,7 @@ export default function ApplicantInformation({ formData, updateFormData, errorFi
           </FormGrid>
         </div>
 
-        <div className="pt-3 mt-2" style={{ borderTop: '1px dashed #E5E7EB' }}>
-          <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Business Information</p>
+        <div className="pt-3 mt-2">
           <FormGrid>
             <Select label="Business Type" required options={BUSINESS_TYPES} value={data.businessType} onChange={set('businessType')} placeholder="Select…" />
             <Select label="Entity Role" required options={ENTITY_ROLES} value={data.entityRole} onChange={set('entityRole')} placeholder="Select…" />

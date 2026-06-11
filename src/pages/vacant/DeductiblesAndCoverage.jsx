@@ -11,15 +11,13 @@ export default function VacDeductiblesAndCoverage({ formData, updateFormData }) 
   return (
     <div className="w-full space-y-5">
       <div>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Deductibles</p>
         <FormGrid>
           <Select label="Wind & Hail (per occurrence)" options={WIND_HAIL_OPTIONS} value={data.windHail} onChange={set('windHail')} placeholder="Select…" />
           <Select label="All Other Perils" options={AOP_OPTIONS} value={data.aop} onChange={set('aop')} placeholder="Select…" />
         </FormGrid>
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Coverage Options</p>
+      <div className="pt-3">
 
         <div className="flex items-start gap-2 mb-4">
           <div className="flex-1">

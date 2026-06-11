@@ -6,6 +6,7 @@ import btisLogoDark from './assets/btislogo-dark.png'
 import Sidebar from './components/Sidebar'
 import RightPanel from './components/RightPanel'
 import PageZero from './pages/PageZero'
+import Compare from './pages/Compare'
 import Submission from './pages/Submission'
 import USLIBridge from './pages/USLIBridge'
 
@@ -85,8 +86,11 @@ function App() {
 
   const [formData, setFormData] = useState({})
   const [activeStep, setActiveStep] = useState(1)
-  const [submitted, setSubmitted] = useState(pageParam === 'submission')
-  const [pageZeroDone, setPageZeroDone] = useState(pageParam === 'main' || pageParam === 'submission')
+  // Flow stages: form → inCompare (Get My Quotes) → bound (Select carrier)
+  const [inCompare, setInCompare] = useState(pageParam === 'compare' || pageParam === 'submission')
+  const [bound, setBound] = useState(pageParam === 'submission')
+  const [boundCarrier, setBoundCarrier] = useState(null)
+  const [pageZeroDone, setPageZeroDone] = useState(['main', 'compare', 'submission'].includes(pageParam))
   const [projectType, setProjectType] = useState(typeParam || (pageParam ? 'ground_up' : ''))
   const [state, setState] = useState('')
   const [darkMode, setDarkMode] = useState(false)
@@ -111,7 +115,7 @@ function App() {
 
   const goToStep = useCallback((stepId) => {
     if (stepId === STEPS.length + 1) {
-      setSubmitted(true)
+      setInCompare(true)
       return
     }
     const el = sectionRefs.current[stepId]
@@ -188,13 +192,30 @@ function App() {
     )
   }
 
-  if (submitted) {
+  // Stage 3: bound → final "Submission Complete" page with the selected carrier
+  if (bound) {
     return (
       <Submission
         formData={formData}
         projectType={projectType}
         state={state}
-        onBack={() => setSubmitted(false)}
+        boundCarrier={boundCarrier}
+        onBack={() => { setBound(false); setInCompare(false); setBoundCarrier(null) }}
+        isDark={darkMode}
+        onToggleDark={() => setDarkMode(d => !d)}
+      />
+    )
+  }
+
+  // Stage 2: inCompare → carrier comparison page; Select on a card triggers bind
+  if (inCompare) {
+    return (
+      <Compare
+        formData={formData}
+        projectType={projectType}
+        state={state}
+        onBack={() => setInCompare(false)}
+        onBind={(carrier) => { setBoundCarrier(carrier); setBound(true) }}
         isDark={darkMode}
         onToggleDark={() => setDarkMode(d => !d)}
       />
@@ -223,7 +244,14 @@ function App() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16"/>
             </svg>
           </button>
-          <img src={darkMode ? norbielinkLogoDark : norbielinkLogo} alt="NorbieLink" className="h-8" />
+          <button
+            type="button"
+            onClick={() => { setPageZeroDone(false); setProjectType(''); setInCompare(false); setBound(false); setBoundCarrier(null); setActiveStep(1) }}
+            className="focus:outline-none"
+            title="Back to start"
+          >
+            <img src={darkMode ? norbielinkLogoDark : norbielinkLogo} alt="NorbieLink" className="h-8" />
+          </button>
         </div>
         <div className="flex items-center gap-2 px-8">
           <span className="text-xs text-gray-400 tracking-wide">POWERED BY</span>
@@ -247,7 +275,8 @@ function App() {
             onStepClick={(id) => { goToStep(id); setMobileSidebarOpen(false) }}
             formData={formData}
             onCheckErrors={handleCheckErrors}
-            showSubmission={submitted || false}
+            showSubmission={inCompare}
+            bound={bound}
             isDark={darkMode}
             onToggleDark={() => setDarkMode(d => !d)}
             flowTitle={flowTitle}
@@ -289,7 +318,7 @@ function App() {
                   key={step.id}
                   ref={el => sectionRefs.current[step.id] = el}
                   id={`section-${step.id}`}
-                  className="rounded-2xl overflow-hidden"
+                  className="rounded-2xl"
                   style={{ background: 'transparent', border: 'none' }}
                 >
                   <SectionHeader title={step.label} isDark={darkMode} />
@@ -310,7 +339,7 @@ function App() {
             <div className="flex justify-end pb-12">
               <button
                 onClick={async () => {
-                  setSubmitted(true)
+                  setInCompare(true)
                   const applicant = formData.applicant || {}
                   if (applicant.email) {
                     try {

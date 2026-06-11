@@ -30,7 +30,7 @@ export default function ContractorInformation({ formData, updateFormData, isDark
       </div>
 
       {showContractorFields && (
-        <div className="pt-2 mt-2 space-y-5" style={{ borderTop: '1px dashed #E5E7EB' }}>
+        <div className="pt-2 mt-2 space-y-5">
           <FormGrid>
             <Input label="Contractor Name" required value={data.name} onChange={set('name')} />
             <Input label="License Number" required value={data.licenseNumber} onChange={set('licenseNumber')} />

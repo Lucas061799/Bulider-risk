@@ -28,14 +28,14 @@ function getSubmissionId() {
   return _cachedSubmissionId
 }
 
-export default function Sidebar({ steps, activeStep, onStepClick, formData = {}, onCheckErrors, showSubmission, isDark, onToggleDark, flowTitle = "Builder's Risk" }) {
+export default function Sidebar({ steps, activeStep, onStepClick, formData = {}, onCheckErrors, showSubmission, bound = false, isDark, onToggleDark, flowTitle = "Builder's Risk" }) {
   const completion = useMemo(() => getSectionCompletion(formData, steps), [formData, steps])
   const completedCount = Object.values(completion).filter(Boolean).length
   const totalCount = steps.length
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0
 
   const allSteps = showSubmission
-    ? [...steps, { id: steps.length + 1, label: 'Submission', key: 'submission' }]
+    ? [...steps, { id: steps.length + 1, label: bound ? 'Submitted' : 'Compare Quotes', key: 'submission' }]
     : steps
 
   return (
@@ -51,10 +51,6 @@ export default function Sidebar({ steps, activeStep, onStepClick, formData = {},
       <div className="px-5 pt-5 pb-3 relative z-10">
         <h2 className="text-base font-bold leading-tight" style={{ color: isDark ? '#F9FAFB' : undefined }}>{flowTitle}</h2>
         <p className="text-xs mt-0.5" style={{ color: isDark ? '#9CA3AF' : '#9CA3AF' }}>Submission Number: {getSubmissionId()}</p>
-        <div className="mt-2 mb-1 h-1 rounded-full overflow-hidden" style={{ background: isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6' }}>
-          <div className="h-full rounded-full transition-all" style={{ width: `${progressPct}%`, background: 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)' }} />
-        </div>
-        <p className="text-[10px]" style={{ color: '#9CA3AF' }}>{completedCount}/{totalCount} sections · {progressPct}% complete</p>
         <div className="mt-3" style={{ borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }} />
       </div>
 

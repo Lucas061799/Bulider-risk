@@ -28,7 +28,7 @@ export default function ProjectConditions({ formData, updateFormData }) {
         ))}
       </div>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
+      <div className="pt-3">
         <Textarea
           label="Additional project notes (optional)"
           rows={3}

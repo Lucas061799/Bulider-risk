@@ -37,8 +37,7 @@ export default function VacPropertyConditionRisk({ formData, updateFormData }) {
         <Input label="Distance to Nearest Fire Station" value={data.fireStationDistance} onChange={set('fireStationDistance')} placeholder="Google API" />
       </FormGrid>
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider text-gray-400 uppercase mb-3">Jobsite Security</p>
+      <div className="pt-3">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {SECURITY_OPTIONS.map(opt => (
             <Checkbox key={opt} label={opt} checked={security.includes(opt)} onChange={() => toggleSecurity(opt)} />

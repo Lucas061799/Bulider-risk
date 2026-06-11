@@ -321,3 +321,74 @@ html[data-dark="true"] body .print-btn-text {
   background-clip: unset !important;
 }
 
+/* ============================================================
+   DARK MODE — override inline `background: white` patterns
+   used by custom Select trigger / picker cards / dropdown panels.
+   CSS !important overrides inline non-important styles.
+   ============================================================ */
+
+/* Custom Select trigger button + LossHistory-style picker cards
+   (rendered as <button style="background: white; border: ...">) */
+[data-dark="true"] button[style*="background: white"],
+[data-dark="true"] button[style*="background:white"] {
+  background: rgba(255,255,255,0.04) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #F9FAFB !important;
+}
+
+/* Children of dark-overridden buttons — flip dark navy text → light */
+[data-dark="true"] button[style*="background: white"] span[style*="rgb(31, 27, 71)"],
+[data-dark="true"] button[style*="background: white"] span[style*="#1F1B47"],
+[data-dark="true"] button[style*="background: white"] p[style*="rgb(31, 27, 71)"],
+[data-dark="true"] button[style*="background: white"] p[style*="#1F1B47"] {
+  color: #F9FAFB !important;
+}
+
+/* Dropdown panels and inline cards that aren't buttons but use white bg */
+[data-dark="true"] div[style*="background: white"]:not(.no-dark-override),
+[data-dark="true"] div[style*="background:white"]:not(.no-dark-override) {
+  background: #1A1E38 !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* "System-Populated" tinted purple card — softer in dark */
+[data-dark="true"] div[style*="rgba(248, 246, 255"],
+[data-dark="true"] div[style*="rgba(248,246,255"] {
+  background: rgba(124,58,237,0.08) !important;
+  border-color: rgba(124,58,237,0.25) !important;
+}
+
+/* Light-purple block (active sidebar item bg, IE highlight) — dim in dark */
+[data-dark="true"] [style*="rgba(248, 246, 255, 0.4)"] {
+  background: rgba(124,58,237,0.06) !important;
+}
+
+/* Custom Select dropdown options — option text + hover in dark mode.
+   The dropdown panel div already gets dark bg from the rule above; this
+   handles the inner <button> options. */
+[data-dark="true"] div[style*="background: white"] button[style*="background: transparent"],
+[data-dark="true"] div[style*="background:white"] button[style*="background: transparent"] {
+  color: #E5E7EB !important;
+}
+[data-dark="true"] div[style*="background: white"] button[style*="background: transparent"]:hover,
+[data-dark="true"] div[style*="background:white"] button[style*="background: transparent"]:hover {
+  background: rgba(124,58,237,0.18) !important;
+  color: #FFFFFF !important;
+}
+/* Hover state where JS sets background: #F9FAFB (rgb(249, 250, 251)) — override */
+[data-dark="true"] button[style*="rgb(249, 250, 251)"],
+[data-dark="true"] button[style*="#F9FAFB"] {
+  background: rgba(124,58,237,0.18) !important;
+  color: #FFFFFF !important;
+}
+/* Selected option inside dropdown (gradient bg + purple text) — bump text */
+[data-dark="true"] div[style*="background: white"] button[style*="rgba(92,46,212,0.07)"] {
+  color: #E879F9 !important;
+}
+
+/* Selected picker-card text (LossHistory "No losses", etc.) — flip purple
+   text to bright magenta in dark mode so it's readable on the purple bg. */
+[data-dark="true"] button[style*="rgba(92, 46, 212, 0.06)"] span,
+[data-dark="true"] button[style*="rgba(92,46,212,0.06)"] span {
+  color: #FFFFFF !important;
+}

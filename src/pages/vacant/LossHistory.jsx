@@ -19,7 +19,7 @@ export default function VacLossHistory({ formData, updateFormData }) {
         <RadioGroup key={q.key} label={q.label} options={['Yes', 'No']} value={data[q.key]} onChange={set(q.key)} />
       ))}
 
-      <div className="pt-3" style={{ borderTop: '1px dashed #E5E7EB' }}>
+      <div className="pt-3">
         <Textarea
           label="Underwriting notes (optional)"
           rows={3}
