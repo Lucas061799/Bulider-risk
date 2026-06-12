@@ -392,3 +392,17 @@ html[data-dark="true"] body .print-btn-text {
 [data-dark="true"] button[style*="rgba(92,46,212,0.06)"] span {
   color: #FFFFFF !important;
 }
+/* Same treatment for <label role="radio"> rows (LossHistory uses label not button) */
+[data-dark="true"] label[role="radio"][style*="rgba(92, 46, 212, 0.06)"] span,
+[data-dark="true"] label[role="radio"][style*="rgba(92,46,212,0.06)"] span,
+[data-dark="true"] label[role="radio"][aria-checked="true"] span {
+  color: #FFFFFF !important;
+}
+
+/* Radio-row hover in dark mode — JS sets bg to #F9FAFB which looks broken on
+   dark; flip to a soft purple wash. */
+[data-dark="true"] label[role="radio"][style*="rgb(249, 250, 251)"],
+[data-dark="true"] label[role="radio"][style*="#F9FAFB"] {
+  background: rgba(124,58,237,0.10) !important;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.12) !important;
+}

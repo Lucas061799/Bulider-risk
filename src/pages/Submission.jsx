@@ -160,10 +160,11 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                 </div>
               </div>
 
-              {/* Info row — 4 metrics */}
+              {/* Info row — 4 metrics. divide-gray-100 picks up the dark-mode
+                  border-color override from index.css automatically. */}
               <div
-                className="grid grid-cols-2 md:grid-cols-4 divide-x"
-                style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`, borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6' }}
+                className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100"
+                style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}
               >
                 {[
                   { label: 'Submission ID', value: submissionId },
@@ -230,28 +231,6 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                 </div>
               </div>
             )}
-
-            {/* What happens next */}
-            <div className="rounded-2xl p-5" style={{
-              background: isDark ? '#191D35' : '#F9FAFB',
-              border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #F3F4F6',
-            }}>
-              <p className="text-[11px] font-bold tracking-widest uppercase mb-2" style={{ color: '#9CA3AF' }}>What happens next</p>
-              <ul className="space-y-2 text-[13px]" style={{ color: isDark ? '#D1D5DB' : '#374151' }}>
-                <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> Confirmation email sent to {applicant.email || 'the agent on record'}.</li>
-                {isAtrium ? (
-                  <>
-                    <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> Atrium will return a firm quote within 1–2 business days.</li>
-                    <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> Bind directly from this page once the firm quote arrives (Phase 2 will support Atrium bind API).</li>
-                  </>
-                ) : (
-                  <>
-                    <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> {boundCarrier?.name || 'The carrier'} issues policy documents within minutes.</li>
-                    <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> Print or download the application summary anytime from the right panel.</li>
-                  </>
-                )}
-              </ul>
-            </div>
 
             {/* Return to the Jungle CTA — same pattern as commercial-auto / GL */}
             <div

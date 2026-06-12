@@ -197,7 +197,7 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
 
         {/* Title */}
         <h2 className="text-lg font-bold mb-3" style={{ color: isDark ? '#F9FAFB' : undefined }}>
-          {inSubmission ? 'Submission Status' : 'Quote in Progress'}
+          {inSubmission ? 'Quote Submitted' : 'Quote in Progress'}
         </h2>
 
         {/* Auto-saved + % row */}
@@ -215,12 +215,12 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
             </svg>
             <span className="text-xs font-medium text-gradient">All progress auto-saved</span>
           </div>
-          <span className="text-xs font-bold text-gradient">{progressPct}%</span>
+          <span className="text-xs font-bold text-gradient">{inSubmission ? 100 : progressPct}%</span>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress bar — full when submitted, otherwise reflects form completion */}
         <div className="w-full h-1.5 rounded-full overflow-hidden mb-4" style={{ background: isDark ? 'rgba(255,255,255,0.08)' : '#F3F4F6' }}>
-          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progressPct}%`, background: BRAND_GRADIENT }} />
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${inSubmission ? 100 : progressPct}%`, background: BRAND_GRADIENT }} />
         </div>
 
         {/* Divider */}
@@ -229,72 +229,44 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
         {/* ============================ Submission Status (after submit) ============================ */}
         {inSubmission && (
           <div className="mb-5">
-            {/* Submitted hero card */}
-            <div
-              className="rounded-2xl px-5 py-5 mb-4 flex flex-col items-center text-center"
-              style={{
-                background: isDark ? 'rgba(124,58,237,0.18)' : 'rgba(124,58,237,0.06)',
-                border: `1.5px solid ${isDark ? '#A78BFA' : '#7C3AED'}`,
-                boxShadow: '0 4px 20px rgba(92,46,212,0.10)',
-              }}
-            >
-              <div className="w-12 h-12 rounded-full flex items-center justify-center mb-2" style={{ background: 'linear-gradient(135deg, rgba(115,201,183,0.22), rgba(92,46,212,0.10))' }}>
-                <svg className="w-6 h-6" fill="none" stroke="#0D8B73" strokeWidth="2.4" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
-                </svg>
-              </div>
-              <p className="text-[11px] font-bold tracking-widest uppercase" style={{
-                background: BRAND_GRADIENT,
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}>
-                Application Submitted
-              </p>
-              <p className="text-[13px] font-semibold mt-1" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>
-                Awaiting carrier selection
-              </p>
-            </div>
-
-            {/* Next steps */}
-            <div className="mb-2">
-              <p className="text-[10px] font-bold tracking-widest uppercase mb-3" style={{ color: '#9CA3AF' }}>
-                Next Steps
-              </p>
-              <div className="space-y-4">
-                {[
-                  { n: 1, label: 'Select a carrier', done: false, active: true },
-                  { n: 2, label: 'Firm quote returns', done: false, active: false },
-                  { n: 3, label: 'Bind & issue', done: false, active: false },
-                ].map(step => (
-                  <div key={step.n} className="flex items-center gap-3">
-                    <span
-                      className="w-8 h-8 rounded-full text-[12px] font-bold flex items-center justify-center shrink-0"
-                      style={{
-                        background: 'linear-gradient(88.09deg, rgba(92,46,212,0.18) 0%, rgba(166,20,195,0.18) 100%)',
-                        ...(step.active ? { boxShadow: '0 0 0 3px rgba(124,58,237,0.14)' } : {}),
-                        opacity: step.active ? 1 : 0.55,
-                      }}
-                    >
-                      <span style={{
-                        background: BRAND_GRADIENT,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                      }}>{step.n}</span>
-                    </span>
-                    <span
-                      className="text-[13px]"
-                      style={{
-                        fontWeight: step.active ? 700 : 500,
-                        color: step.active ? (isDark ? '#F9FAFB' : '#111827') : '#9CA3AF',
-                      }}
-                    >
-                      {step.label}
-                    </span>
+            {/* What's Next? — commercial-auto pattern: numbered circle + title + description */}
+            <h3 className="text-sm font-bold mb-5" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>What's Next?</h3>
+            <div className="space-y-6 mb-2">
+              {[
+                {
+                  n: 1,
+                  title: 'Review & Processing',
+                  desc: 'The selected carrier will review your submission and respond within 1–2 business days.',
+                },
+                {
+                  n: 2,
+                  title: 'Firm Quote',
+                  desc: "You'll receive the final quote and policy documents via email.",
+                },
+                {
+                  n: 3,
+                  title: 'Bind & Issue',
+                  desc: 'Bind directly from this page once the firm quote arrives (GAIC / Navigators).',
+                },
+              ].map(step => (
+                <div key={step.n} className="flex gap-4">
+                  <span
+                    className="w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center shrink-0"
+                    style={{ background: 'linear-gradient(88.09deg, rgba(92,46,212,0.25) 0%, rgba(166,20,195,0.25) 100%)' }}
+                  >
+                    <span style={{
+                      background: BRAND_GRADIENT,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}>{step.n}</span>
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{step.title}</p>
+                    <p className="text-xs mt-1 leading-relaxed" style={{ color: isDark ? '#9CA3AF' : '#9CA3AF' }}>{step.desc}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

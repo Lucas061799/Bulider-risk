@@ -228,7 +228,20 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
         </div>
 
         <main className="flex-1 overflow-y-auto custom-scroll" style={{ background: isDark ? '#131629' : 'white' }}>
-          <div className="max-w-4xl 2xl:max-w-5xl mx-auto px-4 md:px-10 py-5 md:py-8 space-y-5 md:space-y-6">
+          <div className="max-w-7xl mx-auto px-4 md:px-10 py-6 md:py-8 space-y-6 md:space-y-8">
+
+            {/* Top breadcrumb — back link sits above the header, like GL-Bop's
+                "Edit answers" affordance. Replaces the bottom-centered back link. */}
+            <button
+              onClick={onBack}
+              className="inline-flex items-center gap-1.5 text-[12px] font-semibold transition hover:opacity-70 -mt-2"
+              style={{ color: isDark ? '#A78BFA' : '#5C2ED4' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+              </svg>
+              Edit application
+            </button>
 
             {/* Compare header — no "Submission Complete" yet; user hasn't bound */}
             <div className="pb-1">
@@ -274,27 +287,7 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
               </div>
             )}
 
-            {/* What happens next */}
-            <div className="rounded-2xl p-5" style={{
-              background: isDark ? '#191D35' : '#F9FAFB',
-              border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #F3F4F6',
-            }}>
-              <p className="text-[11px] font-bold tracking-widest uppercase mb-2" style={{ color: '#9CA3AF' }}>What happens next</p>
-              <ul className="space-y-2 text-[13px]" style={{ color: isDark ? '#D1D5DB' : '#374151' }}>
-                <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> Confirmation email sent to {applicant.email || 'the agent on record'}.</li>
-                <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> Selected carrier reviews your submission and returns a firm quote within 1–2 business days.</li>
-                <li className="flex gap-2"><span className="text-[#A614C3] font-bold">•</span> You can bind directly from this page once the firm quote arrives (GAIC / Navigators), or Atrium will reach out for Phase-1 quote-only.</li>
-              </ul>
-            </div>
 
-            <div className="text-center pb-8">
-              <button
-                onClick={onBack}
-                className="text-sm font-semibold transition" style={{ color: isDark ? '#A78BFA' : '#5C2ED4' }}
-              >
-                ← Back to application
-              </button>
-            </div>
           </div>
         </main>
 

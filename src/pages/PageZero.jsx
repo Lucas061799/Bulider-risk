@@ -215,6 +215,18 @@ export default function PageZero({ onStart }) {
                 </p>
               </div>
 
+              {/* State dropdown — first, so user picks where before what */}
+              <div className="mb-5">
+                <label className="block text-sm font-semibold text-navy mb-2">Location of Business</label>
+                <Dropdown
+                  value={state}
+                  onChange={setState}
+                  options={STATE_OPTIONS}
+                  placeholder="Select which state the business is located."
+                  searchable
+                />
+              </div>
+
               {/* Project type — compact horizontal cards */}
               <div className="mb-5">
                 <label className="block text-sm font-semibold text-navy mb-2.5">Business Type</label>
@@ -279,18 +291,6 @@ export default function PageZero({ onStart }) {
                     )
                   })}
                 </div>
-              </div>
-
-              {/* State dropdown */}
-              <div className="mb-5">
-                <label className="block text-sm font-semibold text-navy mb-2">Location of Business</label>
-                <Dropdown
-                  value={state}
-                  onChange={setState}
-                  options={STATE_OPTIONS}
-                  placeholder="Select which state the business is located."
-                  searchable
-                />
               </div>
 
               {/* GAIC programmed-states notice */}

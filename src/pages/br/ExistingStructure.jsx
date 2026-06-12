@@ -19,15 +19,19 @@ export default function ExistingStructure({ formData, updateFormData }) {
 
   return (
     <div className="w-full space-y-5">
-      <FormGrid>
-        <Input label="Year Existing Structure Was Built" value={data.yearBuilt} onChange={set('yearBuilt')} placeholder="e.g. 1985" />
-        <RadioGroup
-          label="Will the structure be occupied during remodel/renovation?"
-          options={['Yes', 'No']}
-          value={data.occupiedDuring}
-          onChange={set('occupiedDuring')}
-        />
-      </FormGrid>
+      <Input
+        label="Year Existing Structure Was Built"
+        value={data.yearBuilt}
+        onChange={set('yearBuilt')}
+        placeholder="e.g. 1985"
+        className="max-w-xs"
+      />
+      <RadioGroup
+        label="Will the structure be occupied during remodel/renovation?"
+        options={['Yes', 'No']}
+        value={data.occupiedDuring}
+        onChange={set('occupiedDuring')}
+      />
 
       <div className="pt-3">
         <RadioGroup
