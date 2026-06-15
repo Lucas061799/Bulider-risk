@@ -68,79 +68,107 @@ function Row({ label, value, isDark, bold, small }) {
   )
 }
 
-function CarrierCard({ carrier, premium, isSelected, onSelect, isDark }) {
+// Compact carrier row — matches GL-Bop's CarrierRow pattern.
+// Row 1: brand dot + carrier name + program + admitted badge + chevron
+// Row 2: estimated premium + per-month/total + "Select" action button
+// Expanded: policy fee / commission / platform breakdown
+const BR_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
+
+function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark }) {
+  const [expanded, setExpanded] = useState(false)
   const fee = calcPolicyFee(carrier.id, premium)
   const total = premium + fee
   const commissionDollars = Math.round(premium * carrier.commission)
+  const monthly = Math.round(premium / 12)
+
+  const rowBorder = (isSelected || isBest) ? '#7C3AED' : (isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB')
+  const rowBg = isDark ? 'rgba(255,255,255,0.04)' : 'white'
 
   return (
     <div
-      onClick={onSelect}
-      className="cursor-pointer rounded-2xl overflow-hidden transition-all"
+      className="rounded-lg overflow-hidden transition"
       style={{
-        border: isSelected
-          ? '2px solid #A614C3'
-          : isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid #E5E7EB',
-        background: isDark ? '#191D35' : 'white',
-        boxShadow: isSelected ? '0 8px 28px rgba(166,20,195,0.18)' : 'none',
-        transform: isSelected ? 'translateY(-2px)' : 'none',
+        background: rowBg,
+        border: `1.5px solid ${rowBorder}`,
+        boxShadow: (isSelected || isBest) ? '0 2px 12px rgba(92,46,212,0.12)' : 'none',
       }}
     >
-      <div className="px-5 py-4" style={{
-        background: isSelected
-          ? 'linear-gradient(88.09deg, rgba(92,46,212,0.08) 0%, rgba(166,20,195,0.08) 100%)'
-          : 'transparent',
-        borderBottom: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid #F3F4F6',
-      }}>
-        <div className="flex items-center justify-between mb-1">
-          <div>
-            <p className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#9CA3AF' }}>{carrier.program}</p>
-            <h3 className="text-[15px] font-bold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{carrier.name}</h3>
+      <div className="px-4 py-3.5 cursor-pointer" onClick={() => setExpanded(e => !e)}>
+        {/* Row 1 — Carrier + pills + chevron */}
+        <div className="flex items-center justify-between gap-3 mb-2.5">
+          <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
+            <span className="rounded-full shrink-0" style={{ width: 8, height: 8, background: BR_GRADIENT }} />
+            <span className="text-sm font-semibold truncate" style={{ color: isDark ? '#F9FAFB' : '#1F2937' }}>
+              {carrier.name}
+            </span>
+            <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#9CA3AF' }}>
+              {carrier.program}
+            </span>
+            {isBest && (
+              <span
+                className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white whitespace-nowrap"
+                style={{ background: BR_GRADIENT }}
+              >
+                Best Value
+              </span>
+            )}
+            <span
+              className="text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
+              style={{
+                background: carrier.type === 'Admitted' ? 'rgba(115,201,183,0.18)' : 'rgba(252,165,165,0.18)',
+                color: carrier.type === 'Admitted' ? '#0D8B73' : '#B91C1C',
+              }}
+            >
+              {carrier.type}
+            </span>
           </div>
-          <span
-            className="text-[9px] font-bold tracking-wide px-2 py-0.5 rounded"
-            style={{
-              background: carrier.type === 'Admitted' ? 'rgba(115,201,183,0.18)' : 'rgba(252,165,165,0.18)',
-              color: carrier.type === 'Admitted' ? '#0D8B73' : '#B91C1C',
-            }}
+          <svg
+            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            className="shrink-0"
+            style={{ transform: expanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}
           >
-            {carrier.type}
-          </span>
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+
+        {/* Row 2 — Price + action button */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-bold" style={{ color: isDark ? '#F9FAFB' : '#1F2937' }}>${premium.toLocaleString()}</span>
+              <span className="text-xs" style={{ color: '#9CA3AF' }}>/yr</span>
+            </div>
+            <div className="text-[11px]" style={{ color: '#9CA3AF' }}>
+              ${monthly.toLocaleString()}/mo · Total ${total.toLocaleString()}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onSelect(); }}
+            className="px-4 py-2 rounded-lg text-xs font-bold transition shrink-0"
+            style={
+              isSelected
+                ? { background: BR_GRADIENT, color: '#fff' }
+                : { background: isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6', color: isDark ? '#D1D5DB' : '#374151' }
+            }
+          >
+            {isSelected ? '✓ Selected' : 'Select'}
+          </button>
         </div>
       </div>
 
-      <div className="px-5 py-4">
-        <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">Estimated Premium</p>
-        <p className="text-3xl font-bold mb-3" style={{
-          background: 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}>
-          ${premium.toLocaleString()}
-        </p>
-
-        <div className="space-y-1.5 text-[12px]">
+      {/* Expanded details — Policy Fee / Commission / Platform */}
+      {expanded && (
+        <div
+          className="px-4 py-3.5 space-y-1.5 text-[12px]"
+          style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}
+        >
           <Row label="Policy Fee" value={`$${fee}`} isDark={isDark} />
           <Row label="Commission" value={`${(carrier.commission * 100).toFixed(1)}% · $${commissionDollars.toLocaleString()}`} isDark={isDark} />
           <Row label="Platform" value={carrier.platformFunctionality} isDark={isDark} small />
-          <div className="pt-1.5 mt-1.5" style={{ borderTop: isDark ? '1px dashed rgba(255,255,255,0.08)' : '1px dashed #E5E7EB' }}>
-            <Row label="Total" value={`$${total.toLocaleString()}`} isDark={isDark} bold />
-          </div>
         </div>
-      </div>
-
-      <div className="px-5 pb-5">
-        <button
-          className="w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all"
-          style={
-            isSelected
-              ? { background: 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)', boxShadow: '0 4px 16px rgba(92,46,212,0.3)' }
-              : { background: isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6', color: isDark ? '#9CA3AF' : '#6B7280' }
-          }
-        >
-          {isSelected ? (carrier.id === 'atrium' ? 'Send to Atrium (Quote Only)' : 'Bind This Quote →') : 'Select'}
-        </button>
-      </div>
+      )}
     </div>
   )
 }
@@ -277,15 +305,52 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
                     premium={c.premium}
                     isSelected={selectedCarrier === c.id}
                     onSelect={() => {
-                      // Selecting acts as bind/submit — Atrium routes to manual quote, others bind directly
+                      // Just select — Continue button below triggers bind.
+                      // Two-step flow gives the user a moment to confirm
+                      // their choice before committing (GL-Bop pattern).
                       setSelectedCarrier(c.id)
-                      if (onBind) onBind(c)
                     }}
                     isDark={isDark}
                   />
                 ))}
               </div>
             )}
+
+            {/* Continue button — disabled until user picks a carrier. Click
+                triggers the actual bind (Submission stage). */}
+            {carriers.length > 0 && (() => {
+              const picked = carriers.find(c => c.id === selectedCarrier)
+              const canContinue = !!picked
+              const ctaLabel = !picked
+                ? 'Select a carrier to continue'
+                : picked.id === 'atrium'
+                  ? 'Send to Atrium (Quote Only) →'
+                  : `Bind with ${picked.name} →`
+              return (
+                <div className="flex justify-end pt-2 pb-6">
+                  <button
+                    type="button"
+                    onClick={() => { if (canContinue && onBind) onBind(picked) }}
+                    disabled={!canContinue}
+                    className="px-6 py-3 rounded-xl text-sm font-bold transition-all"
+                    style={canContinue
+                      ? {
+                          background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)',
+                          color: '#fff',
+                          boxShadow: '0 4px 18px rgba(92,46,212,0.30)',
+                        }
+                      : {
+                          background: isDark ? 'rgba(255,255,255,0.04)' : '#F3F4F6',
+                          color: isDark ? '#6B7280' : '#9CA3AF',
+                          cursor: 'not-allowed',
+                        }
+                    }
+                  >
+                    {ctaLabel}
+                  </button>
+                </div>
+              )
+            })()}
 
 
           </div>

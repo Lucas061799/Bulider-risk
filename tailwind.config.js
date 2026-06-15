@@ -12,7 +12,7 @@ export default {
       colors: {
         navy: '#1B0750',
         teal: {
-          DEFAULT: '#74C3B7',
+          DEFAULT: '#73C9B7',
           dark: '#5BA99D',
           light: '#E8F5F3',
         },
