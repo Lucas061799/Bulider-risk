@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { CARRIERS, eligibleCarriers, PROJECT_TYPE_CONFIG } from '../lib/projectTypeConfig'
+import oneshotLogo from '../assets/oneshot-logo.png'
 
 const BRAND_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)'
 
@@ -114,9 +115,24 @@ function SkeletonRow({ isDark = false }) {
   )
 }
 
-// Small monogram chip used in place of a real carrier logo for now
+// Carrier logo chip — real logo when we have one, otherwise an initials
+// monogram. Match by name (e.g. "Great American (OneShot)").
+const CARRIER_LOGOS = {
+  'great american': oneshotLogo,
+}
 function CarrierMark({ name, size = 'sm' }) {
   const dim = size === 'lg' ? 56 : 40
+  const logo = CARRIER_LOGOS[(name || '').toLowerCase()]
+  if (logo) {
+    return (
+      <div
+        className="rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
+        style={{ width: dim, height: dim, background: 'white', border: '1px solid #E5E7EB' }}
+      >
+        <img src={logo} alt={name} style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+      </div>
+    )
+  }
   const initials = name.split(/[\s(]/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase()
   return (
     <div
@@ -135,10 +151,14 @@ function CarrierMark({ name, size = 'sm' }) {
   )
 }
 
-export default function RightPanel({ onFormReview, formData = {}, isDark = false, projectType, state, inSubmission = false }) {
+export default function RightPanel({ onFormReview, onDownloadSummary, formData = {}, isDark = false, projectType, state, inSubmission = false }) {
   const [files, setFiles] = useState([])
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef()
+  // User-promoted carrier — clicking a non-hero row in the list pins it
+  // as the hero card. Falls back to quotes[0] (cheapest) if unset or if
+  // the picked carrier disappears (e.g. project type changes).
+  const [preferredId, setPreferredId] = useState(null)
 
   const cfg = projectType ? PROJECT_TYPE_CONFIG[projectType] : null
   const sectionKeys = cfg?.steps?.map(s => s.key) || []
@@ -197,7 +217,7 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
 
         {/* Title */}
         <h2 className="text-lg font-bold mb-3" style={{ color: isDark ? '#F9FAFB' : undefined }}>
-          {inSubmission ? 'Quote Submitted' : 'Quote in Progress'}
+          {inSubmission ? 'Bind Received' : 'Quote in Progress'}
         </h2>
 
         {/* Auto-saved + % row */}
@@ -229,24 +249,24 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
         {/* ============================ Submission Status (after submit) ============================ */}
         {inSubmission && (
           <div className="mb-5">
-            {/* What's Next? — commercial-auto pattern: numbered circle + title + description */}
+            {/* What's Next? — same copy as GL-Bop / commercial-auto */}
             <h3 className="text-sm font-bold mb-5" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>What's Next?</h3>
             <div className="space-y-6 mb-2">
               {[
                 {
                   n: 1,
                   title: 'Review & Processing',
-                  desc: 'The selected carrier will review your submission and respond within 1–2 business days.',
+                  desc: 'Your application will be reviewed as soon as possible.',
                 },
                 {
                   n: 2,
-                  title: 'Firm Quote',
-                  desc: "You'll receive the final quote and policy documents via email.",
+                  title: 'Email Confirmation',
+                  desc: "You'll receive detailed policy confirmation via email.",
                 },
                 {
                   n: 3,
-                  title: 'Bind & Issue',
-                  desc: 'Bind directly from this page once the firm quote arrives (GAIC / Navigators).',
+                  title: 'Policy in Force',
+                  desc: 'Coverage starts on the effective date you selected.',
                 },
               ].map(step => (
                 <div key={step.n} className="flex gap-4">
@@ -288,7 +308,10 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
               <div className={`${isDark ? 'skel-dark' : 'skel'} h-3 w-20 rounded`} />
             </div>
           ) : showPrices ? (() => {
-            const top = quotes[0]
+            // Hero = user-picked carrier if set, otherwise cheapest.
+            // Falls back to quotes[0] if the picked id is no longer in the list.
+            const top = (preferredId && quotes.find(q => q.id === preferredId)) || quotes[0]
+            const isCheapest = top.id === quotes[0].id
             return (
               <div
                 className="w-full rounded-2xl px-5 py-5 mb-3 flex flex-col items-center text-center relative overflow-hidden"
@@ -299,7 +322,7 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
                 }}
               >
                 <div className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider text-white" style={{ background: BRAND_GRADIENT }}>
-                  BEST
+                  {isCheapest ? 'BEST' : 'SELECTED'}
                 </div>
                 <CarrierMark name={top.name} size="lg" />
                 <div className="mt-3">
@@ -327,18 +350,28 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
             </p>
           )}
 
-          {/* Remaining carriers list */}
+          {/* Remaining carriers list — clicking any row promotes it to the
+              hero card so the user can compare estimates side-by-side. */}
           <div className="space-y-2">
             {showSkeleton
               ? Array.from({ length: 2 }).map((_, i) => <SkeletonRow key={i} isDark={isDark} />)
-              : (showPrices ? quotes.slice(1) : quotes).map(q => (
-                  <div
+              : (() => {
+                  if (!showPrices) return quotes
+                  const heroId = (preferredId && quotes.find(q => q.id === preferredId)) ? preferredId : quotes[0].id
+                  return quotes.filter(q => q.id !== heroId)
+                })().map(q => (
+                  <button
                     key={q.id}
-                    className="w-full rounded-xl px-3 py-3 flex items-center gap-3"
+                    type="button"
+                    onClick={() => showPrices && setPreferredId(q.id)}
+                    disabled={!showPrices}
+                    className="w-full rounded-xl px-3 py-3 flex items-center gap-3 text-left transition disabled:cursor-default"
                     style={{
                       background: isDark ? 'rgba(255,255,255,0.04)' : 'white',
                       border: `1.5px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}`,
                     }}
+                    onMouseEnter={ev => { if (showPrices) ev.currentTarget.style.borderColor = 'rgba(92,46,212,0.35)' }}
+                    onMouseLeave={ev => { ev.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB' }}
                   >
                     <CarrierMark name={q.name} />
                     <div className="flex-1 min-w-0">
@@ -357,10 +390,45 @@ export default function RightPanel({ onFormReview, formData = {}, isDark = false
                     ) : (
                       <LoadingPriceTicker isDark={isDark} />
                     )}
-                  </div>
+                  </button>
                 ))
             }
           </div>
+
+          {/* Download Application Summary — placed below the carriers
+              list to match GL-Bop's right-rail layout. Only enabled
+              once essentials are filled in. */}
+          {!inSubmission && (() => {
+            const a = formData.applicant || {}
+            const formComplete = !!(a.namedInsured && a.email && a.phone && (formData.project?.effectiveDate || formData.vacRisk?.effectiveDate))
+            return (
+              <>
+                <button
+                  type="button"
+                  disabled={!formComplete}
+                  onClick={() => formComplete && onDownloadSummary && onDownloadSummary()}
+                  className="w-full inline-flex items-center justify-center gap-1.5 mt-4 py-2.5 rounded-xl text-xs font-bold transition disabled:cursor-not-allowed"
+                  style={formComplete
+                    ? { background: BRAND_GRADIENT, color: 'white', boxShadow: '0 4px 14px rgba(92,46,212,0.22)' }
+                    : { background: isDark ? 'rgba(255,255,255,0.04)' : '#FAFAFB', color: isDark ? '#6B7280' : '#9CA3AF', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}` }
+                  }
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                    <rect x="9" y="3" width="6" height="4" rx="1"/>
+                    <line x1="9" y1="13" x2="15" y2="13"/>
+                    <line x1="9" y1="17" x2="13" y2="17"/>
+                  </svg>
+                  Download Application Summary
+                </button>
+                {!formComplete && (
+                  <p className="text-[10px] text-gray-400 text-left mt-2 leading-relaxed">
+                    Finish your application to download the summary.
+                  </p>
+                )}
+              </>
+            )
+          })()}
         </div>
         )}
 

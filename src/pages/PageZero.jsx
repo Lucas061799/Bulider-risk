@@ -107,8 +107,8 @@ const PROJECT_TYPE_GROUPS = [
     hint: 'Builder’s Risk marketplace',
     items: [
       { id: PROJECT_TYPES.GROUND_UP,                title: 'New Construction',   subtitle: 'Ground-up build, no existing structure',  icon: 'construction' },
-      { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, title: 'Remodel (No ES)',    subtitle: 'Renovation — covers new work only',   icon: 'remodel-no' },
-      { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,    title: 'Remodel (With ES)',  subtitle: 'Renovation — covers new + existing', icon: 'remodel-with' },
+      { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, title: 'Remodel (No ES)',    subtitle: 'No Existing Structure — new work only',     icon: 'remodel-no' },
+      { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,    title: 'Remodel (With ES)',  subtitle: 'With Existing Structure — new + existing',  icon: 'remodel-with' },
     ],
   },
   {
@@ -230,7 +230,7 @@ export default function PageZero({ onStart }) {
               {/* Project type — compact horizontal cards */}
               <div className="mb-5">
                 <label className="block text-sm font-semibold text-navy mb-2.5">Business Type</label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 grid-rows-3 grid-flow-col gap-2">
                   {PROJECT_TYPE_GROUPS.flatMap(g => g.items).map((card) => {
                     const selected = card.id === projectType
                     return (

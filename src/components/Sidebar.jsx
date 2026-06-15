@@ -49,7 +49,8 @@ export default function Sidebar({ steps, activeStep, onStepClick, formData = {},
 
       {/* Title */}
       <div className="px-5 pt-5 pb-3 relative z-10">
-        <h2 className="text-base font-bold leading-tight" style={{ color: isDark ? '#F9FAFB' : undefined }}>{flowTitle}</h2>
+        <p className="text-[10px] font-bold uppercase tracking-wider mb-0.5" style={{ color: isDark ? '#A78BFA' : '#5C2ED4' }}>{flowTitle}</p>
+        <h2 className="text-base font-bold leading-tight" style={{ color: isDark ? '#F9FAFB' : undefined }}>Builder's Risk</h2>
         <p className="text-xs mt-0.5" style={{ color: isDark ? '#9CA3AF' : '#9CA3AF' }}>Submission Number: {getSubmissionId()}</p>
         <div className="mt-3" style={{ borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }} />
       </div>

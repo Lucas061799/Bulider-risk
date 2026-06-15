@@ -1,4 +1,5 @@
 import { Input, FormGrid, RadioGroup, Select, Textarea } from '../../components/FormField'
+import AddressAutocomplete from '../../components/AddressAutocomplete'
 import InfoButton, { HorizontalVsVerticalInfo } from '../../components/InfoButton'
 
 const MODIFICATION_TYPES = [
@@ -15,6 +16,10 @@ const MODIFICATION_TYPES = [
 export default function VacConditionalContractor({ formData, updateFormData }) {
   const data = formData.vacContractor || {}
   const set = (key) => (val) => updateFormData('vacContractor', { [key]: val })
+
+  const handleAddressSelect = ({ address, city, state, zip }) => {
+    updateFormData('vacContractor', { address, city, contractorState: state, zip })
+  }
 
   const hasContractor = data.workBeingPerformed === 'Yes'
 
@@ -37,7 +42,12 @@ export default function VacConditionalContractor({ formData, updateFormData }) {
                 <Input label="Contractor Name" value={data.name} onChange={set('name')} />
                 <Input label="License Number" value={data.licenseNumber} onChange={set('licenseNumber')} />
               </FormGrid>
-              <Input label="Address" value={data.address} onChange={set('address')} />
+              <AddressAutocomplete
+                label="Address"
+                value={data.address || ''}
+                onChange={set('address')}
+                onSelect={handleAddressSelect}
+              />
               <FormGrid cols={3}>
                 <Input label="City" value={data.city} onChange={set('city')} />
                 <Input label="State" value={data.contractorState} onChange={set('contractorState')} />

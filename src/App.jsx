@@ -9,6 +9,7 @@ import PageZero from './pages/PageZero'
 import Compare from './pages/Compare'
 import Submission from './pages/Submission'
 import USLIBridge from './pages/USLIBridge'
+import ReviewModal from './components/ReviewModal'
 
 // BR shared sections
 import ApplicantInformation from './pages/br/ApplicantInformation'
@@ -95,6 +96,8 @@ function App() {
   const [state, setState] = useState('')
   const [darkMode, setDarkMode] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
+  const [summaryOpen, setSummaryOpen] = useState(false)
   const [errorFields, setErrorFields] = useState([])
 
   useEffect(() => {
@@ -125,6 +128,26 @@ function App() {
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     setTimeout(() => { isScrollingToRef.current = false }, 800)
   }, [STEPS.length])
+
+  const handleConfirmQuotes = useCallback(async () => {
+    setInCompare(true)
+    const applicant = formData.applicant || {}
+    if (applicant.email) {
+      try {
+        await fetch('/api/send-confirmation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: applicant.email,
+            firstName: applicant.namedInsured?.split(' ')[0],
+            namedInsured: applicant.namedInsured,
+            submissionId: 'BR' + Math.floor(Math.random() * 9000000 + 1000000),
+            effectiveDate: formData.project?.effectiveDate,
+          }),
+        })
+      } catch (e) { console.warn('Email send failed (non-blocking):', e) }
+    }
+  }, [formData])
 
   const handleCheckErrors = useCallback(() => {
     const errors = []
@@ -292,23 +315,6 @@ function App() {
         >
           <div className="max-w-5xl 2xl:max-w-6xl mx-auto px-4 md:px-10 py-6 md:py-8 space-y-6 md:space-y-8">
 
-            {/* Mobile form review button */}
-            <div className="lg:hidden">
-              <button
-                onClick={handleCheckErrors}
-                className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition"
-                style={{
-                  color: darkMode ? '#D8B4FE' : '#A614C3',
-                  border: darkMode ? '1px solid rgba(216,180,254,0.35)' : '1px solid rgba(166,20,195,0.3)',
-                  background: darkMode ? 'rgba(167,139,250,0.08)' : 'white',
-                }}
-              >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-                Form Review
-              </button>
-            </div>
 
             {STEPS.map(step => {
               const Comp = SECTION_COMPONENTS[step.key]
@@ -336,40 +342,45 @@ function App() {
               )
             })}
 
-            <div className="flex justify-end pb-12">
+            <div className="px-4 md:px-10 pb-12" style={{ marginTop: '12px' }}>
               <button
-                onClick={async () => {
-                  setInCompare(true)
-                  const applicant = formData.applicant || {}
-                  if (applicant.email) {
-                    try {
-                      await fetch('/api/send-confirmation', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          email: applicant.email,
-                          firstName: applicant.namedInsured?.split(' ')[0],
-                          namedInsured: applicant.namedInsured,
-                          submissionId: 'BR' + Math.floor(Math.random() * 9000000 + 1000000),
-                          effectiveDate: formData.project?.effectiveDate,
-                        }),
-                      })
-                    } catch (e) { console.warn('Email send failed (non-blocking):', e) }
-                  }
-                }}
-                className="px-8 py-3 rounded-xl text-base font-bold text-white transition-all"
-                style={{ background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)', boxShadow: '0 4px 20px rgba(92,46,212,0.3)' }}
+                type="button"
+                onClick={() => setReviewOpen(true)}
+                className="inline-flex items-center gap-2 px-7 py-2.5 rounded-xl text-sm font-semibold text-white transition hover:opacity-90"
+                style={{ background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)', boxShadow: '0 4px 14px rgba(92,46,212,0.25)' }}
               >
-                Get My Quotes →
+                Get Quotes
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
               </button>
             </div>
           </div>
         </main>
 
         <div className="hidden lg:block">
-          <RightPanel onFormReview={handleCheckErrors} formData={formData} isDark={darkMode} projectType={projectType} state={state}/>
+          <RightPanel onFormReview={handleCheckErrors} onDownloadSummary={() => setSummaryOpen(true)} formData={formData} isDark={darkMode} projectType={projectType} state={state}/>
         </div>
       </div>
+
+      <ReviewModal
+        open={reviewOpen}
+        onClose={() => setReviewOpen(false)}
+        onConfirm={handleConfirmQuotes}
+        formData={formData}
+        isDark={darkMode}
+        projectType={projectType}
+      />
+
+      <ReviewModal
+        open={summaryOpen}
+        onClose={() => setSummaryOpen(false)}
+        onConfirm={handleConfirmQuotes}
+        formData={formData}
+        isDark={darkMode}
+        projectType={projectType}
+        variant="download"
+      />
     </div>
   )
 }

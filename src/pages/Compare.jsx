@@ -297,7 +297,7 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
                 </p>
               </div>
             ) : (
-              <div className={`grid gap-4 ${carriers.length === 1 ? 'grid-cols-1' : carriers.length === 2 ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-3'}`}>
+              <div className="grid gap-4 grid-cols-1">
                 {carriers.map(c => (
                   <CarrierCard
                     key={c.id}
@@ -324,8 +324,8 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
               const ctaLabel = !picked
                 ? 'Select a carrier to continue'
                 : picked.id === 'atrium'
-                  ? 'Send to Atrium (Quote Only) →'
-                  : `Bind with ${picked.name} →`
+                  ? 'Send Quote Request →'
+                  : 'Bind →'
               return (
                 <div className="flex justify-end pt-2 pb-6">
                   <button

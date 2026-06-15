@@ -1,4 +1,5 @@
 import { Input, Select, FormGrid, RadioGroup } from '../../components/FormField'
+import AddressAutocomplete from '../../components/AddressAutocomplete'
 
 // Some states (TX, CO etc.) don't require GC licensing — show the alt fields instead.
 const NO_LICENSE_STATES = ['TX', 'CO']
@@ -7,6 +8,10 @@ export default function ContractorInformation({ formData, updateFormData, isDark
   const data = formData.contractor || {}
   const applicant = formData.applicant || {}
   const set = (key) => (val) => updateFormData('contractor', { [key]: val })
+
+  const handleAddressSelect = ({ address, city, state, zip }) => {
+    updateFormData('contractor', { address, city, contractorState: state, zip })
+  }
 
   const insuredIsGC = data.insuredIsGC
   const stateAbbr = (applicant.state || '').trim().toUpperCase()
@@ -36,7 +41,12 @@ export default function ContractorInformation({ formData, updateFormData, isDark
             <Input label="License Number" required value={data.licenseNumber} onChange={set('licenseNumber')} />
           </FormGrid>
 
-          <Input label="Address" value={data.address} onChange={set('address')} />
+          <AddressAutocomplete
+            label="Address"
+            value={data.address || ''}
+            onChange={set('address')}
+            onSelect={handleAddressSelect}
+          />
           <FormGrid cols={3}>
             <Input label="City" value={data.city} onChange={set('city')} />
             <Input label="State" value={data.contractorState} onChange={set('contractorState')} placeholder="CA" />

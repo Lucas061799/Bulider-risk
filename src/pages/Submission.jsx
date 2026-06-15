@@ -5,6 +5,9 @@ import btisLogo from '../assets/btislogo.png'
 import btisLogoDark from '../assets/btislogo-dark.png'
 import norbieface from '../assets/norbieface.png'
 import sellMoreBg from '../assets/sell-more-bg.png'
+import iconWorker from '../assets/icon-worker.png'
+import iconGL from '../assets/icon-general-liability.png'
+import iconBO from '../assets/icon-business-owner.png'
 import Sidebar from '../components/Sidebar'
 import RightPanel from '../components/RightPanel'
 import { PROJECT_TYPE_CONFIG, CARRIERS, calcPolicyFee } from '../lib/projectTypeConfig'
@@ -56,13 +59,75 @@ function Confetti() {
 
 const money = (n) => '$' + Math.round(n).toLocaleString()
 
+// GL-Bop SummarySection pattern — teal soft-circle icon + bold black title +
+// clean label/value rows with hairline dividers. White card on light, deep
+// navy card on dark. Used inside the Print & View Full Submission overview.
+const BLOCK_ICON_PATHS = {
+  user:     'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
+  briefcase:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
+  pin:      'M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0L6.343 16.657a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z',
+  shield:   'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  doc:      'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+}
+
+function SummaryBlock({ title, icon = 'shield', children, isDark }) {
+  return (
+    <div
+      className="rounded-xl p-4"
+      style={{
+        background: isDark ? '#252948' : 'white',
+        border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}`,
+      }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <div
+          className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: 'rgba(115,201,183,0.12)' }}
+        >
+          <svg className="w-3.5 h-3.5" fill="none" stroke="#73C9B7" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d={BLOCK_ICON_PATHS[icon] || BLOCK_ICON_PATHS.shield}/>
+          </svg>
+        </div>
+        <h3 className="text-xs font-bold" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>{title}</h3>
+      </div>
+      <div>{children}</div>
+    </div>
+  )
+}
+
+function SumRow({ label, value, isDark }) {
+  if (!value && value !== 0) return null
+  return (
+    <div
+      className="flex items-center justify-between py-1.5"
+      style={{ borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.05)' : '#F3F4F6'}` }}
+    >
+      <span className="text-[10px]" style={{ color: '#9CA3AF' }}>{label}</span>
+      <span className="text-[10px] font-semibold text-right" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>{value}</span>
+    </div>
+  )
+}
+
 export default function Submission({ formData, projectType, state, boundCarrier, onBack, isDark, onToggleDark }) {
   const submissionId = getSubmissionId()
   const cfg = PROJECT_TYPE_CONFIG[projectType]
   const applicant = formData.applicant || {}
+  const project = formData.project || {}
+  const contractor = formData.contractor || {}
+  const coverage = formData.coverage || {}
   const projectStateAbbr = (state || applicant.state || '').toUpperCase()
   const flowTitle = cfg?.shortLabel || "Builder's Risk"
   const STEPS = cfg?.steps || []
+
+  // Carrier card details collapsed by default — user opens to inspect.
+  const [carrierOpen, setCarrierOpen] = useState(false)
+  // Print & full submission panel collapsed too.
+  const [summaryOpen, setSummaryOpen] = useState(false)
+  // Print preview modal — opens on print icon click, lets user review
+  // before triggering the actual browser print.
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const handlePrint = () => setPreviewOpen(true)
+  const triggerPrint = () => { setSummaryOpen(true); setPreviewOpen(false); setTimeout(() => window.print(), 150) }
 
   // Atrium → "Quote Only" path; everyone else → bound on platform
   const isAtrium = boundCarrier?.id === 'atrium'
@@ -78,6 +143,142 @@ export default function Submission({ formData, projectType, state, boundCarrier,
   return (
     <div className="flex flex-col h-screen font-montserrat overflow-hidden" style={{ background: isDark ? '#131629' : 'white' }}>
       <Confetti />
+
+      {/* Print preview modal — full submission shown in a popup; user can
+          eyeball everything then click Print to trigger window.print(). */}
+      {previewOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 no-print"
+          style={{ background: 'rgba(15,10,40,0.55)', backdropFilter: 'blur(8px)' }}
+          onClick={() => setPreviewOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-3xl rounded-2xl overflow-hidden shadow-2xl flex flex-col"
+            style={{ maxHeight: '90vh', background: isDark ? '#1A1E38' : '#F9FAFB' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div
+              className="shrink-0 px-6 py-4 flex items-center justify-between"
+              style={{
+                background: isDark ? '#191D35' : 'white',
+                borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
+              }}
+            >
+              <div>
+                <p className="text-[11px] font-bold tracking-widest uppercase" style={{
+                  background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                }}>
+                  Submission Preview
+                </p>
+                <h2 className="text-lg font-bold" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>
+                  Builder's Risk · {submissionId}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center transition"
+                style={{ background: isDark ? 'rgba(255,255,255,0.05)' : '#F3F4F6' }}
+              >
+                <svg className="w-4 h-4" fill="none" stroke={isDark ? '#9CA3AF' : '#6B7280'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                  <path d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            {/* Scrollable body */}
+            <div className="overflow-y-auto p-5 space-y-3">
+              {boundCarrier && (
+                <SummaryBlock title="Selected Carrier" icon="shield" isDark={isDark}>
+                  <SumRow label="Program" value={boundCarrier.program} isDark={isDark}/>
+                  <SumRow label="Carrier" value={boundCarrier.name} isDark={isDark}/>
+                  <SumRow label="Type" value={boundCarrier.type} isDark={isDark}/>
+                  <SumRow label="Estimated Premium" value={money(boundCarrier.premium || 0)} isDark={isDark}/>
+                  <SumRow label="Policy Fee" value={money(policyFee)} isDark={isDark}/>
+                  <SumRow label="Commission" value={`${Math.round((boundCarrier.commission || 0) * 100 * 10) / 10}%`} isDark={isDark}/>
+                  <SumRow label="Platform" value={boundCarrier.platformFunctionality} isDark={isDark}/>
+                  <SumRow label="Total Due" value={money(total)} isDark={isDark}/>
+                </SummaryBlock>
+              )}
+
+              <SummaryBlock title="Applicant" icon="user" isDark={isDark}>
+                <SumRow label="Named Insured" value={applicant.namedInsured} isDark={isDark}/>
+                <SumRow label="DBA" value={applicant.dba} isDark={isDark}/>
+                <SumRow label="Mailing Address" value={[applicant.address, applicant.suite].filter(Boolean).join(', ')} isDark={isDark}/>
+                <SumRow label="City / State / Zip" value={[applicant.city, applicant.state, applicant.zip].filter(Boolean).join(', ')} isDark={isDark}/>
+                <SumRow label="Inspection Contact" value={applicant.inspContactName} isDark={isDark}/>
+                <SumRow label="Phone" value={applicant.phone} isDark={isDark}/>
+                <SumRow label="Email" value={applicant.email} isDark={isDark}/>
+                <SumRow label="Business Type" value={applicant.businessType} isDark={isDark}/>
+                <SumRow label="Entity Role" value={applicant.entityRole} isDark={isDark}/>
+              </SummaryBlock>
+
+              <SummaryBlock title="Contractor" icon="briefcase" isDark={isDark}>
+                <SumRow label="Insured is GC?" value={contractor.insuredIsGC} isDark={isDark}/>
+                <SumRow label="Contractor Name" value={contractor.name} isDark={isDark}/>
+                <SumRow label="License #" value={contractor.licenseNumber} isDark={isDark}/>
+                <SumRow label="Years of Experience" value={contractor.yearsExperience} isDark={isDark}/>
+                <SumRow label="State Compliant" value={contractor.compliant} isDark={isDark}/>
+              </SummaryBlock>
+
+              <SummaryBlock title="Project" icon="pin" isDark={isDark}>
+                <SumRow label="Effective Date" value={project.effectiveDate} isDark={isDark}/>
+                <SumRow label="Duration" value={project.duration} isDark={isDark}/>
+                <SumRow label="Address" value={project.projectAddress} isDark={isDark}/>
+                <SumRow label="City / State / Zip" value={[project.projectCity, project.projectState, project.projectZip].filter(Boolean).join(', ')} isDark={isDark}/>
+                <SumRow label="Structure Type" value={project.structureType} isDark={isDark}/>
+                <SumRow label="Construction Type" value={project.constructionType} isDark={isDark}/>
+                <SumRow label="Square Footage" value={project.squareFootage} isDark={isDark}/>
+                <SumRow label="Stories" value={project.stories} isDark={isDark}/>
+                <SumRow label="Occupancy" value={project.occupancy} isDark={isDark}/>
+              </SummaryBlock>
+
+              <SummaryBlock title="Coverage" icon="shield" isDark={isDark}>
+                <SumRow label="Completed Value" value={coverage.completedValue && `$${coverage.completedValue}`} isDark={isDark}/>
+                <SumRow label="Remodel Value" value={coverage.remodelValue && `$${coverage.remodelValue}`} isDark={isDark}/>
+                <SumRow label="Temp Storage" value={coverage.tempStorage} isDark={isDark}/>
+                <SumRow label="Property in Transit" value={coverage.transit} isDark={isDark}/>
+                <SumRow label="Soft Costs" value={coverage.softCosts} isDark={isDark}/>
+                <SumRow label="Equipment Breakdown" value={coverage.equipmentBreakdown} isDark={isDark}/>
+                <SumRow label="Premises Liability" value={coverage.premisesLiability} isDark={isDark}/>
+              </SummaryBlock>
+            </div>
+
+            {/* Footer with Print action */}
+            <div
+              className="shrink-0 px-6 py-4 flex items-center justify-end gap-3"
+              style={{
+                background: isDark ? '#191D35' : 'white',
+                borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(false)}
+                className="px-4 py-2 rounded-lg text-sm font-semibold transition"
+                style={{
+                  color: isDark ? '#D1D5DB' : '#374151',
+                  background: isDark ? 'rgba(255,255,255,0.05)' : '#F3F4F6',
+                }}
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                onClick={triggerPrint}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-bold text-white transition hover:opacity-90"
+                style={{ background: GR, boxShadow: '0 4px 14px rgba(92,46,212,0.22)' }}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                </svg>
+                Print / Save as PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <header
         className="flex items-center justify-between shrink-0 z-10"
@@ -158,40 +359,86 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                   <h1 className="text-xl font-bold mb-1" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{headerTitle}</h1>
                   <p className="text-xs text-gray-400 leading-relaxed">{headerCopy}</p>
                 </div>
+
+                {/* Quick print button — top-right of the Bind submitted card */}
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  title="Print / Save as PDF"
+                  className="no-print w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all"
+                  style={{
+                    border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #E5E7EB',
+                    background: isDark ? 'rgba(255,255,255,0.05)' : 'white',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = isDark ? 'rgba(167,139,250,0.15)' : 'rgba(92,46,212,0.06)'; e.currentTarget.style.borderColor = 'rgba(92,46,212,0.3)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : 'white'; e.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.1)' : '#E5E7EB' }}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24">
+                    <defs><linearGradient id="hdrPrintG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={isDark ? '#A78BFA' : '#5C2ED4'}/><stop offset="100%" stopColor={isDark ? '#E879F9' : '#A614C3'}/></linearGradient></defs>
+                    <path stroke="url(#hdrPrintG)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                  </svg>
+                </button>
               </div>
 
-              {/* Info row — 4 metrics. divide-gray-100 picks up the dark-mode
-                  border-color override from index.css automatically. */}
+              {/* QUOTE NUMBER / GENERATED / STATUS — GL-Bop pattern. Three
+                  uppercase labels with bold values, vertical hairline dividers
+                  between columns, sits between the title row and the Print &
+                  View toggle. Visible at all times for at-a-glance status. */}
               <div
-                className="grid grid-cols-2 md:grid-cols-4 divide-x divide-gray-100"
+                className="grid grid-cols-3 divide-x divide-gray-100"
                 style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}
               >
-                {[
-                  { label: 'Submission ID', value: submissionId },
-                  { label: 'Date',          value: 'Today' },
-                  { label: 'Project Type',  value: cfg?.shortLabel || cfg?.label || projectType },
-                  { label: 'Status',
-                    value: isAtrium ? 'Quote Pending' : 'Bind in Progress',
-                    highlight: true },
-                ].map(item => (
-                  <div key={item.label} className="px-5 py-4">
-                    <p className="text-[10px] text-gray-400 mb-1">{item.label}</p>
-                    {item.highlight
-                      ? (
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: GR }} />
-                          <p className="text-sm font-semibold" style={{ background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{item.value}</p>
-                        </span>
-                      )
-                      : <p className="text-sm font-semibold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{item.value}</p>
-                    }
-                  </div>
-                ))}
+                <div className="px-6 py-4">
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#9CA3AF' }}>Quote Number</p>
+                  <p className="text-sm font-bold" style={{
+                    background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+                  }}>{submissionId}</p>
+                </div>
+                <div className="px-6 py-4">
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#9CA3AF' }}>Generated</p>
+                  <p className="text-sm font-bold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>Today</p>
+                </div>
+                <div className="px-6 py-4">
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#9CA3AF' }}>Status</p>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background: GR }} />
+                    <span className="text-sm font-bold" style={{ background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      {isAtrium ? 'Quote Pending' : 'Bind in Progress'}
+                    </span>
+                  </span>
+                </div>
               </div>
-            </div>
 
-            {/* Selected carrier card */}
-            {boundCarrier && (
+              {/* Policy bound with [Carrier] — GL-Bop's bound-policy summary row.
+                  Shows carrier name, premium/fee/commission inline, with the
+                  CHARGED TODAY total pulled to the right. */}
+              {boundCarrier && (
+                <div
+                  className="flex items-center justify-between gap-4 px-6 py-4 flex-wrap"
+                  style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}
+                >
+                  <div>
+                    <p className="text-base font-bold mb-1" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>
+                      {isAtrium ? 'Quote sent to ' : 'Policy bound with '}
+                      <span style={{ color: isDark ? '#F9FAFB' : '#111827' }}>{boundCarrier.name}</span>
+                    </p>
+                    <p className="text-sm" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
+                      Program: <span className="font-semibold" style={{ color: isDark ? '#D1D5DB' : '#1F1B47' }}>{boundCarrier.program}</span>
+                      {' · '}Premium <span className="font-semibold" style={{ color: isDark ? '#D1D5DB' : '#1F1B47' }}>{money(boundCarrier.premium || 0)}</span>
+                      {' · '}Fee <span className="font-semibold" style={{ color: isDark ? '#D1D5DB' : '#1F1B47' }}>{money(policyFee)}</span>
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-medium tracking-wider uppercase mb-0.5" style={{ color: '#9CA3AF' }}>
+                      {isAtrium ? 'Estimated Total' : 'Charged Today'}
+                    </p>
+                    <p className="text-2xl font-bold" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>{money(total)}</p>
+                  </div>
+                </div>
+              )}
+
+            {/* Selected carrier card — collapsed by default, click to expand details */}
+            {false && boundCarrier && (
               <div
                 className="rounded-2xl overflow-hidden"
                 style={{
@@ -200,37 +447,274 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                   boxShadow: '0 8px 28px rgba(166,20,195,0.10)',
                 }}
               >
-                <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}>
-                  <div>
-                    <p className="text-[10px] font-bold tracking-widest uppercase mb-0.5" style={{ color: '#9CA3AF' }}>{boundCarrier.program}</p>
-                    <h3 className="text-base font-bold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{boundCarrier.name}</h3>
+                {/* Collapsed header — click to toggle */}
+                <button
+                  type="button"
+                  onClick={() => setCarrierOpen(o => !o)}
+                  className="w-full px-5 py-4 flex items-center justify-between transition hover:opacity-90"
+                  style={{ background: 'transparent' }}
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-wrap">
+                    <span className="rounded-full shrink-0" style={{ width: 8, height: 8, background: GR }} />
+                    <span className="text-base font-bold truncate" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{boundCarrier.name}</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#9CA3AF' }}>{boundCarrier.program}</span>
+                    <span
+                      className="text-[10px] font-bold tracking-wide px-2 py-0.5 rounded whitespace-nowrap"
+                      style={{
+                        background: boundCarrier.type === 'Admitted' ? 'rgba(115,201,183,0.18)' : 'rgba(252,165,165,0.18)',
+                        color: boundCarrier.type === 'Admitted' ? '#0D8B73' : '#B91C1C',
+                      }}
+                    >
+                      {boundCarrier.type}
+                    </span>
                   </div>
-                  <span
-                    className="text-[10px] font-bold tracking-wide px-2 py-0.5 rounded"
-                    style={{
-                      background: boundCarrier.type === 'Admitted' ? 'rgba(115,201,183,0.18)' : 'rgba(252,165,165,0.18)',
-                      color: boundCarrier.type === 'Admitted' ? '#0D8B73' : '#B91C1C',
-                    }}
-                  >
-                    {boundCarrier.type}
-                  </span>
-                </div>
-                <div className="px-5 py-4">
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mb-1">Estimated Premium</p>
-                  <p className="text-3xl font-bold mb-3" style={{ background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                    {money(boundCarrier.premium || 0)}
-                  </p>
-                  <div className="space-y-1.5 text-[12px]">
-                    <div className="flex justify-between"><span style={{ color: '#9CA3AF' }}>Policy Fee</span><span className="font-medium" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{money(policyFee)}</span></div>
-                    <div className="flex justify-between"><span style={{ color: '#9CA3AF' }}>Commission</span><span className="font-medium" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{Math.round((boundCarrier.commission || 0) * 100 * 10) / 10}%</span></div>
-                    <div className="flex justify-between pt-2 mt-1" style={{ borderTop: `1px dashed ${isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}` }}>
-                      <span className="font-semibold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>Total Due</span>
-                      <span className="font-bold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{money(total)}</span>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-base font-bold" style={{ background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      {money(total)}
+                    </span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ transform: carrierOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Expanded detail panel — Policy Fee / Commission / breakdown */}
+                {carrierOpen && (
+                  <div className="px-5 pb-4" style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}>
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-gray-400 mt-3 mb-1">Estimated Premium</p>
+                    <p className="text-3xl font-bold mb-3" style={{ background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                      {money(boundCarrier.premium || 0)}
+                    </p>
+                    <div className="space-y-1.5 text-[12px]">
+                      <div className="flex justify-between"><span style={{ color: '#9CA3AF' }}>Policy Fee</span><span className="font-medium" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{money(policyFee)}</span></div>
+                      <div className="flex justify-between"><span style={{ color: '#9CA3AF' }}>Commission</span><span className="font-medium" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{Math.round((boundCarrier.commission || 0) * 100 * 10) / 10}%</span></div>
+                      <div className="flex justify-between"><span style={{ color: '#9CA3AF' }}>Platform</span><span className="font-medium" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{boundCarrier.platformFunctionality}</span></div>
+                      <div className="flex justify-between pt-2 mt-1" style={{ borderTop: `1px dashed ${isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}` }}>
+                        <span className="font-semibold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>Total Due</span>
+                        <span className="font-bold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{money(total)}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
+
+            {/* Print & View Full Submission — sits INSIDE the Bind submitted
+                card as a footer toggle. Border-top instead of a separate card
+                so it reads as one document (commercial-auto pattern). */}
+            <div
+              style={{
+                borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setSummaryOpen(o => !o)}
+                className="w-full flex items-center justify-between px-5 py-3.5 transition-all"
+                style={{
+                  background: summaryOpen
+                    ? (isDark ? 'rgba(92,46,212,0.18)' : 'linear-gradient(88.09deg, rgba(92,46,212,0.06) 0%, rgba(166,20,195,0.06) 100%)')
+                    : (isDark ? 'rgba(92,46,212,0.08)' : 'linear-gradient(88.09deg, rgba(92,46,212,0.03) 0%, rgba(166,20,195,0.03) 100%)'),
+                }}
+              >
+                <span className="flex items-center gap-2">
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
+                    <defs><linearGradient id="prntIcon" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={isDark ? '#A78BFA' : '#5C2ED4'}/><stop offset="100%" stopColor={isDark ? '#E879F9' : '#A614C3'}/></linearGradient></defs>
+                    <path stroke="url(#prntIcon)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                  </svg>
+                  <span className="text-xs font-semibold text-gradient">Print &amp; View Full Submission</span>
+                </span>
+                <svg className="w-4 h-4 shrink-0 transition-transform" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ transform: summaryOpen ? 'rotate(180deg)' : 'none' }}>
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </button>
+
+              {summaryOpen && (
+                <div id="submission-print-area" className="px-5 py-5" style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}>
+
+                  {/* Print-only document header — hidden on screen */}
+                  <div className="print-only mb-4">
+                    <h2 className="text-base font-bold mb-1" style={{ color: '#111827' }}>Builder's Risk Submission</h2>
+                    <p className="text-[10px]" style={{ color: '#6B7280' }}>#{submissionId} · {cfg?.label || projectType} · {projectStateAbbr || 'TBD'}</p>
+                  </div>
+
+                  {/* Bound carrier — full detail in print overview */}
+                  {boundCarrier && (
+                    <div className="mb-3">
+                      <SummaryBlock title="Selected Carrier" isDark={isDark}>
+                        <SumRow label="Program" value={boundCarrier.program} isDark={isDark}/>
+                        <SumRow label="Carrier" value={boundCarrier.name} isDark={isDark}/>
+                        <SumRow label="Type" value={boundCarrier.type} isDark={isDark}/>
+                        <SumRow label="Estimated Premium" value={money(boundCarrier.premium || 0)} isDark={isDark}/>
+                        <SumRow label="Policy Fee" value={money(policyFee)} isDark={isDark}/>
+                        <SumRow label="Commission" value={`${Math.round((boundCarrier.commission || 0) * 100 * 10) / 10}%`} isDark={isDark}/>
+                        <SumRow label="Platform" value={boundCarrier.platformFunctionality} isDark={isDark}/>
+                        <SumRow label="Total Due" value={money(total)} isDark={isDark}/>
+                      </SummaryBlock>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <SummaryBlock title="Applicant" isDark={isDark}>
+                      <SumRow label="Named Insured" value={applicant.namedInsured} isDark={isDark}/>
+                      <SumRow label="DBA" value={applicant.dba} isDark={isDark}/>
+                      <SumRow label="Mailing Address" value={[applicant.address, applicant.suite].filter(Boolean).join(', ')} isDark={isDark}/>
+                      <SumRow label="City / State / Zip" value={[applicant.city, applicant.state, applicant.zip].filter(Boolean).join(', ')} isDark={isDark}/>
+                      <SumRow label="Inspection Contact" value={applicant.inspContactName} isDark={isDark}/>
+                      <SumRow label="Phone" value={applicant.phone} isDark={isDark}/>
+                      <SumRow label="Email" value={applicant.email} isDark={isDark}/>
+                      <SumRow label="Business Type" value={applicant.businessType} isDark={isDark}/>
+                      <SumRow label="Entity Role" value={applicant.entityRole} isDark={isDark}/>
+                    </SummaryBlock>
+
+                    <SummaryBlock title="Contractor" isDark={isDark}>
+                      <SumRow label="Insured is GC?" value={contractor.insuredIsGC} isDark={isDark}/>
+                      <SumRow label="Contractor Name" value={contractor.name} isDark={isDark}/>
+                      <SumRow label="License #" value={contractor.licenseNumber} isDark={isDark}/>
+                      <SumRow label="Years of Experience" value={contractor.yearsExperience} isDark={isDark}/>
+                      <SumRow label="State Compliant" value={contractor.compliant} isDark={isDark}/>
+                    </SummaryBlock>
+
+                    <SummaryBlock title="Project" isDark={isDark}>
+                      <SumRow label="Effective Date" value={project.effectiveDate} isDark={isDark}/>
+                      <SumRow label="Duration" value={project.duration} isDark={isDark}/>
+                      <SumRow label="Address" value={project.projectAddress} isDark={isDark}/>
+                      <SumRow label="City / State / Zip" value={[project.projectCity, project.projectState, project.projectZip].filter(Boolean).join(', ')} isDark={isDark}/>
+                      <SumRow label="Structure Type" value={project.structureType} isDark={isDark}/>
+                      <SumRow label="Construction Type" value={project.constructionType} isDark={isDark}/>
+                      <SumRow label="Square Footage" value={project.squareFootage} isDark={isDark}/>
+                      <SumRow label="Stories" value={project.stories} isDark={isDark}/>
+                      <SumRow label="Occupancy" value={project.occupancy} isDark={isDark}/>
+                    </SummaryBlock>
+
+                    <SummaryBlock title="Coverage" isDark={isDark}>
+                      <SumRow label="Completed Value" value={coverage.completedValue && `$${coverage.completedValue}`} isDark={isDark}/>
+                      <SumRow label="Remodel Value" value={coverage.remodelValue && `$${coverage.remodelValue}`} isDark={isDark}/>
+                      <SumRow label="Temp Storage" value={coverage.tempStorage} isDark={isDark}/>
+                      <SumRow label="Property in Transit" value={coverage.transit} isDark={isDark}/>
+                      <SumRow label="Soft Costs" value={coverage.softCosts} isDark={isDark}/>
+                      <SumRow label="Equipment Breakdown" value={coverage.equipmentBreakdown} isDark={isDark}/>
+                      <SumRow label="Premises Liability" value={coverage.premisesLiability} isDark={isDark}/>
+                    </SummaryBlock>
+                  </div>
+
+                  {/* Print / Save as PDF — full-width footer button */}
+                  <button
+                    type="button"
+                    onClick={handlePrint}
+                    className="no-print mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-white transition hover:opacity-90"
+                    style={{ background: GR, boxShadow: '0 4px 14px rgba(92,46,212,0.22)' }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    Print / Save as PDF
+                  </button>
+                </div>
+              )}
+            </div>
+            </div>{/* end of Bind submitted card — header + Print & View are siblings inside it */}
+
+            {/* CROSS-SELL OPPORTUNITIES — commercial-auto pattern. Builder's
+                Risk policies leave gaps that GL / WC / BOP fill in for the
+                contractor, so this is a natural place to offer them. */}
+            <div
+              className="no-print rounded-2xl px-4 md:px-10 py-6 md:py-8"
+              style={{
+                background: isDark ? '#1A1E38' : 'white',
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
+              }}
+            >
+              <div className="text-center mb-6">
+                <div className="flex items-center justify-center gap-1.5 mb-2">
+                  <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="url(#csBolt)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5}>
+                    <defs>
+                      <linearGradient id="csBolt" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor={isDark ? '#A78BFA' : '#5C2ED4'}/>
+                        <stop offset="100%" stopColor={isDark ? '#E879F9' : '#A614C3'}/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                  </svg>
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-gradient">Cross-Sell Opportunities</span>
+                </div>
+                <h3 className="text-lg md:text-2xl font-bold mb-2 leading-snug" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>
+                  We prefill your information<br className="hidden md:block" /> to save you time.{' '}
+                  <span className="text-gradient">Why wait?</span>
+                </h3>
+                <p className="text-xs md:text-sm text-gray-400">Client info is already saved — adding coverages takes minutes.</p>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { name: 'General Liability',      desc: "Protect the contractor's third-party exposure on the jobsite", price: '$450/year',   badge: 'RECOMMENDED', badgeColor: '#73C9B7', icon: iconGL },
+                  { name: "Workers' Compensation",  desc: 'Required coverage for the construction crew',                  price: '$1,200/year', badge: 'TOP PICK',    badgeColor: '#A614C3', icon: iconWorker },
+                  { name: 'Business Owners Policy', desc: "Bundle the contractor's property + GL coverage and save",      price: '$850/year',   badge: 'BEST VALUE',  badgeColor: '#73C9B7', icon: iconBO },
+                ].map((item) => (
+                  <div
+                    key={item.name}
+                    className="rounded-2xl overflow-hidden hover:shadow-sm transition"
+                    style={{ border: `1px solid ${isDark ? 'rgba(255,255,255,0.07)' : '#F3F4F6'}` }}
+                  >
+                    <div className="flex items-center gap-3 px-4 py-4">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                        style={{ background: isDark ? 'rgba(92,46,212,0.15)' : 'rgba(92,46,212,0.06)' }}
+                      >
+                        <img src={item.icon} alt={item.name} className="w-6 h-6 object-contain"/>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                          <p className="text-sm font-bold leading-tight" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>{item.name}</p>
+                          <span
+                            className="text-[8px] font-bold px-1.5 py-0.5 rounded-md text-white shrink-0"
+                            style={{ background: item.badgeColor }}
+                          >
+                            {item.badge}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 leading-snug">{item.desc}</p>
+                      </div>
+                      <div className="hidden md:flex items-center gap-4 shrink-0 ml-2">
+                        <div className="text-right">
+                          <p className="text-base font-bold text-gradient leading-tight">{item.price}</p>
+                          <p className="text-[10px] text-gray-400">estimated</p>
+                        </div>
+                        <button
+                          type="button"
+                          className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white rounded-xl transition whitespace-nowrap"
+                          style={{ background: GR, boxShadow: '0 2px 8px rgba(92,46,212,0.2)' }}
+                        >
+                          Get Quote Now →
+                        </button>
+                      </div>
+                    </div>
+                    {/* Mobile footer */}
+                    <div
+                      className="md:hidden flex items-center justify-between px-4 py-3"
+                      style={{
+                        borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
+                        background: isDark ? 'rgba(255,255,255,0.02)' : '#FAFAFA',
+                      }}
+                    >
+                      <div>
+                        <p className="text-sm font-bold text-gradient leading-tight">{item.price}</p>
+                        <p className="text-[10px] text-gray-400">estimated</p>
+                      </div>
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 px-3 py-2 text-xs font-bold text-white rounded-xl transition whitespace-nowrap"
+                        style={{ background: GR }}
+                      >
+                        Get Quote →
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Return to the Jungle CTA — same pattern as commercial-auto / GL */}
             <div

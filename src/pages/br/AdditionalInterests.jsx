@@ -1,10 +1,15 @@
 import { Input, FormGrid, RadioGroup } from '../../components/FormField'
+import AddressAutocomplete from '../../components/AddressAutocomplete'
 
 function PartyBlock({ title, kind, formData, updateFormData }) {
   const data = formData.additionalInterests?.[kind] || {}
   const set = (key) => (val) => {
     const prev = formData.additionalInterests?.[kind] || {}
     updateFormData('additionalInterests', { [kind]: { ...prev, [key]: val } })
+  }
+  const setMany = (patch) => {
+    const prev = formData.additionalInterests?.[kind] || {}
+    updateFormData('additionalInterests', { [kind]: { ...prev, ...patch } })
   }
   const hasParty = data.hasParty
   const setHas = (val) => set('hasParty')(val)
@@ -15,7 +20,12 @@ function PartyBlock({ title, kind, formData, updateFormData }) {
       {hasParty === 'Yes' && (
         <div className="mt-3 space-y-3 p-4 rounded-xl" style={{ background: 'rgba(248,246,255,0.4)', border: '1px solid #E5E7EB' }}>
           <Input label="Name" value={data.name} onChange={set('name')} />
-          <Input label="Address" value={data.address} onChange={set('address')} />
+          <AddressAutocomplete
+            label="Address"
+            value={data.address || ''}
+            onChange={set('address')}
+            onSelect={({ address, city, state, zip }) => setMany({ address, city, state, zip })}
+          />
           <FormGrid cols={3}>
             <Input label="City" value={data.city} onChange={set('city')} />
             <Input label="State" value={data.state} onChange={set('state')} placeholder="CA" />
