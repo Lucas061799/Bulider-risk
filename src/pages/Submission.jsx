@@ -249,7 +249,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <p style={{ fontSize: 10, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
-                    <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>{cfg?.label || projectType} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>{cfg?.label || projectType}</p>
                   </div>
                 </div>
                 {/* Quote Number / Generated / Status — three-column grid */}
