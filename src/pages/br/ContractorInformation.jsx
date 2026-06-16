@@ -55,13 +55,7 @@ export default function ContractorInformation({ formData, updateFormData, isDark
 
           <FormGrid>
             <Input label="Years of Experience" value={data.yearsExperience} onChange={set('yearsExperience')} />
-            <Select
-              label="Min. 2 years experience?"
-              options={['Yes', 'No']}
-              value={data.minTwoYears}
-              onChange={set('minTwoYears')}
-              placeholder="Select…"
-            />
+            <div />
           </FormGrid>
 
           <RadioGroup
@@ -69,6 +63,13 @@ export default function ContractorInformation({ formData, updateFormData, isDark
             options={['Yes', 'No']}
             value={data.compliant}
             onChange={set('compliant')}
+          />
+
+          <RadioGroup
+            label="Min. 2 years experience?"
+            options={['Yes', 'No']}
+            value={data.minTwoYears}
+            onChange={set('minTwoYears')}
           />
         </div>
       )}

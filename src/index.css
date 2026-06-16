@@ -274,8 +274,11 @@ button.force-white-text,
   /* Hide everything, then reveal only the print area */
   body * { visibility: hidden !important; }
   #submission-print-area,
-  #submission-print-area * { visibility: visible !important; }
-  #submission-print-area {
+  #submission-print-area *,
+  #review-print-area,
+  #review-print-area * { visibility: visible !important; }
+  #submission-print-area,
+  #review-print-area {
     position: fixed !important;
     inset: 0 !important;
     overflow: visible !important;
@@ -285,10 +288,12 @@ button.force-white-text,
   }
 
   /* Show print-only elements */
-  #submission-print-area .print-only { display: flex !important; }
+  #submission-print-area .print-only,
+  #review-print-area .print-only { display: flex !important; }
 
   /* Hide screen-only elements inside print area */
-  #submission-print-area .screen-only { display: none !important; }
+  #submission-print-area .screen-only,
+  #review-print-area .screen-only { display: none !important; }
 }
 
 /* ── Gradient button white text — highest-priority fix ─────────────────────

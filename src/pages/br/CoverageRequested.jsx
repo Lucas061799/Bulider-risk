@@ -5,6 +5,8 @@ import { PROJECT_TYPES } from '../../lib/projectTypeConfig'
 const LIMIT_OPTIONS = ['$10,000 Included', '$25,000', '$100,000', '10% of Completed Value', '25% of Completed Value']
 const SOFT_COST_OPTIONS = ['Not Requested', '$50,000 Included', '10% of Completed Value', '25% of Completed Value']
 
+const SHOW_OPTIONAL_INLINE = ['ground_up', 'remodel_without_existing']
+
 function MoneyInput({ label, value, onChange, required, hint }) {
   return (
     <div>
@@ -27,7 +29,7 @@ function MoneyInput({ label, value, onChange, required, hint }) {
   )
 }
 
-export default function CoverageRequested({ formData, updateFormData, projectType, config }) {
+export default function CoverageRequested({ formData, updateFormData, projectType, config, isDark = false }) {
   const data = formData.coverage || {}
   const contractor = formData.contractor || {}
   const set = (key) => (val) => updateFormData('coverage', { [key]: val })
@@ -63,7 +65,7 @@ export default function CoverageRequested({ formData, updateFormData, projectTyp
           <div className="space-y-4">
             <FormGrid>
               <MoneyInput label="New Work Value (Renovation Scope)" required value={data.newWorkValue} onChange={set('newWorkValue')} />
-              <MoneyInput label="Existing Structure Value" required value={data.existingValue} onChange={set('existingValue')} />
+              <MoneyInput label="Existing Structure Value (Pre-Existing Building)" required value={data.existingValue} onChange={set('existingValue')} />
             </FormGrid>
             <MoneyInput
               label="Total Completed Value (Combined)"
@@ -78,39 +80,52 @@ export default function CoverageRequested({ formData, updateFormData, projectTyp
         )}
       </div>
 
-      <div className="pt-4" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
-          Optional Coverages
-        </p>
-        <div className="space-y-5">
-          <FormGrid>
-            <Select label="Temporary Storage" options={LIMIT_OPTIONS} value={data.tempStorage} onChange={set('tempStorage')} placeholder="Select…" />
-            <Select label="Property in Transit" options={LIMIT_OPTIONS} value={data.transit} onChange={set('transit')} placeholder="Select…" />
-          </FormGrid>
-          <FormGrid>
-            <Select label="Soft Costs" options={SOFT_COST_OPTIONS} value={data.softCosts} onChange={set('softCosts')} placeholder="Select…" />
-            <Select label="Equipment Breakdown" options={['Included', 'Not Requested']} value={data.equipmentBreakdown} onChange={set('equipmentBreakdown')} placeholder="Select…" />
-          </FormGrid>
-        </div>
-      </div>
-
-      <div className="pt-4" style={{ borderTop: '1px dashed #E5E7EB' }}>
-        <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
-          Liability Selection
-        </p>
-        {contractor.insuredIsGC === 'Yes' ? (
-          <div className="text-[12px] text-gray-500 px-3 py-2 rounded-lg" style={{ background: 'rgba(248,246,255,0.6)', border: '1px dashed #E5E7EB' }}>
-            Premises Liability not available — the Named Insured is the General Contractor (covered under their GL).
+      {SHOW_OPTIONAL_INLINE.includes(projectType) && (
+        <>
+          <div className="pt-4" style={{ borderTop: `1px dashed ${isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}` }}>
+            <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
+              Optional Coverages
+            </p>
+            <div className="space-y-5">
+              <FormGrid>
+                <Select label="Temporary Storage" options={LIMIT_OPTIONS} value={data.tempStorage} onChange={set('tempStorage')} placeholder="Select…" />
+                <Select label="Property in Transit" options={LIMIT_OPTIONS} value={data.transit} onChange={set('transit')} placeholder="Select…" />
+              </FormGrid>
+              <FormGrid>
+                <Select label="Soft Costs" options={SOFT_COST_OPTIONS} value={data.softCosts} onChange={set('softCosts')} placeholder="Select…" />
+                <Select label="Equipment Breakdown" options={['Included', 'Not Requested']} value={data.equipmentBreakdown} onChange={set('equipmentBreakdown')} placeholder="Select…" />
+              </FormGrid>
+            </div>
           </div>
-        ) : (
-          <RadioGroup
-            label="Premises Liability"
-            options={['Included', 'Not Requested']}
-            value={data.premisesLiability}
-            onChange={set('premisesLiability')}
-          />
-        )}
-      </div>
+
+          <div className="pt-4" style={{ borderTop: `1px dashed ${isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}` }}>
+            <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
+              Liability Selection
+            </p>
+            {contractor.insuredIsGC === 'Yes' ? (
+              <div className="text-[12px] text-gray-500 px-3 py-2 rounded-lg" style={{ background: 'rgba(248,246,255,0.6)', border: '1px dashed #E5E7EB' }}>
+                Premises Liability not available — the Named Insured is the General Contractor (covered under their GL).
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center gap-2 mb-2.5">
+                  <label className="text-[13px] font-semibold text-gray-600 tracking-wide">
+                    Premises Liability
+                  </label>
+                  <InfoButton title="General Liability vs Premises Liability">
+                    <GLvsPremisesInfo />
+                  </InfoButton>
+                </div>
+                <RadioGroup
+                  options={['Included', 'Not Requested']}
+                  value={data.premisesLiability}
+                  onChange={set('premisesLiability')}
+                />
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   )
 }

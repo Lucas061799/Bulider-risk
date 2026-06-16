@@ -86,15 +86,16 @@ const SECTION_TITLES = {
   [SECTIONS.CONTRACTOR]:            'Contractor Information',
   [SECTIONS.PROJECT]:               'Project Information',
   [SECTIONS.EXISTING_STRUCTURE]:    'Existing Structure Coverage',
+  [SECTIONS.EXISTING_COVERAGE]:     'Existing Coverage / Timing',
   [SECTIONS.COVERAGE]:              'Values & Coverage Requested',
   [SECTIONS.PROPERTY_PROTECTION]:   'Property Protection Information',
   [SECTIONS.ELIGIBILITY]:           'Eligibility & Underwriting Questions',
-  [SECTIONS.FINANCIAL]:             'Financial Information',
+  [SECTIONS.FINANCIAL]:             'Financial / Insurance History',
   [SECTIONS.VAC_RISK]:              'Risk Information',
   [SECTIONS.VAC_CONTRACTOR]:        'Contractor Information',
   [SECTIONS.VAC_VALUES]:            'Values & Coverage Requested',
   [SECTIONS.VAC_UNDERWRITING]:      'Underwriting Questions',
-  [SECTIONS.VAC_LOSS]:              'Loss History',
+  [SECTIONS.VAC_LOSS]:              'Loss History / Financial Eligibility',
 }
 
 function App() {

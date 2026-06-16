@@ -50,7 +50,7 @@ export default function ExistingCoverage({ formData, updateFormData, isDark }) {
             {/* Project Conditions & Description — gated by the same
                 "Has construction already begun?" Yes answer, since these
                 questions are about a project already underway. */}
-            <div className="mt-5 pt-4" style={{ borderTop: '1px dashed #E5E7EB' }}>
+            <div className="mt-5 pt-4" style={{ borderTop: `1px dashed ${isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}` }}>
               <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
                 Project Conditions &amp; Description
               </p>

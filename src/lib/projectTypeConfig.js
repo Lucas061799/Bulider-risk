@@ -160,8 +160,8 @@ export const PROJECT_TYPE_CONFIG = {
       { id: 1, label: 'Applicant',            key: SECTIONS.APPLICANT },
       { id: 2, label: 'Contractor',           key: SECTIONS.CONTRACTOR },
       { id: 3, label: 'Project',              key: SECTIONS.PROJECT },
-      { id: 4, label: 'Existing Structure',   key: SECTIONS.EXISTING_STRUCTURE },
-      { id: 5, label: 'Coverage',             key: SECTIONS.COVERAGE },
+      { id: 4, label: 'Coverage',             key: SECTIONS.COVERAGE },
+      { id: 5, label: 'Existing Structure',   key: SECTIONS.EXISTING_STRUCTURE },
       { id: 6, label: 'Property Protection',  key: SECTIONS.PROPERTY_PROTECTION },
       { id: 7, label: 'Eligibility',          key: SECTIONS.ELIGIBILITY },
       { id: 8, label: 'Loss History',         key: SECTIONS.LOSS_HISTORY },
@@ -196,7 +196,6 @@ export const PROJECT_TYPE_CONFIG = {
       { id: 9, label: 'Deductibles',          key: SECTIONS.VAC_DEDUCTIBLES },
       { id: 10, label: 'Property Maintenance', key: SECTIONS.VAC_MAINTENANCE },
       { id: 11, label: 'Loss History',        key: SECTIONS.VAC_LOSS },
-      { id: 12, label: 'Additional Interests', key: SECTIONS.ADDITIONAL_INTERESTS },
     ],
     bindAttestation: null, // Atrium is Quote-Only Phase 1
     coverageMode: 'split_value',

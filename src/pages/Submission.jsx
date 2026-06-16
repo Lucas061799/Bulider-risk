@@ -116,6 +116,9 @@ function SumRow({ label, value, isDark }) {
 export default function Submission({ formData, projectType, state, boundCarrier, onBack, isDark, onToggleDark }) {
   const submissionId = getSubmissionId()
   const cfg = PROJECT_TYPE_CONFIG[projectType]
+  const isVacant = projectType === 'vacant_dwelling'
+
+  // BR-flow buckets
   const applicant = formData.applicant || {}
   const project = formData.project || {}
   const contractor = formData.contractor || {}
@@ -128,6 +131,18 @@ export default function Submission({ formData, projectType, state, boundCarrier,
   const projectConditions = formData.projectConditions || {}
   const ai = formData.additionalInterests || {}
   const bindConf = formData.bindConfirmation || {}
+
+  // Vacant Dwelling buckets
+  const vacRisk = formData.vacRisk || {}
+  const vacSystemUpgrades = formData.vacSystemUpgrades || {}
+  const vacVacancy = formData.vacVacancy || {}
+  const vacPropertyRisk = formData.vacPropertyRisk || {}
+  const vacUnderwriting = formData.vacUnderwriting || {}
+  const vacValues = formData.vacValues || {}
+  const vacContractor = formData.vacContractor || {}
+  const vacDeductibles = formData.vacDeductibles || {}
+  const vacMaintenance = formData.vacMaintenance || {}
+  const vacLoss = formData.vacLoss || {}
   const projectStateAbbr = (state || applicant.state || '').toUpperCase()
   const flowTitle = cfg?.shortLabel || "Builder's Risk"
   const STEPS = cfg?.steps || []
@@ -191,11 +206,20 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               <button
                 type="button"
                 onClick={() => setPreviewOpen(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center transition"
-                style={{ background: isDark ? 'rgba(255,255,255,0.05)' : '#F3F4F6' }}
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition"
+                style={{ border: `1px solid ${isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}`, background: isDark ? 'transparent' : 'white' }}
+                onMouseEnter={ev => { ev.currentTarget.style.background = isDark ? 'rgba(167,139,250,0.12)' : 'rgba(92,46,212,0.06)'; ev.currentTarget.style.borderColor = 'rgba(92,46,212,0.3)' }}
+                onMouseLeave={ev => { ev.currentTarget.style.background = isDark ? 'transparent' : 'white'; ev.currentTarget.style.borderColor = isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB' }}
+                aria-label="Close"
               >
-                <svg className="w-4 h-4" fill="none" stroke={isDark ? '#9CA3AF' : '#6B7280'} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                  <path d="M6 18L18 6M6 6l12 12"/>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <defs>
+                    <linearGradient id="brSubmPrevX" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#5C2ED4"/>
+                      <stop offset="100%" stopColor="#A614C3"/>
+                    </linearGradient>
+                  </defs>
+                  <path stroke="url(#brSubmPrevX)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
                 </svg>
               </button>
             </div>
@@ -227,6 +251,106 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                 <SumRow label="Entity Role" value={applicant.entityRole} isDark={isDark}/>
               </SummaryBlock>
 
+              {isVacant ? (
+                <>
+                  <SummaryBlock title="Risk Information" icon="home" isDark={isDark}>
+                    <SumRow label="Effective Date" value={vacRisk.effectiveDate} isDark={isDark}/>
+                    <SumRow label="Property Address" value={vacRisk.propertyAddress} isDark={isDark}/>
+                    <SumRow label="City / State / Zip" value={[vacRisk.propertyCity, vacRisk.propertyState, vacRisk.propertyZip].filter(Boolean).join(', ')} isDark={isDark}/>
+                    <SumRow label="Year Built" value={vacRisk.yearBuilt} isDark={isDark}/>
+                    <SumRow label="Square Footage" value={vacRisk.squareFootage} isDark={isDark}/>
+                    <SumRow label="Construction Type" value={vacRisk.constructionType} isDark={isDark}/>
+                    <SumRow label="Occupancy" value={vacRisk.occupancy} isDark={isDark}/>
+                    <SumRow label="Stories" value={vacRisk.stories} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="System Upgrades" icon="check" isDark={isDark}>
+                    <SumRow label="Roof Updated" value={vacSystemUpgrades.roofUpdated} isDark={isDark}/>
+                    <SumRow label="Roof Year" value={vacSystemUpgrades.roofYear} isDark={isDark}/>
+                    <SumRow label="Electrical Updated" value={vacSystemUpgrades.electricalUpdated} isDark={isDark}/>
+                    <SumRow label="Plumbing Updated" value={vacSystemUpgrades.plumbingUpdated} isDark={isDark}/>
+                    <SumRow label="HVAC Updated" value={vacSystemUpgrades.hvacUpdated} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Vacancy Eligibility" icon="check" isDark={isDark}>
+                    <SumRow label="Currently Vacant?" value={vacVacancy.currentlyVacant} isDark={isDark}/>
+                    <SumRow label="Vacancy Months" value={vacVacancy.vacancyMonths} isDark={isDark}/>
+                    <SumRow label="Continuously Insured" value={vacVacancy.continuouslyInsured} isDark={isDark}/>
+                    <SumRow label="Secured Against Entry" value={vacVacancy.secured} isDark={isDark}/>
+                    <SumRow label="Multiple Locations?" value={vacVacancy.multipleLocations} isDark={isDark}/>
+                    <SumRow label="Additional Locations" value={vacVacancy.additionalLocations?.length ? `${vacVacancy.additionalLocations.length} added` : null} isDark={isDark}/>
+                    <SumRow label="Prior Cancellation" value={vacVacancy.priorCancellation} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Property Condition & Risk" icon="home" isDark={isDark}>
+                    <SumRow label="Protection Class" value={vacPropertyRisk.protectionClass} isDark={isDark}/>
+                    <SumRow label="Wildfire Score" value={vacPropertyRisk.wildfireScore} isDark={isDark}/>
+                    <SumRow label="Active Wildfire Within 50 mi" value={vacPropertyRisk.activeWildfire} isDark={isDark}/>
+                    <SumRow label="Fire Hydrant Distance" value={vacPropertyRisk.fireHydrantDistance} isDark={isDark}/>
+                    <SumRow label="Fire Station Distance" value={vacPropertyRisk.fireStationDistance} isDark={isDark}/>
+                    <SumRow label="Jobsite Security" value={(vacPropertyRisk.security || []).join(', ')} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Underwriting Questions" icon="check" isDark={isDark}>
+                    <SumRow label="Historic Designation" value={vacUnderwriting.historicDesignation} isDark={isDark}/>
+                    <SumRow label="Wood Shake Roof" value={vacUnderwriting.woodShakeRoof} isDark={isDark}/>
+                    <SumRow label="Landslide / Forest / Brush Fire Zone" value={vacUnderwriting.fireZone} isDark={isDark}/>
+                    <SumRow label="Existing Structural Damage" value={vacUnderwriting.structuralDamage} isDark={isDark}/>
+                    <SumRow label="More Than One Mortgage" value={vacUnderwriting.multipleMortgages} isDark={isDark}/>
+                    <SumRow label="Scheduled Renovation" value={vacUnderwriting.scheduledRenovation} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Values & Coverage" icon="shield" isDark={isDark}>
+                    <SumRow label="New Work Value" value={vacValues.newWorkValue && `$${vacValues.newWorkValue}`} isDark={isDark}/>
+                    <SumRow label="Existing Structure Value" value={vacValues.existingValue && `$${vacValues.existingValue}`} isDark={isDark}/>
+                    <SumRow label="Total Completed Value" value={vacValues.totalCompletedValue && `$${vacValues.totalCompletedValue}`} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Contractor" icon="briefcase" isDark={isDark}>
+                    <SumRow label="Work Being Performed" value={vacContractor.workBeingPerformed} isDark={isDark}/>
+                    <SumRow label="Insured is GC?" value={vacContractor.insuredIsGC} isDark={isDark}/>
+                    <SumRow label="Contractor Name" value={vacContractor.name} isDark={isDark}/>
+                    <SumRow label="License #" value={vacContractor.licenseNumber} isDark={isDark}/>
+                    <SumRow label="Years of Experience" value={vacContractor.yearsExperience} isDark={isDark}/>
+                    <SumRow label="Licensed & Compliant" value={vacContractor.compliant} isDark={isDark}/>
+                    <SumRow label="Load-Bearing Modification" value={vacContractor.loadBearingMod} isDark={isDark}/>
+                    <SumRow label="Architect Signoff" value={vacContractor.architectSignoff} isDark={isDark}/>
+                    <SumRow label="Permits & Financing Secured" value={vacContractor.permitsSecured} isDark={isDark}/>
+                    <SumRow label="Sprinkler System" value={vacContractor.sprinklerSystem} isDark={isDark}/>
+                    <SumRow label="TRIA Coverage Required" value={vacContractor.triaCoverage} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Deductibles & Optional Coverages" icon="card" isDark={isDark}>
+                    <SumRow label="Wind & Hail Deductible" value={vacDeductibles.windHail} isDark={isDark}/>
+                    <SumRow label="All Other Perils Deductible" value={vacDeductibles.aop} isDark={isDark}/>
+                    <SumRow label="Policy Form" value={vacDeductibles.policyForm} isDark={isDark}/>
+                    <SumRow label="Roof Exclusion" value={vacDeductibles.roofExclusion} isDark={isDark}/>
+                    <SumRow label="Cosmetic Roof Exclusion" value={vacDeductibles.cosmeticRoofExclusion} isDark={isDark}/>
+                    <SumRow label="Vandalism Coverage" value={vacDeductibles.vandalism} isDark={isDark}/>
+                    <SumRow label="Earthquake Coverage" value={vacDeductibles.earthquake} isDark={isDark}/>
+                    <SumRow label="Water Damage Exclusion" value={vacDeductibles.waterDamageExclusion} isDark={isDark}/>
+                    <SumRow label="Premises Liability" value={vacDeductibles.premisesLiability} isDark={isDark}/>
+                    <SumRow label="Premises Liability Limit" value={vacDeductibles.premisesLiabilityLimit} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Property Maintenance" icon="home" isDark={isDark}>
+                    <SumRow label="Inspection Frequency" value={vacMaintenance.inspectionFrequency} isDark={isDark}/>
+                    <SumRow label="Utilities Operational" value={(vacMaintenance.utilities || []).join(', ')} isDark={isDark}/>
+                    <SumRow label="Central Alarm" value={vacMaintenance.centralAlarm} isDark={isDark}/>
+                  </SummaryBlock>
+
+                  <SummaryBlock title="Loss History / Financial Eligibility" icon="clock" isDark={isDark}>
+                    <SumRow label="3+ Losses or > $25k" value={vacLoss.multipleLosses} isDark={isDark}/>
+                    <SumRow label="Open/Unresolved Claims" value={vacLoss.openClaims} isDark={isDark}/>
+                    <SumRow label="Bankruptcy / Arson / Fraud" value={vacLoss.bankruptcyOrFraud} isDark={isDark}/>
+                    <SumRow label="Foreclosure or Tax Liens" value={vacLoss.foreclosureTaxLiens} isDark={isDark}/>
+                    <SumRow label="Property Condemned" value={vacLoss.condemned} isDark={isDark}/>
+                    <SumRow label="Evictions In Progress" value={vacLoss.evictions} isDark={isDark}/>
+                    <SumRow label="Underwriting Notes" value={vacLoss.notes} isDark={isDark}/>
+                  </SummaryBlock>
+                </>
+              ) : (
+              <>
               <SummaryBlock title="Contractor" icon="briefcase" isDark={isDark}>
                 <SumRow label="Insured is GC?" value={contractor.insuredIsGC} isDark={isDark}/>
                 <SumRow label="Contractor Name" value={contractor.name} isDark={isDark}/>
@@ -317,11 +441,13 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               <SummaryBlock title="Bind Confirmation" icon="card" isDark={isDark}>
                 <SumRow label="Acknowledged" value={bindConf.acknowledgment === true || bindConf.acknowledgment === 'true' ? 'Yes' : bindConf.acknowledgment} isDark={isDark}/>
               </SummaryBlock>
+              </>
+              )}
             </div>
 
             {/* Footer with Print action */}
             <div
-              className="shrink-0 px-6 py-4 flex items-center justify-end gap-3"
+              className="shrink-0 px-6 py-4 flex items-center justify-between gap-3"
               style={{
                 background: isDark ? '#191D35' : 'white',
                 borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
@@ -330,10 +456,11 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               <button
                 type="button"
                 onClick={() => setPreviewOpen(false)}
-                className="px-4 py-2 rounded-lg text-sm font-semibold transition"
+                className="px-4 py-2 rounded-lg text-sm font-semibold transition hover:opacity-80"
                 style={{
                   color: isDark ? '#D1D5DB' : '#374151',
-                  background: isDark ? 'rgba(255,255,255,0.05)' : '#F3F4F6',
+                  background: isDark ? 'rgba(255,255,255,0.05)' : 'white',
+                  border: isDark ? '1px solid rgba(255,255,255,0.12)' : '1px solid #E5E7EB',
                 }}
               >
                 Close
@@ -609,10 +736,29 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               {summaryOpen && (
                 <div id="submission-print-area" className="px-5 py-5" style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}>
 
-                  {/* Print-only document header — hidden on screen */}
-                  <div className="print-only mb-4">
-                    <h2 className="text-base font-bold mb-1" style={{ color: '#111827' }}>Builder's Risk Submission</h2>
-                    <p className="text-[10px]" style={{ color: '#6B7280' }}>#{submissionId} · {cfg?.label || projectType} · {projectStateAbbr || 'TBD'}</p>
+                  {/* Print-only document header — hidden on screen, shown when printing */}
+                  <div className="print-only flex-col mb-4">
+                    {/* Branding row */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8, marginBottom: 8, borderBottom: '1.5px solid #E5E7EB' }}>
+                      <img src={norbielinkLogo} alt="NorbieLink" style={{ height: 22, objectFit: 'contain' }} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontSize: 8, color: '#9CA3AF', letterSpacing: '0.08em', fontWeight: 600 }}>POWERED BY</span>
+                        <img src={btisLogo} alt="btis" style={{ height: 18, objectFit: 'contain' }} />
+                      </div>
+                    </div>
+                    {/* Applicant + submission info row */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
+                        <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>
+                          {[applicant.businessType, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
+                        </p>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <p style={{ fontSize: 9, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
+                        <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>#{submissionId} · {cfg?.label || projectType} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Bound carrier — full detail in print overview */}
@@ -644,6 +790,106 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                       <SumRow label="Entity Role" value={applicant.entityRole} isDark={isDark}/>
                     </SummaryBlock>
 
+                    {isVacant ? (
+                      <>
+                        <SummaryBlock title="Risk Information" icon="home" isDark={isDark}>
+                          <SumRow label="Effective Date" value={vacRisk.effectiveDate} isDark={isDark}/>
+                          <SumRow label="Property Address" value={vacRisk.propertyAddress} isDark={isDark}/>
+                          <SumRow label="City / State / Zip" value={[vacRisk.propertyCity, vacRisk.propertyState, vacRisk.propertyZip].filter(Boolean).join(', ')} isDark={isDark}/>
+                          <SumRow label="Year Built" value={vacRisk.yearBuilt} isDark={isDark}/>
+                          <SumRow label="Square Footage" value={vacRisk.squareFootage} isDark={isDark}/>
+                          <SumRow label="Construction Type" value={vacRisk.constructionType} isDark={isDark}/>
+                          <SumRow label="Occupancy" value={vacRisk.occupancy} isDark={isDark}/>
+                          <SumRow label="Stories" value={vacRisk.stories} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="System Upgrades" icon="check" isDark={isDark}>
+                          <SumRow label="Roof Updated" value={vacSystemUpgrades.roofUpdated} isDark={isDark}/>
+                          <SumRow label="Roof Year" value={vacSystemUpgrades.roofYear} isDark={isDark}/>
+                          <SumRow label="Electrical Updated" value={vacSystemUpgrades.electricalUpdated} isDark={isDark}/>
+                          <SumRow label="Plumbing Updated" value={vacSystemUpgrades.plumbingUpdated} isDark={isDark}/>
+                          <SumRow label="HVAC Updated" value={vacSystemUpgrades.hvacUpdated} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Vacancy Eligibility" icon="check" isDark={isDark}>
+                          <SumRow label="Currently Vacant?" value={vacVacancy.currentlyVacant} isDark={isDark}/>
+                          <SumRow label="Vacancy Months" value={vacVacancy.vacancyMonths} isDark={isDark}/>
+                          <SumRow label="Continuously Insured" value={vacVacancy.continuouslyInsured} isDark={isDark}/>
+                          <SumRow label="Secured Against Entry" value={vacVacancy.secured} isDark={isDark}/>
+                          <SumRow label="Multiple Locations?" value={vacVacancy.multipleLocations} isDark={isDark}/>
+                          <SumRow label="Additional Locations" value={vacVacancy.additionalLocations?.length ? `${vacVacancy.additionalLocations.length} added` : null} isDark={isDark}/>
+                          <SumRow label="Prior Cancellation" value={vacVacancy.priorCancellation} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Property Condition & Risk" icon="home" isDark={isDark}>
+                          <SumRow label="Protection Class" value={vacPropertyRisk.protectionClass} isDark={isDark}/>
+                          <SumRow label="Wildfire Score" value={vacPropertyRisk.wildfireScore} isDark={isDark}/>
+                          <SumRow label="Active Wildfire Within 50 mi" value={vacPropertyRisk.activeWildfire} isDark={isDark}/>
+                          <SumRow label="Fire Hydrant Distance" value={vacPropertyRisk.fireHydrantDistance} isDark={isDark}/>
+                          <SumRow label="Fire Station Distance" value={vacPropertyRisk.fireStationDistance} isDark={isDark}/>
+                          <SumRow label="Jobsite Security" value={(vacPropertyRisk.security || []).join(', ')} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Underwriting Questions" icon="check" isDark={isDark}>
+                          <SumRow label="Historic Designation" value={vacUnderwriting.historicDesignation} isDark={isDark}/>
+                          <SumRow label="Wood Shake Roof" value={vacUnderwriting.woodShakeRoof} isDark={isDark}/>
+                          <SumRow label="Landslide / Forest / Brush Fire Zone" value={vacUnderwriting.fireZone} isDark={isDark}/>
+                          <SumRow label="Existing Structural Damage" value={vacUnderwriting.structuralDamage} isDark={isDark}/>
+                          <SumRow label="More Than One Mortgage" value={vacUnderwriting.multipleMortgages} isDark={isDark}/>
+                          <SumRow label="Scheduled Renovation" value={vacUnderwriting.scheduledRenovation} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Values & Coverage" icon="shield" isDark={isDark}>
+                          <SumRow label="New Work Value" value={vacValues.newWorkValue && `$${vacValues.newWorkValue}`} isDark={isDark}/>
+                          <SumRow label="Existing Structure Value" value={vacValues.existingValue && `$${vacValues.existingValue}`} isDark={isDark}/>
+                          <SumRow label="Total Completed Value" value={vacValues.totalCompletedValue && `$${vacValues.totalCompletedValue}`} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Contractor" icon="briefcase" isDark={isDark}>
+                          <SumRow label="Work Being Performed" value={vacContractor.workBeingPerformed} isDark={isDark}/>
+                          <SumRow label="Insured is GC?" value={vacContractor.insuredIsGC} isDark={isDark}/>
+                          <SumRow label="Contractor Name" value={vacContractor.name} isDark={isDark}/>
+                          <SumRow label="License #" value={vacContractor.licenseNumber} isDark={isDark}/>
+                          <SumRow label="Years of Experience" value={vacContractor.yearsExperience} isDark={isDark}/>
+                          <SumRow label="Licensed & Compliant" value={vacContractor.compliant} isDark={isDark}/>
+                          <SumRow label="Load-Bearing Modification" value={vacContractor.loadBearingMod} isDark={isDark}/>
+                          <SumRow label="Architect Signoff" value={vacContractor.architectSignoff} isDark={isDark}/>
+                          <SumRow label="Permits & Financing Secured" value={vacContractor.permitsSecured} isDark={isDark}/>
+                          <SumRow label="Sprinkler System" value={vacContractor.sprinklerSystem} isDark={isDark}/>
+                          <SumRow label="TRIA Coverage Required" value={vacContractor.triaCoverage} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Deductibles & Optional Coverages" icon="card" isDark={isDark}>
+                          <SumRow label="Wind & Hail Deductible" value={vacDeductibles.windHail} isDark={isDark}/>
+                          <SumRow label="All Other Perils Deductible" value={vacDeductibles.aop} isDark={isDark}/>
+                          <SumRow label="Policy Form" value={vacDeductibles.policyForm} isDark={isDark}/>
+                          <SumRow label="Roof Exclusion" value={vacDeductibles.roofExclusion} isDark={isDark}/>
+                          <SumRow label="Cosmetic Roof Exclusion" value={vacDeductibles.cosmeticRoofExclusion} isDark={isDark}/>
+                          <SumRow label="Vandalism Coverage" value={vacDeductibles.vandalism} isDark={isDark}/>
+                          <SumRow label="Earthquake Coverage" value={vacDeductibles.earthquake} isDark={isDark}/>
+                          <SumRow label="Water Damage Exclusion" value={vacDeductibles.waterDamageExclusion} isDark={isDark}/>
+                          <SumRow label="Premises Liability" value={vacDeductibles.premisesLiability} isDark={isDark}/>
+                          <SumRow label="Premises Liability Limit" value={vacDeductibles.premisesLiabilityLimit} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Property Maintenance" icon="home" isDark={isDark}>
+                          <SumRow label="Inspection Frequency" value={vacMaintenance.inspectionFrequency} isDark={isDark}/>
+                          <SumRow label="Utilities Operational" value={(vacMaintenance.utilities || []).join(', ')} isDark={isDark}/>
+                          <SumRow label="Central Alarm" value={vacMaintenance.centralAlarm} isDark={isDark}/>
+                        </SummaryBlock>
+
+                        <SummaryBlock title="Loss History / Financial Eligibility" icon="clock" isDark={isDark}>
+                          <SumRow label="3+ Losses or > $25k" value={vacLoss.multipleLosses} isDark={isDark}/>
+                          <SumRow label="Open/Unresolved Claims" value={vacLoss.openClaims} isDark={isDark}/>
+                          <SumRow label="Bankruptcy / Arson / Fraud" value={vacLoss.bankruptcyOrFraud} isDark={isDark}/>
+                          <SumRow label="Foreclosure or Tax Liens" value={vacLoss.foreclosureTaxLiens} isDark={isDark}/>
+                          <SumRow label="Property Condemned" value={vacLoss.condemned} isDark={isDark}/>
+                          <SumRow label="Evictions In Progress" value={vacLoss.evictions} isDark={isDark}/>
+                          <SumRow label="Underwriting Notes" value={vacLoss.notes} isDark={isDark}/>
+                        </SummaryBlock>
+                      </>
+                    ) : (
+                    <>
                     <SummaryBlock title="Contractor" icon="briefcase" isDark={isDark}>
                       <SumRow label="Insured is GC?" value={contractor.insuredIsGC} isDark={isDark}/>
                       <SumRow label="Contractor Name" value={contractor.name} isDark={isDark}/>
@@ -734,6 +980,8 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                     <SummaryBlock title="Bind Confirmation" icon="card" isDark={isDark}>
                       <SumRow label="Acknowledged" value={bindConf.acknowledgment === true || bindConf.acknowledgment === 'true' ? 'Yes' : bindConf.acknowledgment} isDark={isDark}/>
                     </SummaryBlock>
+                    </>
+                    )}
                   </div>
 
                   {/* Print / Save as PDF — full-width footer button */}

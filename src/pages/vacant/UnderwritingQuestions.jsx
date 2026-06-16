@@ -20,11 +20,24 @@ export default function VacUnderwritingQuestions({ formData, updateFormData }) {
       ))}
 
       {data.scheduledRenovation === 'Yes' && (
-        <div className="rounded-xl p-4 mt-2" style={{ background: 'rgba(254,243,199,0.5)', border: '1px solid #FDE68A' }}>
-          <p className="text-[12px] leading-relaxed" style={{ color: '#92400E' }}>
-            ⚠ A scheduled renovation may make this risk better suited for the <span className="font-bold">Builder's Risk</span> program.
-            Consider switching project type — we'll carry over the answers you've already provided.
-          </p>
+        <div
+          className="rounded-xl p-4 mt-2"
+          style={{
+            background: 'linear-gradient(135deg, rgba(92,46,212,0.06) 0%, rgba(166,20,195,0.06) 100%)',
+            border: '1px solid rgba(92,46,212,0.2)',
+          }}
+        >
+          <div className="flex items-start gap-2">
+            <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" stroke="#5C2ED4" strokeWidth="1.6"/>
+              <path d="M12 8v5" stroke="#5C2ED4" strokeWidth="1.8" strokeLinecap="round"/>
+              <circle cx="12" cy="16.5" r="0.9" fill="#5C2ED4"/>
+            </svg>
+            <p className="text-[12px] leading-relaxed" style={{ color: '#5C2ED4' }}>
+              A scheduled renovation may make this risk better suited for the <span className="font-bold">Builder's Risk</span> program.
+              Consider switching project type — we'll carry over the answers you've already provided.
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -9,6 +9,9 @@ import { useState, useRef, useEffect } from 'react'
 //   </InfoButton>
 export default function InfoButton({ title, children, size = 'sm', label }) {
   const [open, setOpen] = useState(false)
+  // Right-align the popup when it would overflow the viewport. Without
+  // this the 340px popup gets cut off on fields near the right edge.
+  const [alignRight, setAlignRight] = useState(false)
   const btnRef = useRef(null)
   const popRef = useRef(null)
 
@@ -22,6 +25,14 @@ export default function InfoButton({ title, children, size = 'sm', label }) {
     }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  useEffect(() => {
+    if (!open || !btnRef.current) return
+    const rect = btnRef.current.getBoundingClientRect()
+    const POPUP_WIDTH = 340
+    const PADDING = 16
+    setAlignRight(rect.left + POPUP_WIDTH + PADDING > window.innerWidth)
   }, [open])
 
   const dim = size === 'xs' ? 'w-3.5 h-3.5 text-[8px]' : 'w-4 h-4 text-[10px]'
@@ -48,7 +59,7 @@ export default function InfoButton({ title, children, size = 'sm', label }) {
       {open && (
         <div
           ref={popRef}
-          className="absolute z-50 top-full mt-2 left-0 rounded-xl bg-white shadow-xl"
+          className={`absolute z-50 top-full mt-2 ${alignRight ? 'right-0' : 'left-0'} rounded-xl bg-white shadow-xl`}
           style={{
             width: '340px',
             border: '1px solid rgba(92,46,212,0.18)',

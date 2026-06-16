@@ -22,27 +22,37 @@ export default function VacPropertyConditionRisk({ formData, updateFormData }) {
           <Input label="Protection Class" value={data.protectionClass} onChange={set('protectionClass')} placeholder="API will populate" />
           <Input label="Wildfire Score" value={data.wildfireScore} onChange={set('wildfireScore')} placeholder="API will populate" />
         </FormGrid>
-        <div className="mt-3">
-          <RadioGroup
-            label="Active wildfire within 50 miles?"
-            options={['Yes', 'No']}
-            value={data.activeWildfire}
-            onChange={set('activeWildfire')}
-          />
-        </div>
       </div>
 
+      <RadioGroup
+        label="Is there an active wildfire within 50 miles?"
+        options={['Yes', 'No']}
+        value={data.activeWildfire}
+        onChange={set('activeWildfire')}
+      />
+
       <FormGrid>
-        <Input label="Distance to Nearest Fire Hydrant" value={data.fireHydrantDistance} onChange={set('fireHydrantDistance')} placeholder="Google API" />
-        <Input label="Distance to Nearest Fire Station" value={data.fireStationDistance} onChange={set('fireStationDistance')} placeholder="Google API" />
+        <Input label="Distance to Nearest Fire Hydrant" value={data.fireHydrantDistance} onChange={set('fireHydrantDistance')} placeholder="ft / mi (Google API)" />
+        <Input label="Distance to Nearest Fire Station" value={data.fireStationDistance} onChange={set('fireStationDistance')} placeholder="mi (Google API)" />
       </FormGrid>
 
       <div className="pt-3">
+        <label className="block text-[13px] font-semibold text-gray-600 mb-2.5 tracking-wide">
+          Jobsite Security <span className="font-normal text-gray-400">(check all that apply)</span>
+        </label>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
           {SECURITY_OPTIONS.map(opt => (
             <Checkbox key={opt} label={opt} checked={security.includes(opt)} onChange={() => toggleSecurity(opt)} />
           ))}
         </div>
+        {security.includes('Other') && (
+          <div className="mt-3">
+            <FormGrid>
+              <Input label="Specify other security" value={data.securityOther} onChange={set('securityOther')} />
+              <div />
+            </FormGrid>
+          </div>
+        )}
       </div>
     </div>
   )

@@ -55,8 +55,9 @@ export default function VacConditionalContractor({ formData, updateFormData }) {
               </FormGrid>
               <FormGrid>
                 <Input label="Years of Experience" value={data.yearsExperience} onChange={set('yearsExperience')} />
-                <RadioGroup label="Licensed & compliant?" options={['Yes', 'No']} value={data.compliant} onChange={set('compliant')} />
+                <div />
               </FormGrid>
+              <RadioGroup label="Licensed and compliant with state/local requirements?" options={['Yes', 'No']} value={data.compliant} onChange={set('compliant')} />
             </>
           )}
 
@@ -70,23 +71,24 @@ export default function VacConditionalContractor({ formData, updateFormData }) {
 
             {data.loadBearingMod === 'Yes' && (
               <div className="mt-3 space-y-3">
-                <div className="flex items-start gap-2">
-                  <Select
-                    label="Renovation Modification Type"
-                    options={MODIFICATION_TYPES}
-                    value={data.modificationType}
-                    onChange={set('modificationType')}
-                    placeholder="Select…"
-                    className="flex-1"
-                  />
-                  <div className="mt-7">
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <label className="text-[13px] font-semibold text-gray-600 tracking-wide">
+                      Renovation Modification Type <span className="font-normal text-gray-400">(Structural Direction)</span>
+                    </label>
                     <InfoButton title="Horizontal vs Vertical Renovation">
                       <HorizontalVsVerticalInfo />
                     </InfoButton>
                   </div>
+                  <Select
+                    options={MODIFICATION_TYPES}
+                    value={data.modificationType}
+                    onChange={set('modificationType')}
+                    placeholder="Select…"
+                  />
                 </div>
-                <RadioGroup label="Architect / engineer signoff that the structure is sound for the rehab?" options={['Yes', 'No']} value={data.architectSignoff} onChange={set('architectSignoff')} />
-                <RadioGroup label="Permits and financing secured?" options={['Yes', 'No']} value={data.permitsSecured} onChange={set('permitsSecured')} />
+                <RadioGroup label="Has an architect or engineer reviewed and signed off that the structure is sound for the rehab and temporary bracing is adequate to support the load?" options={['Yes', 'No']} value={data.architectSignoff} onChange={set('architectSignoff')} />
+                <RadioGroup label="Have permits and financing been secured?" options={['Yes', 'No']} value={data.permitsSecured} onChange={set('permitsSecured')} />
               </div>
             )}
 
@@ -97,6 +99,11 @@ export default function VacConditionalContractor({ formData, updateFormData }) {
                 value={data.workDescription}
                 onChange={set('workDescription')}
               />
+            </div>
+
+            <div className="mt-3 space-y-3">
+              <RadioGroup label="Sprinkler system present?" options={['Yes', 'No']} value={data.sprinklerSystem} onChange={set('sprinklerSystem')} />
+              <RadioGroup label="TRIA coverage required?" options={['Yes', 'No']} value={data.triaCoverage} onChange={set('triaCoverage')} />
             </div>
           </div>
         </div>

@@ -78,7 +78,7 @@ export default function ProjectInformation({ formData, updateFormData, errorFiel
 
           <FormGrid cols={3}>
             <Input label="Total Square Footage" value={data.squareFootage} onChange={set('squareFootage')} />
-            <Select label="Stories" options={STORY_OPTIONS} value={data.stories} onChange={set('stories')} placeholder="Select…" />
+            <Select label="Number of Stories" options={STORY_OPTIONS} value={data.stories} onChange={set('stories')} placeholder="Select…" />
             <Select label="Anticipated Occupancy" options={OCCUPANCY_OPTIONS} value={data.occupancy} onChange={set('occupancy')} placeholder="Select…" />
           </FormGrid>
 

@@ -1,5 +1,5 @@
 import { Input, Select, FormGrid, RadioGroup } from '../../components/FormField'
-import InfoButton, { HorizontalVsVerticalInfo } from '../../components/InfoButton'
+import InfoButton, { HorizontalVsVerticalInfo, GLvsPremisesInfo } from '../../components/InfoButton'
 
 // Shows ONLY when projectType === 'remodel_with_existing'
 const MODIFICATION_TYPES = [
@@ -10,10 +10,15 @@ const MODIFICATION_TYPES = [
   'Structural Alteration (Load-Bearing Changes Without Expansion)',
   'Unknown / To Be Determined',
 ]
+const LIMIT_OPTIONS = ['$10,000 Included', '$25,000', '$100,000', '10% of Completed Value', '25% of Completed Value']
+const SOFT_COST_OPTIONS = ['Not Requested', '$50,000 Included', '10% of Completed Value', '25% of Completed Value']
 
-export default function ExistingStructure({ formData, updateFormData }) {
+export default function ExistingStructure({ formData, updateFormData, isDark = false }) {
   const data = formData.existingStructure || {}
+  const coverage = formData.coverage || {}
+  const contractor = formData.contractor || {}
   const set = (key) => (val) => updateFormData('existingStructure', { [key]: val })
+  const setCov = (key) => (val) => updateFormData('coverage', { [key]: val })
 
   const loadBearingMod = data.loadBearingMod === 'Yes'
 
@@ -44,24 +49,25 @@ export default function ExistingStructure({ formData, updateFormData }) {
 
       {loadBearingMod && (
         <div className="pt-3 space-y-4 rounded-xl p-4" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
-          <div className="flex items-start gap-2">
-            <Select
-              label="Renovation Modification Type"
-              options={MODIFICATION_TYPES}
-              value={data.modificationType}
-              onChange={set('modificationType')}
-              placeholder="Select…"
-              className="flex-1"
-            />
-            <div className="mt-7">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <label className="text-[13px] font-semibold text-gray-600 tracking-wide">
+                Renovation Modification Type <span className="font-normal text-gray-400">(Structural Direction)</span>
+              </label>
               <InfoButton title="Horizontal vs Vertical Renovation">
                 <HorizontalVsVerticalInfo />
               </InfoButton>
             </div>
+            <Select
+              options={MODIFICATION_TYPES}
+              value={data.modificationType}
+              onChange={set('modificationType')}
+              placeholder="Select…"
+            />
           </div>
 
           <RadioGroup
-            label="Has an architect or engineer signed off that the structure is sound for the rehab?"
+            label="Has an architect or engineer reviewed and signed off that the structure is sound for the rehab and temporary bracing is adequate to support the load?"
             options={['Yes', 'No']}
             value={data.architectSignoff}
             onChange={set('architectSignoff')}
@@ -77,11 +83,54 @@ export default function ExistingStructure({ formData, updateFormData }) {
 
       <div className="pt-3">
         <FormGrid cols={2}>
-          <Input label="Roofing" value={data.roofingYear} onChange={set('roofingYear')} placeholder="YYYY" />
-          <Input label="Heating" value={data.heatingYear} onChange={set('heatingYear')} placeholder="YYYY" />
-          <Input label="Electrical" value={data.electricalYear} onChange={set('electricalYear')} placeholder="YYYY" />
-          <Input label="Plumbing" value={data.plumbingYear} onChange={set('plumbingYear')} placeholder="YYYY" />
+          <Input label="Last Update to Roofing Year" value={data.roofingYear} onChange={set('roofingYear')} placeholder="YYYY" />
+          <Input label="Last Update to Heating Year" value={data.heatingYear} onChange={set('heatingYear')} placeholder="YYYY" />
+          <Input label="Last Update to Electrical Year" value={data.electricalYear} onChange={set('electricalYear')} placeholder="YYYY" />
+          <Input label="Last Update to Plumbing Year" value={data.plumbingYear} onChange={set('plumbingYear')} placeholder="YYYY" />
         </FormGrid>
+      </div>
+
+      <div className="pt-4" style={{ borderTop: `1px dashed ${isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}` }}>
+        <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
+          Optional Coverages
+        </p>
+        <div className="space-y-5">
+          <FormGrid>
+            <Select label="Temporary Storage" options={LIMIT_OPTIONS} value={coverage.tempStorage} onChange={setCov('tempStorage')} placeholder="Select…" />
+            <Select label="Property in Transit" options={LIMIT_OPTIONS} value={coverage.transit} onChange={setCov('transit')} placeholder="Select…" />
+          </FormGrid>
+          <FormGrid>
+            <Select label="Soft Costs" options={SOFT_COST_OPTIONS} value={coverage.softCosts} onChange={setCov('softCosts')} placeholder="Select…" />
+            <Select label="Equipment Breakdown" options={['Included', 'Not Requested']} value={coverage.equipmentBreakdown} onChange={setCov('equipmentBreakdown')} placeholder="Select…" />
+          </FormGrid>
+        </div>
+      </div>
+
+      <div className="pt-4" style={{ borderTop: `1px dashed ${isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB'}` }}>
+        <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
+          Liability Selection
+        </p>
+        {contractor.insuredIsGC === 'Yes' ? (
+          <div className="text-[12px] text-gray-500 px-3 py-2 rounded-lg" style={{ background: 'rgba(248,246,255,0.6)', border: '1px dashed #E5E7EB' }}>
+            Premises Liability not available — the Named Insured is the General Contractor (covered under their GL).
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-center gap-2 mb-2.5">
+              <label className="text-[13px] font-semibold text-gray-600 tracking-wide">
+                Premises Liability
+              </label>
+              <InfoButton title="General Liability vs Premises Liability">
+                <GLvsPremisesInfo />
+              </InfoButton>
+            </div>
+            <RadioGroup
+              options={['Included', 'Not Requested']}
+              value={coverage.premisesLiability}
+              onChange={setCov('premisesLiability')}
+            />
+          </div>
+        )}
       </div>
     </div>
   )
