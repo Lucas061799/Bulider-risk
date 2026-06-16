@@ -231,6 +231,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
             <div id="submission-modal-print-area" className="overflow-y-auto p-5 space-y-3">
               {/* Print-only branding header — hidden on screen, shown on PDF */}
               <div className="print-only flex-col mb-4">
+                {/* Branding row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8, marginBottom: 8, borderBottom: '1.5px solid #E5E7EB' }}>
                   <img src={norbielinkLogo} alt="NorbieLink" style={{ height: 22, objectFit: 'contain' }} />
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -238,16 +239,32 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                     <img src={btisLogo} alt="btis" style={{ height: 18, objectFit: 'contain' }} />
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                {/* Bind submitted title + Application label */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
+                    <p style={{ fontSize: 15, fontWeight: 800, color: '#1F1B47' }}>{isAtrium ? 'Quote requested!' : 'Bind submitted!'}</p>
                     <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>
-                      {[applicant.businessType, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
+                      {applicant.namedInsured || '—'}{applicant.businessType ? ' · ' + applicant.businessType : ''}{applicant.email ? ' · ' + applicant.email : ''}
                     </p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
-                    <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>#{submissionId} · {cfg?.label || projectType} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    <p style={{ fontSize: 10, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
+                    <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>{cfg?.label || projectType} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                  </div>
+                </div>
+                {/* Quote Number / Generated / Status — three-column grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: '1px solid #F3F4F6', borderBottom: '1px solid #F3F4F6' }}>
+                  <div style={{ padding: '8px 12px', borderRight: '1px solid #F3F4F6' }}>
+                    <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF', marginBottom: 2 }}>QUOTE NUMBER</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{submissionId}</p>
+                  </div>
+                  <div style={{ padding: '8px 12px', borderRight: '1px solid #F3F4F6' }}>
+                    <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF', marginBottom: 2 }}>GENERATED</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: '#1F1B47' }}>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</p>
+                  </div>
+                  <div style={{ padding: '8px 12px' }}>
+                    <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF', marginBottom: 2 }}>STATUS</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{isAtrium ? 'Quote Pending' : 'Bind in Progress'}</p>
                   </div>
                 </div>
               </div>
@@ -772,17 +789,32 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                         <img src={btisLogo} alt="btis" style={{ height: 18, objectFit: 'contain' }} />
                       </div>
                     </div>
-                    {/* Applicant + submission info row */}
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                    {/* Bind submitted title + Application label */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
                       <div>
-                        <p style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
+                        <p style={{ fontSize: 15, fontWeight: 800, color: '#1F1B47' }}>{isAtrium ? 'Quote requested!' : 'Bind submitted!'}</p>
                         <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>
-                          {[applicant.businessType, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
+                          {applicant.namedInsured || '—'}{applicant.businessType ? ' · ' + applicant.businessType : ''}{applicant.email ? ' · ' + applicant.email : ''}
                         </p>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <p style={{ fontSize: 9, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
-                        <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>#{submissionId} · {cfg?.label || projectType} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                        <p style={{ fontSize: 10, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
+                        <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>{cfg?.label || projectType} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                      </div>
+                    </div>
+                    {/* Quote Number / Generated / Status — three-column grid */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', borderTop: '1px solid #F3F4F6', borderBottom: '1px solid #F3F4F6' }}>
+                      <div style={{ padding: '8px 12px', borderRight: '1px solid #F3F4F6' }}>
+                        <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF', marginBottom: 2 }}>QUOTE NUMBER</p>
+                        <p style={{ fontSize: 11, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{submissionId}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px', borderRight: '1px solid #F3F4F6' }}>
+                        <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF', marginBottom: 2 }}>GENERATED</p>
+                        <p style={{ fontSize: 11, fontWeight: 700, color: '#1F1B47' }}>{new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}</p>
+                      </div>
+                      <div style={{ padding: '8px 12px' }}>
+                        <p style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.12em', color: '#9CA3AF', marginBottom: 2 }}>STATUS</p>
+                        <p style={{ fontSize: 11, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>{isAtrium ? 'Quote Pending' : 'Bind in Progress'}</p>
                       </div>
                     </div>
                   </div>
