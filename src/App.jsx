@@ -76,6 +76,27 @@ const SECTION_COMPONENTS = {
   [SECTIONS.VAC_LOSS]:              VacLossHistory,
 }
 
+// Section headers shown in the main content area. Sidebar uses the short
+// `step.label` from projectTypeConfig; this map adds a descriptive suffix
+// (Information / Questions / Requested) — matches the requirements docx
+// section titles and GL-Bop's "Coverage Limits" / "Underwriting Questions"
+// naming convention.
+const SECTION_TITLES = {
+  [SECTIONS.APPLICANT]:             'Applicant Information',
+  [SECTIONS.CONTRACTOR]:            'Contractor Information',
+  [SECTIONS.PROJECT]:               'Project Information',
+  [SECTIONS.EXISTING_STRUCTURE]:    'Existing Structure Coverage',
+  [SECTIONS.COVERAGE]:              'Values & Coverage Requested',
+  [SECTIONS.PROPERTY_PROTECTION]:   'Property Protection Information',
+  [SECTIONS.ELIGIBILITY]:           'Eligibility & Underwriting Questions',
+  [SECTIONS.FINANCIAL]:             'Financial Information',
+  [SECTIONS.VAC_RISK]:              'Risk Information',
+  [SECTIONS.VAC_CONTRACTOR]:        'Contractor Information',
+  [SECTIONS.VAC_VALUES]:            'Values & Coverage Requested',
+  [SECTIONS.VAC_UNDERWRITING]:      'Underwriting Questions',
+  [SECTIONS.VAC_LOSS]:              'Loss History',
+}
+
 function App() {
   // URL param shortcuts:
   //   ?page=main → skip PageZero, default to ground_up
@@ -85,7 +106,18 @@ function App() {
   const pageParam = urlParams.get('page')
   const typeParam = urlParams.get('type')
 
-  const [formData, setFormData] = useState({})
+  // Persist formData to localStorage so it survives page reloads and URL
+  // shortcuts like ?page=submission. Without this the user's filled-in
+  // data evaporates as soon as React re-mounts.
+  const [formData, setFormData] = useState(() => {
+    try {
+      const stored = localStorage.getItem('br-formData')
+      return stored ? JSON.parse(stored) : {}
+    } catch { return {} }
+  })
+  useEffect(() => {
+    try { localStorage.setItem('br-formData', JSON.stringify(formData)) } catch {}
+  }, [formData])
   const [activeStep, setActiveStep] = useState(1)
   // Flow stages: form → inCompare (Get My Quotes) → bound (Select carrier)
   const [inCompare, setInCompare] = useState(pageParam === 'compare' || pageParam === 'submission')
@@ -239,6 +271,7 @@ function App() {
         state={state}
         onBack={() => setInCompare(false)}
         onBind={(carrier) => { setBoundCarrier(carrier); setBound(true) }}
+        onDownloadSummary={() => setSummaryOpen(true)}
         isDark={darkMode}
         onToggleDark={() => setDarkMode(d => !d)}
       />
@@ -327,7 +360,7 @@ function App() {
                   className="rounded-2xl"
                   style={{ background: 'transparent', border: 'none' }}
                 >
-                  <SectionHeader title={step.label} isDark={darkMode} />
+                  <SectionHeader title={SECTION_TITLES[step.key] || step.label} isDark={darkMode} />
                   <div className="px-4 md:px-10 pt-4 md:pt-5 pb-8 md:pb-10">
                     <Comp
                       formData={formData}

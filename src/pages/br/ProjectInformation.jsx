@@ -88,25 +88,24 @@ export default function ProjectInformation({ formData, updateFormData, errorFiel
             value={data.specialStructure}
             onChange={set('specialStructure')}
           />
-          {data.specialStructure === 'Yes' && (
-            <Input label="Describe" value={data.specialStructureDesc} onChange={set('specialStructureDesc')} />
-          )}
         </div>
       </div>
 
-      <div className="pt-3">
-        <Textarea
-          label="Project Description (minimum 10 words)"
-          required
-          rows={4}
-          value={data.description}
-          onChange={set('description')}
-          placeholder="What is being built, any unique characteristics of the project, description of work remaining and completed in detail…"
-        />
-        <p className="text-[10px] text-gray-400 mt-1">
-          {(data.description || '').trim().split(/\s+/).filter(Boolean).length} words
-        </p>
-      </div>
+      {data.specialStructure === 'Yes' && (
+        <div className="pt-3">
+          <Textarea
+            label="Project Description (minimum 10 words)"
+            required
+            rows={4}
+            value={data.description}
+            onChange={set('description')}
+            placeholder="Brief description of project scope…"
+          />
+          <p className="text-[10px] text-gray-400 mt-1">
+            {(data.description || '').trim().split(/\s+/).filter(Boolean).length} words
+          </p>
+        </div>
+      )}
     </div>
   )
 }

@@ -7,16 +7,65 @@ const DARK_JUNGLE_OPACITY = 0.6    // jungle bg opacity in dark mode
 const DARK_BORDER_RIGHT   = '1px solid rgba(255,255,255,0.12)' // sidebar right border in dark mode
 // ────────────────────────────────────────────────────────────
 
-// Generic completion check: a section is "done" if its bucket in formData has at least 1 truthy field.
+// Required fields per section — a section is "done" only when EVERY required
+// field in its bucket has a truthy value. Sections not listed here fall back
+// to the lenient "any field truthy" behavior so we don't accidentally lock
+// progress for sections we haven't fully mapped yet.
+const REQUIRED_FIELDS = {
+  applicant:         ['namedInsured', 'address', 'city', 'state', 'zip', 'phone', 'email', 'businessType', 'entityRole'],
+  contractor:        ['insuredIsGC'], // conditional fields handled separately below
+  project:           ['effectiveDate', 'duration', 'projectAddress', 'projectCity', 'projectState', 'projectZip', 'structureType', 'constructionType', 'squareFootage', 'stories', 'occupancy', 'specialStructure'],
+  coverage:          [], // mode-dependent (completedValue / remodelValue / newWorkValue+existingValue), checked separately
+  propertyProtection:['protectionClass', 'wildfireScore', 'activeWildfire', 'fireHydrantDistance', 'fireStationDistance'],
+  eligibility:       ['nonLightCommercial', 'unusualConstruction', 'cannabis', 'multipleStructures'],
+  lossHistory:       ['category'],
+  financial:         ['bankruptcy', 'policyCanceled'],
+  existingCoverage:  ['replacingExisting', 'constructionBegun'],
+  additionalInterests: [], // section is optional (all 3 Y/N are independent)
+  bindConfirmation:  ['acknowledgment'],
+}
+
+const truthy = (v) => v !== '' && v !== undefined && v !== null && v !== false
+
+function isSectionComplete(formData, step) {
+  const bucket = formData[step.key]
+  if (!bucket) return false
+
+  // Conditional rules
+  if (step.key === 'contractor') {
+    if (!truthy(bucket.insuredIsGC)) return false
+    if (bucket.insuredIsGC === 'Yes') return true // No further fields required
+    return truthy(bucket.name) && truthy(bucket.licenseNumber) && truthy(bucket.compliant)
+  }
+  if (step.key === 'coverage') {
+    return truthy(bucket.completedValue) || truthy(bucket.remodelValue) ||
+           (truthy(bucket.newWorkValue) && truthy(bucket.existingValue))
+  }
+  if (step.key === 'existingCoverage') {
+    if (!truthy(bucket.replacingExisting) || !truthy(bucket.constructionBegun)) return false
+    if (bucket.constructionBegun === 'Yes') {
+      // Project Conditions sub-section gates kick in
+      return truthy(bucket.startDate) && truthy(bucket.percentComplete)
+    }
+    return true
+  }
+  if (step.key === 'additionalInterests') {
+    // Done as soon as user has answered all three Y/N
+    return truthy(bucket.mortgagee?.hasParty) && truthy(bucket.lossPayee?.hasParty) && truthy(bucket.additionalInsured?.hasParty)
+  }
+
+  const required = REQUIRED_FIELDS[step.key]
+  if (required && required.length) {
+    return required.every(f => truthy(bucket[f]))
+  }
+  // Fallback for unmapped sections — any truthy value counts
+  return Object.values(bucket).some(truthy)
+}
+
 // Each section page writes to a bucket keyed by its `key` (from projectTypeConfig SECTIONS).
 function getSectionCompletion(formData, steps) {
   const results = {}
-  steps.forEach((step) => {
-    const bucket = formData[step.key]
-    if (!bucket) { results[step.id] = false; return }
-    const truthy = Object.values(bucket).some(v => v !== '' && v !== undefined && v !== null && v !== false)
-    results[step.id] = truthy
-  })
+  steps.forEach((step) => { results[step.id] = isSectionComplete(formData, step) })
   return results
 }
 

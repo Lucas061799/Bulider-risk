@@ -78,7 +78,10 @@ export default function CoverageRequested({ formData, updateFormData, projectTyp
         )}
       </div>
 
-      <div className="pt-3">
+      <div className="pt-4" style={{ borderTop: '1px dashed #E5E7EB' }}>
+        <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
+          Optional Coverages
+        </p>
         <div className="space-y-5">
           <FormGrid>
             <Select label="Temporary Storage" options={LIMIT_OPTIONS} value={data.tempStorage} onChange={set('tempStorage')} placeholder="Select…" />
@@ -91,28 +94,21 @@ export default function CoverageRequested({ formData, updateFormData, projectTyp
         </div>
       </div>
 
-      <div className="pt-3">
+      <div className="pt-4" style={{ borderTop: '1px dashed #E5E7EB' }}>
+        <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400 mb-3 mt-3">
+          Liability Selection
+        </p>
         {contractor.insuredIsGC === 'Yes' ? (
           <div className="text-[12px] text-gray-500 px-3 py-2 rounded-lg" style={{ background: 'rgba(248,246,255,0.6)', border: '1px dashed #E5E7EB' }}>
             Premises Liability not available — the Named Insured is the General Contractor (covered under their GL).
           </div>
         ) : (
-          <div>
-            {/* Inline InfoButton next to the RadioGroup label so it has context */}
-            <div className="flex items-center gap-2 mb-2.5">
-              <label className="text-[13px] font-semibold text-gray-600 tracking-wide">
-                Premises Liability
-              </label>
-              <InfoButton title="General Liability vs Premises Liability">
-                <GLvsPremisesInfo />
-              </InfoButton>
-            </div>
-            <RadioGroup
-              options={['Included', 'Not Requested']}
-              value={data.premisesLiability}
-              onChange={set('premisesLiability')}
-            />
-          </div>
+          <RadioGroup
+            label="Premises Liability"
+            options={['Included', 'Not Requested']}
+            value={data.premisesLiability}
+            onChange={set('premisesLiability')}
+          />
         )}
       </div>
     </div>

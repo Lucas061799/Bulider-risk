@@ -47,7 +47,7 @@ export default function ApplicantInformation({ formData, updateFormData, errorFi
 
         <div className="pt-3 mt-2">
           <FormGrid cols={3}>
-            <Input label="Contact Name" value={data.inspContactName} onChange={set('inspContactName')} />
+            <Input label="Inspection Contact Name" value={data.inspContactName} onChange={set('inspContactName')} />
             <Input label="Phone" required type="tel" value={data.phone} onChange={set('phone')} placeholder="(555) 000-0000" error={hasError('phone')} />
             <Input label="Email" required type="email" value={data.email} onChange={set('email')} error={hasError('email')} />
           </FormGrid>

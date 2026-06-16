@@ -231,12 +231,22 @@ export default function ProjectConditions({ formData, updateFormData, isDark = f
 
       <div className="pt-3">
         <Textarea
-          label="Additional project notes (optional)"
-          rows={3}
+          label="Project Description (minimum 10 words)"
+          required
+          rows={4}
           value={data.notes}
           onChange={set('notes')}
-          placeholder="Anything else underwriting should know…"
+          placeholder="What is being built, any unique characteristics, description of work remaining and work completed in detail…"
         />
+        {(() => {
+          const wc = (data.notes || '').trim().split(/\s+/).filter(Boolean).length
+          const ok = wc >= 10
+          return (
+            <p className="text-[10px] mt-1" style={{ color: ok ? '#5C2ED4' : '#9CA3AF' }}>
+              {wc} word{wc === 1 ? '' : 's'}{ok ? ' ✓' : ` — ${10 - wc} more needed`}
+            </p>
+          )
+        })()}
       </div>
     </div>
   )

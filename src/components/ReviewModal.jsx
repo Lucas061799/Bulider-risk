@@ -9,6 +9,13 @@ const BLOCK_ICON_PATHS = {
   briefcase:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
   pin:      'M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0L6.343 16.657a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z',
   shield:   'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+  doc:      'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+  card:     'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z',
+  check:    'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4',
+  users:    'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+  warning:  'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+  clock:    'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z',
+  home:     'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
 }
 
 function SummaryBlock({ title, icon = 'shield', children, isDark }) {
@@ -50,6 +57,14 @@ export default function ReviewModal({ open, onClose, onConfirm, formData = {}, i
   const contractor = formData.contractor || {}
   const project = formData.project || {}
   const coverage = formData.coverage || {}
+  const protection = formData.propertyProtection || {}
+  const eligibility = formData.eligibility || {}
+  const lossHistory = formData.lossHistory || {}
+  const financial = formData.financial || {}
+  const existingCov = formData.existingCoverage || {}
+  const projectConditions = formData.projectConditions || {}
+  const ai = formData.additionalInterests || {}
+  const bindConf = formData.bindConfirmation || {}
   const projectLabel = projectType
     ? projectType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
     : "Builder's Risk"
@@ -173,11 +188,74 @@ export default function ReviewModal({ open, onClose, onConfirm, formData = {}, i
           <SummaryBlock title="Coverage" icon="shield" isDark={isDark}>
             <SumRow label="Completed Value" value={coverage.completedValue && `$${coverage.completedValue}`} isDark={isDark}/>
             <SumRow label="Remodel Value" value={coverage.remodelValue && `$${coverage.remodelValue}`} isDark={isDark}/>
+            <SumRow label="New Work Value" value={coverage.newWorkValue && `$${coverage.newWorkValue}`} isDark={isDark}/>
+            <SumRow label="Existing Structure Value" value={coverage.existingValue && `$${coverage.existingValue}`} isDark={isDark}/>
             <SumRow label="Temp Storage" value={coverage.tempStorage} isDark={isDark}/>
             <SumRow label="Property in Transit" value={coverage.transit} isDark={isDark}/>
             <SumRow label="Soft Costs" value={coverage.softCosts} isDark={isDark}/>
             <SumRow label="Equipment Breakdown" value={coverage.equipmentBreakdown} isDark={isDark}/>
             <SumRow label="Premises Liability" value={coverage.premisesLiability} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Property Protection" icon="home" isDark={isDark}>
+            <SumRow label="Protection Class" value={protection.protectionClass} isDark={isDark}/>
+            <SumRow label="Wildfire Score" value={protection.wildfireScore} isDark={isDark}/>
+            <SumRow label="Active Wildfire Within 50 mi" value={protection.activeWildfire} isDark={isDark}/>
+            <SumRow label="Fire Hydrant Distance" value={protection.fireHydrantDistance} isDark={isDark}/>
+            <SumRow label="Fire Station Distance" value={protection.fireStationDistance} isDark={isDark}/>
+            <SumRow label="Jobsite Security" value={(protection.security || []).join(', ')} isDark={isDark}/>
+            <SumRow label="Other Security" value={protection.securityOther} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Eligibility & Underwriting" icon="check" isDark={isDark}>
+            <SumRow label="Non-residential / light commercial" value={eligibility.nonLightCommercial} isDark={isDark}/>
+            <SumRow label="Unusual construction" value={eligibility.unusualConstruction} isDark={isDark}/>
+            <SumRow label="Cannabis-related occupancy" value={eligibility.cannabis} isDark={isDark}/>
+            <SumRow label="Multiple structures" value={eligibility.multipleStructures} isDark={isDark}/>
+            <SumRow label="# Structures" value={eligibility.numStructures} isDark={isDark}/>
+            <SumRow label="Prior loss repair" value={eligibility.priorLossRepair} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Loss History" icon="clock" isDark={isDark}>
+            <SumRow label="Loss Category" value={lossHistory.category} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Financial" icon="card" isDark={isDark}>
+            <SumRow label="Bankruptcy" value={financial.bankruptcy} isDark={isDark}/>
+            <SumRow label="Policy Canceled" value={financial.policyCanceled} isDark={isDark}/>
+            <SumRow label="Cancellation Explanation" value={financial.cancellationExplanation} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Existing Coverage" icon="doc" isDark={isDark}>
+            <SumRow label="Replacing Existing Coverage?" value={existingCov.replacingExisting} isDark={isDark}/>
+            <SumRow label="Prior Carrier" value={existingCov.priorCarrier} isDark={isDark}/>
+            <SumRow label="Construction Already Begun?" value={existingCov.constructionBegun} isDark={isDark}/>
+            <SumRow label="Start Date" value={existingCov.startDate} isDark={isDark}/>
+            <SumRow label="% Complete" value={existingCov.percentComplete} isDark={isDark}/>
+            <SumRow label="Work Completed Value" value={existingCov.completedValue && `$${existingCov.completedValue}`} isDark={isDark}/>
+            <SumRow label="Remaining Value" value={existingCov.remainingValue && `$${existingCov.remainingValue}`} isDark={isDark}/>
+            <SumRow label="Reason for Switching" value={existingCov.switchReason} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Project Conditions" icon="check" isDark={isDark}>
+            <SumRow label="No-Loss Statement" value={projectConditions.noLossStatement} isDark={isDark}/>
+            <SumRow label="Site Secured" value={projectConditions.siteSecured} isDark={isDark}/>
+            <SumRow label="Applicant Owns Property" value={projectConditions.applicantOwnsProperty} isDark={isDark}/>
+            <SumRow label="Permits in Place" value={projectConditions.permitsInPlace} isDark={isDark}/>
+            <SumRow label="GC Carries $1M CGL" value={projectConditions.gcCarriesCGL} isDark={isDark}/>
+            <SumRow label="Written Contract" value={projectConditions.writtenContract} isDark={isDark}/>
+            <SumRow label="No Lapse in Prior Coverage" value={projectConditions.noLapseInPrior} isDark={isDark}/>
+            <SumRow label="Project Description" value={projectConditions.notes} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Additional Interests" icon="users" isDark={isDark}>
+            <SumRow label="Mortgagee" value={ai.mortgagee?.hasParty === 'Yes' ? (ai.mortgagee?.name || 'Yes') : ai.mortgagee?.hasParty} isDark={isDark}/>
+            <SumRow label="Loss Payee" value={ai.lossPayee?.hasParty === 'Yes' ? (ai.lossPayee?.name || 'Yes') : ai.lossPayee?.hasParty} isDark={isDark}/>
+            <SumRow label="Additional Insured" value={ai.additionalInsured?.hasParty === 'Yes' ? (ai.additionalInsured?.name || 'Yes') : ai.additionalInsured?.hasParty} isDark={isDark}/>
+          </SummaryBlock>
+
+          <SummaryBlock title="Bind Confirmation" icon="card" isDark={isDark}>
+            <SumRow label="Acknowledged" value={bindConf.acknowledgment === true || bindConf.acknowledgment === 'true' ? 'Yes' : bindConf.acknowledgment} isDark={isDark}/>
           </SummaryBlock>
         </div>
 

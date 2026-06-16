@@ -151,7 +151,15 @@ function CarrierMark({ name, size = 'sm' }) {
   )
 }
 
-export default function RightPanel({ onFormReview, onDownloadSummary, formData = {}, isDark = false, projectType, state, inSubmission = false }) {
+// Steps that show in the right rail during the quote flow (Compare →
+// Bind). Simpler than GL-Bop's 4-step Package/Add-Ons flow because BR's
+// Compare page goes straight to Submission once the user clicks Bind.
+const QUOTE_STEPS = [
+  { id: 'select', n: 1, label: 'Select Carrier' },
+  { id: 'bind',   n: 2, label: 'Bind & Submit' },
+]
+
+export default function RightPanel({ onFormReview, onDownloadSummary, formData = {}, isDark = false, projectType, state, inSubmission = false, inCompare = false, selectedCarrierId = null }) {
   const [files, setFiles] = useState([])
   const [dragging, setDragging] = useState(false)
   const inputRef = useRef()
@@ -292,7 +300,7 @@ export default function RightPanel({ onFormReview, onDownloadSummary, formData =
         )}
 
         {/* ============================ Live Quotes (pre-submission) ============================ */}
-        {!inSubmission && (
+        {!inSubmission && !inCompare && (
         <div className="mb-5">
           {/* Hero best-price card */}
           {showSkeleton ? (
@@ -432,6 +440,128 @@ export default function RightPanel({ onFormReview, onDownloadSummary, formData =
         </div>
         )}
 
+        {/* ============================ Quote-flow summary (Compare stage) ============================ */}
+        {/* Mirrors GL-Bop: once the user clicks Get Quotes the right rail
+            switches from the carrier list to a focused "selected carrier"
+            summary + WHERE YOU ARE step tracker. */}
+        {inCompare && (() => {
+          const top = quotes.find(q => q.id === selectedCarrierId) || quotes[0]
+          const currentIdx = selectedCarrierId ? 0 : 0 // user is on "Select Carrier" until they click Bind
+          return (
+            <div className="mb-5">
+              {/* Selected carrier card */}
+              {top ? (
+                <div
+                  className="rounded-2xl px-5 py-5 mb-5 flex flex-col items-center text-center relative"
+                  style={{
+                    background: isDark ? 'rgba(255,255,255,0.04)' : 'white',
+                    border: `1.5px solid ${isDark ? 'rgba(124,58,237,0.55)' : '#7C3AED'}`,
+                    boxShadow: '0 4px 20px rgba(92,46,212,0.10)',
+                  }}
+                >
+                  <span
+                    className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider text-white"
+                    style={{ background: BRAND_GRADIENT, boxShadow: '0 2px 6px rgba(92,46,212,0.25)' }}
+                  >
+                    {selectedCarrierId ? 'SELECTED' : 'BEST'}
+                  </span>
+                  <CarrierMark name={top.name} size="lg" />
+                  <p className="text-base font-bold mt-3" style={{ color: isDark ? '#F9FAFB' : '#111827' }}>{top.program}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{top.name}</p>
+                  {showPrices && (
+                    <div className="mt-4">
+                      <span className="text-3xl font-bold" style={{
+                        background: BRAND_GRADIENT,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}>{money(top.premium)}</span>
+                      <p className="text-[10px] text-gray-400 mt-1">Annual Premium</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div
+                  className="rounded-2xl px-5 py-8 mb-5 text-center"
+                  style={{
+                    background: isDark ? 'rgba(255,255,255,0.03)' : '#FAFAFB',
+                    border: `1px dashed ${isDark ? 'rgba(255,255,255,0.10)' : '#E5E7EB'}`,
+                  }}
+                >
+                  <p className="text-[12px] text-gray-500 leading-relaxed">
+                    Select a carrier on the left to see your quote here.
+                  </p>
+                </div>
+              )}
+
+              {/* WHERE YOU ARE step tracker */}
+              <div className="mb-6">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.1em] text-gray-400 mb-4 pl-0.5">
+                  Where you are
+                </div>
+                <div className="space-y-5">
+                  {QUOTE_STEPS.map((step, idx) => {
+                    const isCurrent = idx === currentIdx
+                    const isDone = idx < currentIdx
+                    return (
+                      <div key={step.id} className="flex items-center gap-4">
+                        <span
+                          className="w-9 h-9 rounded-full text-sm font-bold flex items-center justify-center shrink-0"
+                          style={{
+                            background: 'linear-gradient(88.09deg, rgba(92,46,212,0.25) 0%, rgba(166,20,195,0.25) 100%)',
+                            ...(isCurrent ? { boxShadow: '0 0 0 3px rgba(124,58,237,0.14)' } : {}),
+                            opacity: !isCurrent && !isDone ? 0.55 : 1,
+                          }}
+                        >
+                          <span style={{
+                            background: BRAND_GRADIENT,
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text',
+                          }}>{step.n}</span>
+                        </span>
+                        <span
+                          className="text-sm leading-tight"
+                          style={{
+                            fontWeight: isCurrent ? 700 : 500,
+                            color: isCurrent
+                              ? (isDark ? '#F9FAFB' : '#111827')
+                              : isDone
+                                ? (isDark ? '#D1D5DB' : '#4B5563')
+                                : '#9CA3AF',
+                          }}
+                        >
+                          {step.label}
+                        </span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Download Application Summary — always active in the
+                  quote flow since the form is complete by this point */}
+              <button
+                type="button"
+                onClick={() => onDownloadSummary && onDownloadSummary()}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition hover:opacity-90"
+                style={{
+                  background: BRAND_GRADIENT,
+                  color: 'white',
+                  boxShadow: '0 4px 14px rgba(92,46,212,0.22)',
+                }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                  <rect x="9" y="3" width="6" height="4" rx="1"/>
+                  <line x1="9" y1="13" x2="15" y2="13"/>
+                  <line x1="9" y1="17" x2="13" y2="17"/>
+                </svg>
+                Download Application Summary
+              </button>
+            </div>
+          )
+        })()}
 
       </div>
     </aside>

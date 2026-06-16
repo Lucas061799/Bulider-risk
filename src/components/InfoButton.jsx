@@ -108,10 +108,63 @@ export function NoExistingStructureCoverageInfo() {
 
 export function GLvsPremisesInfo() {
   return (
-    <div className="space-y-2">
-      <p><span className="font-semibold">General Liability (GL)</span> is broad coverage: bodily injury, property damage, personal & advertising injury, medical payments.</p>
-      <p><span className="font-semibold">Premises Liability</span> covers only injuries caused by the condition of the property (slip on wet floor, trip on uneven surface, etc.).</p>
-      <p className="pt-1">Premises liability is a subset of GL — if you already have GL, premises is included.</p>
+    <div className="space-y-3 text-[12px] leading-relaxed">
+      <p>General Liability and Premises Liability are related but not the same.</p>
+
+      <div>
+        <p className="font-semibold mb-1">General Liability (GL)</p>
+        <p className="mb-1">Broad coverage protecting against:</p>
+        <ul className="list-disc list-inside ml-1 space-y-0.5">
+          <li>Bodily injury</li>
+          <li>Property damage</li>
+          <li>Personal & advertising injury</li>
+          <li>Medical payments</li>
+        </ul>
+        <p className="mt-2 mb-1">Examples:</p>
+        <ul className="list-disc list-inside ml-1 space-y-0.5 text-gray-600">
+          <li>Property damage during work</li>
+          <li>Slip and fall at business location</li>
+          <li>Advertising injury claims</li>
+        </ul>
+        <p className="mt-2 italic text-gray-600">Premises liability claims are included within GL.</p>
+      </div>
+
+      <div>
+        <p className="font-semibold mb-1">Premises Liability</p>
+        <p className="mb-1">Covers injuries caused by condition of the property.</p>
+        <p className="mb-1">Examples:</p>
+        <ul className="list-disc list-inside ml-1 space-y-0.5 text-gray-600">
+          <li>Wet floor slip</li>
+          <li>Trip on uneven surface</li>
+          <li>Poor lighting injury</li>
+          <li>Ice/snow fall</li>
+        </ul>
+      </div>
+
+      <div>
+        <p className="font-semibold mb-1.5">Simple Comparison</p>
+        <table className="w-full text-[11px]" style={{ borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
+              <th className="text-left py-1.5 pr-2 font-semibold" style={{ color: '#5C2ED4' }}>General Liability</th>
+              <th className="text-left py-1.5 font-semibold" style={{ color: '#5C2ED4' }}>Premises Liability</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-600">
+            {[
+              ['Broad coverage', 'Specific exposure'],
+              ['Covers BI, PD, advertising injury', 'Covers injuries from property conditions'],
+              ['Includes operations & completed ops', 'Limited to premises conditions'],
+              ['Insurance policy', 'Legal exposure type'],
+            ].map(([a, b], i) => (
+              <tr key={i} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                <td className="py-1.5 pr-2 align-top">{a}</td>
+                <td className="py-1.5 align-top">{b}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }
