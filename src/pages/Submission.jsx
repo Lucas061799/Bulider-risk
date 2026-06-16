@@ -155,7 +155,10 @@ export default function Submission({ formData, projectType, state, boundCarrier,
   // before triggering the actual browser print.
   const [previewOpen, setPreviewOpen] = useState(false)
   const handlePrint = () => setPreviewOpen(true)
-  const triggerPrint = () => { setSummaryOpen(true); setPreviewOpen(false); setTimeout(() => window.print(), 150) }
+  // Print the modal preview body directly — it has #submission-modal-print-area
+  // which is targeted by the @media print CSS. Modal chrome (header, footer,
+  // backdrop) is .no-print so it stays hidden.
+  const triggerPrint = () => { setTimeout(() => window.print(), 50) }
 
   // Atrium → "Quote Only" path; everyone else → bound on platform
   const isAtrium = boundCarrier?.id === 'atrium'
@@ -224,8 +227,31 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               </button>
             </div>
 
-            {/* Scrollable body */}
-            <div className="overflow-y-auto p-5 space-y-3">
+            {/* Scrollable body — also serves as the print target */}
+            <div id="submission-modal-print-area" className="overflow-y-auto p-5 space-y-3">
+              {/* Print-only branding header — hidden on screen, shown on PDF */}
+              <div className="print-only flex-col mb-4">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8, marginBottom: 8, borderBottom: '1.5px solid #E5E7EB' }}>
+                  <img src={norbielinkLogo} alt="NorbieLink" style={{ height: 22, objectFit: 'contain' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ fontSize: 8, color: '#9CA3AF', letterSpacing: '0.08em', fontWeight: 600 }}>POWERED BY</span>
+                    <img src={btisLogo} alt="btis" style={{ height: 18, objectFit: 'contain' }} />
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
+                    <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>
+                      {[applicant.businessType, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
+                    </p>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <p style={{ fontSize: 9, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
+                    <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>#{submissionId} · {cfg?.label || projectType} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                  </div>
+                </div>
+              </div>
+
               {boundCarrier && (
                 <SummaryBlock title="Selected Carrier" icon="card" isDark={isDark}>
                   <SumRow label="Program" value={boundCarrier.program} isDark={isDark}/>

@@ -271,29 +271,58 @@ button.force-white-text,
 @media print {
   @page { size: A4 portrait; margin: 0.35in; }
 
-  /* Hide everything, then reveal only the print area */
-  body * { visibility: hidden !important; }
+  /* Reset parent constraints so a print-area nested inside a position-fixed
+     modal can still flow naturally on the printed page. Visibility is hidden
+     for everything except the active print area + its descendants. */
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+  body * {
+    visibility: hidden !important;
+    position: static !important;
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  /* Reveal the active print area. Three sources:
+     #submission-print-area        → inline "Print & View Full Submission" panel
+     #submission-modal-print-area  → preview modal body on Submission page
+     #review-print-area            → ReviewModal body (review or download) */
   #submission-print-area,
   #submission-print-area *,
+  #submission-modal-print-area,
+  #submission-modal-print-area *,
   #review-print-area,
-  #review-print-area * { visibility: visible !important; }
+  #review-print-area * {
+    visibility: visible !important;
+  }
   #submission-print-area,
+  #submission-modal-print-area,
   #review-print-area {
-    position: fixed !important;
-    inset: 0 !important;
-    overflow: visible !important;
+    display: block !important;
+    width: 100% !important;
     background: white !important;
     padding: 18px 22px !important;
     font-family: 'Montserrat', sans-serif !important;
   }
 
-  /* Show print-only elements */
+  /* Show print-only elements inside print areas */
   #submission-print-area .print-only,
+  #submission-modal-print-area .print-only,
   #review-print-area .print-only { display: flex !important; }
 
-  /* Hide screen-only elements inside print area */
+  /* Hide screen-only elements inside print areas */
   #submission-print-area .screen-only,
+  #submission-modal-print-area .screen-only,
   #review-print-area .screen-only { display: none !important; }
+
+  /* DON'T use `display: none` on .no-print — modal backdrops/headers carry
+     that class and are parents of the print area; hiding them would also
+     hide the print area. The `body * { visibility: hidden }` rule already
+     makes them invisible. */
 }
 
 /* ── Gradient button white text — highest-priority fix ─────────────────────
