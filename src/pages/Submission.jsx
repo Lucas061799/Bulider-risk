@@ -234,10 +234,10 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               <div className="print-only flex-col mb-4">
                 {/* Branding row */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 8, marginBottom: 8, borderBottom: '1.5px solid #E5E7EB' }}>
-                  <img src={norbielinkLogo} alt="NorbieLink" style={{ height: 22, objectFit: 'contain' }} />
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ fontSize: 8, color: '#9CA3AF', letterSpacing: '0.08em', fontWeight: 600 }}>POWERED BY</span>
-                    <img src={btisLogo} alt="btis" style={{ height: 18, objectFit: 'contain' }} />
+                  <img src={norbielinkLogo} alt="NorbieLink" style={{ height: 14, objectFit: 'contain' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                    <span style={{ fontSize: 7, color: '#9CA3AF', letterSpacing: '0.08em', fontWeight: 600 }}>POWERED BY</span>
+                    <img src={btisLogo} alt="btis" style={{ height: 11, objectFit: 'contain' }} />
                   </div>
                 </div>
                 {/* Applicant + submission info row */}

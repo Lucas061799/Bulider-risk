@@ -279,13 +279,14 @@ button.force-white-text,
     overflow: visible !important;
     background: white !important;
   }
-  body * {
+  body *:not(img):not(svg) {
     visibility: hidden !important;
     position: static !important;
     overflow: visible !important;
     max-height: none !important;
     height: auto !important;
   }
+  body img, body svg { visibility: hidden !important; }
 
   /* Reveal the active print area. Three sources:
      #submission-print-area        → inline "Print & View Full Submission" panel
