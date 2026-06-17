@@ -407,34 +407,21 @@ export default function RightPanel({ onFormReview, onDownloadSummary, formData =
               list to match GL-Bop's right-rail layout. Only enabled
               once essentials are filled in. */}
           {!inSubmission && (() => {
-            const a = formData.applicant || {}
-            const formComplete = !!(a.namedInsured && a.email && a.phone && (formData.project?.effectiveDate || formData.vacRisk?.effectiveDate))
             return (
-              <>
-                <button
-                  type="button"
-                  disabled={!formComplete}
-                  onClick={() => formComplete && onDownloadSummary && onDownloadSummary()}
-                  className="w-full inline-flex items-center justify-center gap-1.5 mt-4 py-2.5 rounded-xl text-xs font-bold transition disabled:cursor-not-allowed"
-                  style={formComplete
-                    ? { background: BRAND_GRADIENT, color: 'white', boxShadow: '0 4px 14px rgba(92,46,212,0.22)' }
-                    : { background: isDark ? 'rgba(255,255,255,0.04)' : '#FAFAFB', color: isDark ? '#6B7280' : '#9CA3AF', border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB'}` }
-                  }
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                    <rect x="9" y="3" width="6" height="4" rx="1"/>
-                    <line x1="9" y1="13" x2="15" y2="13"/>
-                    <line x1="9" y1="17" x2="13" y2="17"/>
-                  </svg>
-                  Download Application Summary
-                </button>
-                {!formComplete && (
-                  <p className="text-[10px] text-gray-400 text-left mt-2 leading-relaxed">
-                    Finish your application to download the summary.
-                  </p>
-                )}
-              </>
+              <button
+                type="button"
+                onClick={() => onDownloadSummary && onDownloadSummary()}
+                className="w-full inline-flex items-center justify-center gap-1.5 mt-4 py-2.5 rounded-xl text-xs font-bold transition hover:opacity-90"
+                style={{ background: BRAND_GRADIENT, color: 'white', boxShadow: '0 4px 14px rgba(92,46,212,0.22)' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                  <rect x="9" y="3" width="6" height="4" rx="1"/>
+                  <line x1="9" y1="13" x2="15" y2="13"/>
+                  <line x1="9" y1="17" x2="13" y2="17"/>
+                </svg>
+                Download Application Summary
+              </button>
             )
           })()}
         </div>
