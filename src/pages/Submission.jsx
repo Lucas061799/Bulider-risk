@@ -243,7 +243,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                 {/* Application title + metadata (left) + project category (right) */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#5C2ED4' }}>Builder's Risk Application</p>
                     <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>#{submissionId} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {isAtrium ? 'Quote Pending' : 'Bind in Progress'}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
