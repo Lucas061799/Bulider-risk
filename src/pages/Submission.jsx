@@ -240,17 +240,17 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                     <img src={btisLogo} alt="btis" style={{ height: 11, objectFit: 'contain' }} />
                   </div>
                 </div>
-                {/* Applicant + submission info row */}
+                {/* Application info (left) + applicant (right) */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
-                    <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>
-                      {[applicant.businessType, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
-                    </p>
+                    <p style={{ fontSize: 13, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
+                    <p style={{ fontSize: 9, color: '#9CA3AF', marginTop: 2 }}>#{submissionId} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {isAtrium ? 'Quote Pending' : 'Bind in Progress'}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <p style={{ fontSize: 9, fontWeight: 700, background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Builder's Risk Application</p>
-                    <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>#{submissionId} · {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} · {isAtrium ? 'Quote Pending' : 'Bind in Progress'}</p>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: '#111827' }}>{applicant.namedInsured || '—'}</p>
+                    <p style={{ fontSize: 8, color: '#9CA3AF', marginTop: 2 }}>
+                      {[applicant.businessType, applicant.phone, applicant.email].filter(Boolean).join('  ·  ')}
+                    </p>
                   </div>
                 </div>
               </div>
