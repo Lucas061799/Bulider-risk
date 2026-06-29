@@ -299,7 +299,7 @@ export default function PageZero({ onStart }) {
                         <circle cx="12" cy="17" r="0.9" fill="#D97706"/>
                       </svg>
                     </div>
-                    <p className="text-[12px] font-bold" style={{ color: '#1F1B47' }}>Double-check coverage</p>
+                    <p className="text-[12px] font-bold" style={{ color: '#1F1B47' }}>{cfg?.shortLabel}</p>
                   </div>
                   <p className="text-[12px] text-gray-700 leading-relaxed">
                     {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
