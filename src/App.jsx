@@ -17,6 +17,7 @@ import ContractorInformation from './pages/br/ContractorInformation'
 import ProjectInformation from './pages/br/ProjectInformation'
 import ExistingStructure from './pages/br/ExistingStructure'
 import CoverageRequested from './pages/br/CoverageRequested'
+import LiabilitySelection from './pages/br/LiabilitySelection'
 import PropertyProtection from './pages/br/PropertyProtection'
 import EligibilityUnderwriting from './pages/br/EligibilityUnderwriting'
 import LossHistory from './pages/br/LossHistory'
@@ -54,6 +55,7 @@ const SECTION_COMPONENTS = {
   [SECTIONS.PROJECT]:               ProjectInformation,
   [SECTIONS.EXISTING_STRUCTURE]:    ExistingStructure,
   [SECTIONS.COVERAGE]:              CoverageRequested,
+  [SECTIONS.LIABILITY]:             LiabilitySelection,
   [SECTIONS.PROPERTY_PROTECTION]:   PropertyProtection,
   [SECTIONS.ELIGIBILITY]:           EligibilityUnderwriting,
   [SECTIONS.LOSS_HISTORY]:          LossHistory,
@@ -88,6 +90,7 @@ const SECTION_TITLES = {
   [SECTIONS.EXISTING_STRUCTURE]:    'Existing Structure Coverage',
   [SECTIONS.EXISTING_COVERAGE]:     'Existing Coverage / Timing',
   [SECTIONS.COVERAGE]:              'Values & Coverage Requested',
+  [SECTIONS.LIABILITY]:             'Liability Selection',
   [SECTIONS.PROPERTY_PROTECTION]:   'Property Protection Information',
   [SECTIONS.ELIGIBILITY]:           'Eligibility & Underwriting Questions',
   [SECTIONS.FINANCIAL]:             'Financial / Insurance History',
