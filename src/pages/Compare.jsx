@@ -74,12 +74,16 @@ function Row({ label, value, isDark, bold, small }) {
 // Expanded: policy fee / commission / platform breakdown
 const BR_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
 
+// Flat-fee placeholders — adjust once we have the real numbers.
+const BROKER_FEE = 50
+const BTIS_FEE = 25
+
 function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, coverageValue, onCoverageUpdate }) {
   const [expanded, setExpanded] = useState(false)
   const [pendingCV, setPendingCV] = useState('')
   const fee = calcPolicyFee(carrier.id, premium)
-  const total = premium + fee
-  const monthly = Math.round(premium / 12)
+  const total = premium + fee + BROKER_FEE + BTIS_FEE
+  const monthly = Math.round(total / 12)
   const currentCV = Number((coverageValue || '').toString().replace(/[^0-9.]/g, '')) || 0
   const pendingCVNum = Number((pendingCV || '').toString().replace(/[^0-9.]/g, '')) || 0
   const cvChanged = pendingCV !== '' && pendingCVNum !== currentCV
@@ -173,6 +177,8 @@ function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, c
               <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2.5">Fee Breakdown</div>
               <Row label="Premium" value={`$${premium.toLocaleString()}`} isDark={isDark} />
               <Row label="Policy Fee" value={`$${fee}`} isDark={isDark} />
+              <Row label="Broker Fee" value={`$${BROKER_FEE}`} isDark={isDark} />
+              <Row label="BTIS Fee" value={`$${BTIS_FEE}`} isDark={isDark} />
               <div className="border-t mt-2 pt-2" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB' }}>
                 <Row label="Total Annual Cost" value={`$${total.toLocaleString()}`} isDark={isDark} bold />
               </div>
