@@ -350,11 +350,11 @@ export default function PageZero({ onStart }) {
               </div>
               <div className="rounded-xl px-4 py-3 mb-4" style={{ background: 'linear-gradient(135deg, rgba(92,46,212,0.04), rgba(166,20,195,0.03))', border: '1px solid rgba(92,46,212,0.12)' }}>
                 <p className="text-[11px] font-bold tracking-widest uppercase mb-1" style={{ color: '#5C2ED4' }}>You selected</p>
-                <p className="text-[15px] font-bold" style={{ color: '#1F1B47' }}>{cfg?.label}</p>
+                <p className="text-[15px] font-bold" style={{ color: '#1F1B47' }}>{cfg?.shortLabel}</p>
                 <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
                   {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
                     ? 'Both the new construction work AND the existing building are insured under this policy.'
-                    : 'Only the new construction or renovation work is insured — the existing building itself is NOT covered.'}
+                    : 'Only the new construction or renovation work is insured. The existing building itself is NOT covered.'}
                 </p>
               </div>
               <p className="text-[11px] text-gray-500 mb-4 leading-relaxed">
