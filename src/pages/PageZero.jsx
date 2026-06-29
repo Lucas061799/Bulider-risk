@@ -291,15 +291,13 @@ export default function PageZero({ onStart }) {
               {/* Remodel inline coverage notice — clean white card */}
               {showRemodelNotice && (
                 <div className="mb-4 rounded-xl p-4" style={{ background: 'white', border: '1px solid #EAECEF', boxShadow: '0 1px 2px rgba(15,10,40,0.04)' }}>
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: 'rgba(245,158,11,0.12)' }}>
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
-                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#D97706" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M12 9v4" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round"/>
-                        <circle cx="12" cy="17" r="0.9" fill="#D97706"/>
-                      </svg>
-                    </div>
-                    <p className="text-[12px] font-bold" style={{ color: '#1F1B47' }}>{cfg?.label}</p>
+                  <div className="flex items-center gap-2 mb-2">
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M12 9v4" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round"/>
+                      <circle cx="12" cy="17" r="0.9" fill="#D97706"/>
+                    </svg>
+                    <p className="text-[12px] font-bold leading-none" style={{ color: '#1F1B47' }}>{cfg?.label}</p>
                   </div>
                   <p className="text-[12px] text-gray-700 leading-relaxed">
                     {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
