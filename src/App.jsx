@@ -90,7 +90,7 @@ const SECTION_TITLES = {
   [SECTIONS.EXISTING_STRUCTURE]:    'Existing Structure Coverage',
   [SECTIONS.EXISTING_COVERAGE]:     'Existing Coverage / Timing',
   [SECTIONS.COVERAGE]:              'Values & Coverage Requested',
-  [SECTIONS.LIABILITY]:             'Liability Selection',
+  [SECTIONS.LIABILITY]:             'Liability',
   [SECTIONS.PROPERTY_PROTECTION]:   'Property Protection Information',
   [SECTIONS.ELIGIBILITY]:           'Eligibility & Underwriting Questions',
   [SECTIONS.FINANCIAL]:             'Financial / Insurance History',
