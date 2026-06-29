@@ -288,30 +288,29 @@ export default function PageZero({ onStart }) {
                 </div>
               )}
 
-              {/* Remodel inline coverage notice — soft purple card */}
+              {/* Remodel inline coverage notice — clean white card */}
               {showRemodelNotice && (
-                <div className="mb-4 rounded-xl px-4 py-3" style={{ background: 'linear-gradient(135deg, rgba(92,46,212,0.04), rgba(166,20,195,0.03))', border: '1px solid rgba(92,46,212,0.18)' }}>
-                  <div className="flex items-start gap-2.5">
-                    <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24">
-                      <defs><linearGradient id="remodelNoticeG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/></linearGradient></defs>
-                      <path d="M12 3L2.5 20.5h19L12 3z" stroke="url(#remodelNoticeG)" strokeWidth="1.6" strokeLinejoin="round"/>
-                      <path d="M12 10v5" stroke="url(#remodelNoticeG)" strokeWidth="1.8" strokeLinecap="round"/>
-                      <circle cx="12" cy="18" r="0.9" fill="url(#remodelNoticeG)"/>
-                    </svg>
-                    <div className="flex-1">
-                      <p className="text-[11px] font-bold tracking-widest uppercase" style={{ color: '#5C2ED4' }}>Double-check coverage</p>
-                      <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">
-                        {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
-                          ? 'Both the new construction work AND the existing building are insured under this policy.'
-                          : 'Only the new construction or renovation work is insured. The existing building itself is NOT covered.'}
-                      </p>
-                      <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed">
-                        {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
-                          ? 'Need only the new work covered? Pick "Remodel (No ES)" above.'
-                          : 'Need the pre-existing structure covered too? Pick "Remodel (With ES)" above.'}
-                      </p>
+                <div className="mb-4 rounded-xl p-4" style={{ background: 'white', border: '1px solid #EAECEF', boxShadow: '0 1px 2px rgba(15,10,40,0.04)' }}>
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: 'rgba(245,158,11,0.12)' }}>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#D97706" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M12 9v4" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round"/>
+                        <circle cx="12" cy="17" r="0.9" fill="#D97706"/>
+                      </svg>
                     </div>
+                    <p className="text-[12px] font-bold" style={{ color: '#1F1B47' }}>Double-check coverage</p>
                   </div>
+                  <p className="text-[12px] text-gray-700 leading-relaxed">
+                    {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
+                      ? <>Both the new construction work <span className="font-semibold" style={{ color: '#1F1B47' }}>AND</span> the existing building are insured under this policy.</>
+                      : <>Only the new construction or renovation work is insured. The existing building itself is <span className="font-semibold" style={{ color: '#1F1B47' }}>NOT covered</span>.</>}
+                  </p>
+                  <p className="text-[11px] text-gray-400 mt-2 leading-relaxed">
+                    {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
+                      ? <>Need only the new work covered? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>Remodel (No ES)</span> above.</>
+                      : <>Need the pre-existing structure covered too? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>Remodel (With ES)</span> above.</>}
+                  </p>
                 </div>
               )}
 
