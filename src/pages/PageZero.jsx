@@ -4,9 +4,7 @@ import norbielinkLogo from '../assets/norbielink-logo.png'
 import btisLogo from '../assets/btislogo.png'
 import jungleImg from '../assets/jungle.png'
 import norbieCircleImg from '../assets/norbie-circle-00.png'
-import { ALL_STATES, PROJECT_TYPES, PROJECT_TYPE_CONFIG, GAIC_APPROVED_STATES } from '../lib/projectTypeConfig'
-
-const STATE_OPTIONS = ALL_STATES.map((abbr) => abbr)
+import { PROJECT_TYPES, PROJECT_TYPE_CONFIG } from '../lib/projectTypeConfig'
 
 // Searchable dropdown (kept from commercial-auto's pattern)
 function Dropdown({ value, onChange, options, placeholder, searchable = false }) {
@@ -168,19 +166,16 @@ function CardIcon({ icon, selected = false }) {
 }
 
 export default function PageZero({ onStart }) {
-  const [state, setState] = useState('')
   const [projectType, setProjectType] = useState('')
 
-  const canCheck = state && projectType
+  const canCheck = !!projectType
   const cfg = projectType ? PROJECT_TYPE_CONFIG[projectType] : null
 
-  // GAIC programmed-states warning (BR flows only)
-  const showGAICWarning = cfg && cfg.carriers?.includes('gaic') && state && !GAIC_APPROVED_STATES.includes(state)
   const willBridge = !!cfg?.bridgeToUSLI
 
   const handleStart = () => {
     if (!canCheck) return
-    onStart({ state, projectType })
+    onStart({ state: '', projectType })
   }
 
   return (
@@ -213,18 +208,6 @@ export default function PageZero({ onStart }) {
                 <p className="text-sm md:text-base text-gray-500 leading-relaxed">
                   Tell us about your business — we'll match it to the right carrier.
                 </p>
-              </div>
-
-              {/* State dropdown — first, so user picks where before what */}
-              <div className="mb-5">
-                <label className="block text-sm font-semibold text-navy mb-2">Location of Business</label>
-                <Dropdown
-                  value={state}
-                  onChange={setState}
-                  options={STATE_OPTIONS}
-                  placeholder="Select which state the business is located."
-                  searchable
-                />
               </div>
 
               {/* Project type — compact horizontal cards */}
@@ -292,19 +275,6 @@ export default function PageZero({ onStart }) {
                   })}
                 </div>
               </div>
-
-              {/* GAIC programmed-states notice */}
-              {showGAICWarning && !willBridge && (
-                <div className="mb-4 flex items-start gap-2 px-3.5 py-2.5 rounded-xl" style={{ background: 'rgba(92,46,212,0.06)', border: '1px solid rgba(92,46,212,0.12)' }}>
-                  <svg className="w-3.5 h-3.5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24">
-                    <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="url(#noticeG)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <defs><linearGradient id="noticeG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/></linearGradient></defs>
-                  </svg>
-                  <p className="text-[11px] leading-relaxed" style={{ color: '#5C2ED4' }}>
-                    Great American (OneShot) isn't programmed in <span className="font-semibold">{state}</span> yet. You'll still get a Navigators (B-Risk) quote.
-                  </p>
-                </div>
-              )}
 
               {/* USLI bridge notice */}
               {willBridge && (
