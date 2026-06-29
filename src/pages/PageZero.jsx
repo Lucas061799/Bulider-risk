@@ -294,11 +294,10 @@ export default function PageZero({ onStart }) {
                   <div className="flex items-center gap-2 mb-2">
                     <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24">
                       <defs><linearGradient id="remodelNoticeG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/></linearGradient></defs>
-                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="url(#remodelNoticeG)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M12 10v4.5" stroke="url(#remodelNoticeG)" strokeWidth="2.5" strokeLinecap="round"/>
-                      <circle cx="12" cy="17.5" r="1.2" fill="#A614C3"/>
+                      <path d="M12 2L4 5v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V5l-8-3z" stroke="url(#remodelNoticeG)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M9 12l2 2 4-4" stroke="url(#remodelNoticeG)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <p className="text-[12px] font-bold leading-none" style={{ color: '#1F1B47' }}>{cfg?.label}</p>
+                    <p className="text-[12px] font-bold leading-none" style={{ color: '#1F1B47' }}>Coverage Summary</p>
                   </div>
                   <p className="text-[12px] text-gray-700 leading-relaxed">
                     {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
