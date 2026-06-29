@@ -217,7 +217,7 @@ export default function PageZero({ onStart }) {
 
               {/* Project type — compact horizontal cards */}
               <div className="mb-5">
-                <label className="block text-sm font-semibold text-navy mb-2.5">Business Type</label>
+                <label className="block text-sm font-semibold text-navy mb-2.5">Project Type</label>
                 <div className="grid grid-cols-2 grid-rows-3 grid-flow-col gap-2">
                   {PROJECT_TYPE_GROUPS.flatMap(g => g.items).map((card) => {
                     const selected = card.id === projectType
@@ -294,9 +294,9 @@ export default function PageZero({ onStart }) {
                   <div className="flex items-start gap-2.5">
                     <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24">
                       <defs><linearGradient id="remodelNoticeG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/></linearGradient></defs>
-                      <circle cx="12" cy="12" r="9" stroke="url(#remodelNoticeG)" strokeWidth="1.6"/>
-                      <path d="M12 8v5" stroke="url(#remodelNoticeG)" strokeWidth="1.8" strokeLinecap="round"/>
-                      <circle cx="12" cy="16.5" r="0.9" fill="url(#remodelNoticeG)"/>
+                      <path d="M12 3L2.5 20.5h19L12 3z" stroke="url(#remodelNoticeG)" strokeWidth="1.6" strokeLinejoin="round"/>
+                      <path d="M12 10v5" stroke="url(#remodelNoticeG)" strokeWidth="1.8" strokeLinecap="round"/>
+                      <circle cx="12" cy="18" r="0.9" fill="url(#remodelNoticeG)"/>
                     </svg>
                     <div className="flex-1">
                       <p className="text-[11px] font-bold tracking-widest uppercase" style={{ color: '#5C2ED4' }}>Double-check coverage</p>
