@@ -165,8 +165,14 @@ function CardIcon({ icon, selected = false }) {
   )
 }
 
+// Remodel types that need an extra confirmation step before starting —
+// picking the wrong one has real coverage implications, so we surface the
+// difference and ask the user to confirm.
+const REMODEL_CONFIRM_TYPES = [PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, PROJECT_TYPES.REMODEL_WITH_EXISTING]
+
 export default function PageZero({ onStart }) {
   const [projectType, setProjectType] = useState('')
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const canCheck = !!projectType
   const cfg = projectType ? PROJECT_TYPE_CONFIG[projectType] : null
@@ -175,6 +181,14 @@ export default function PageZero({ onStart }) {
 
   const handleStart = () => {
     if (!canCheck) return
+    if (REMODEL_CONFIRM_TYPES.includes(projectType)) {
+      setConfirmOpen(true)
+      return
+    }
+    onStart({ state: '', projectType })
+  }
+  const confirmAndStart = () => {
+    setConfirmOpen(false)
     onStart({ state: '', projectType })
   }
 
@@ -310,6 +324,69 @@ export default function PageZero({ onStart }) {
           />
         </div>
       </div>
+
+      {/* Remodel confirmation modal — double-check the user picked the right
+          coverage variant. The difference matters: With ES covers both new
+          work AND the existing building; No ES covers only the new work. */}
+      {confirmOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" style={{ background: 'rgba(15,10,40,0.55)', backdropFilter: 'blur(8px)' }} onClick={() => setConfirmOpen(false)}>
+          <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            {/* Gradient hairline */}
+            <div className="h-1 rounded-t-2xl" style={{ background: 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)' }} />
+            <div className="p-6">
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, rgba(92,46,212,0.12), rgba(166,20,195,0.12))' }}>
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24">
+                    <defs><linearGradient id="confirmG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/></linearGradient></defs>
+                    <circle cx="12" cy="12" r="9" stroke="url(#confirmG)" strokeWidth="1.6"/>
+                    <path d="M12 8v5" stroke="url(#confirmG)" strokeWidth="1.8" strokeLinecap="round"/>
+                    <circle cx="12" cy="16.5" r="0.9" fill="url(#confirmG)"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-bold leading-tight" style={{ color: '#1F1B47' }}>Confirm coverage choice</h2>
+                  <p className="text-xs text-gray-500 mt-1">Please double-check this is the right Remodel option.</p>
+                </div>
+              </div>
+              <div className="rounded-xl px-4 py-3 mb-4" style={{ background: 'linear-gradient(135deg, rgba(92,46,212,0.04), rgba(166,20,195,0.03))', border: '1px solid rgba(92,46,212,0.12)' }}>
+                <p className="text-[11px] font-bold tracking-widest uppercase mb-1" style={{ color: '#5C2ED4' }}>You selected</p>
+                <p className="text-[15px] font-bold" style={{ color: '#1F1B47' }}>{cfg?.label}</p>
+                <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
+                  {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
+                    ? 'Both the new construction work AND the existing building are insured under this policy.'
+                    : 'Only the new construction or renovation work is insured — the existing building itself is NOT covered.'}
+                </p>
+              </div>
+              <p className="text-[11px] text-gray-500 mb-4 leading-relaxed">
+                {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
+                  ? 'If the insured only needs the renovation/new work covered (not the pre-existing structure), go back and pick "Remodel (No ES)" instead.'
+                  : 'If the insured needs the pre-existing structure covered as well, go back and pick "Remodel (With ES)" instead.'}
+              </p>
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setConfirmOpen(false)}
+                  className="px-5 py-2 rounded-xl text-sm font-semibold transition hover:opacity-80"
+                  style={{ color: '#374151', border: '1.5px solid #E5E7EB', background: 'white' }}
+                >
+                  Go back
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmAndStart}
+                  className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold text-white transition hover:opacity-90"
+                  style={{ background: 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)', boxShadow: '0 4px 14px rgba(92,46,212,0.25)' }}
+                >
+                  Yes, continue
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
