@@ -647,9 +647,9 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                   }}>{submissionId}</p>
                 </div>
                 <div className="px-6 py-4">
-                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#9CA3AF' }}>Generated</p>
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#9CA3AF' }}>Effective Date</p>
                   <p className="text-sm font-bold" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>
-                    {new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
+                    {project.effectiveDate || vacRisk.effectiveDate || new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                   </p>
                 </div>
                 <div className="px-6 py-4">
