@@ -183,6 +183,17 @@ export default function Submission({ formData, projectType, state, boundCarrier,
   const policyFee = boundCarrier ? calcPolicyFee(boundCarrier.id, boundCarrier.premium || 0) : 0
   const total = (boundCarrier?.premium || 0) + policyFee
 
+  // Coverage value the user entered — drives the premium upstream. Surfacing
+  // it here so the user can see what their entered amount maps to.
+  const coverageValueRaw = coverage.completedValue
+    || coverage.remodelValue
+    || ((Number((coverage.newWorkValue || '').toString().replace(/[^0-9.]/g, '')) || 0)
+        + (Number((coverage.existingValue || '').toString().replace(/[^0-9.]/g, '')) || 0))
+    || (vacValues.totalCompletedValue
+        || ((Number((vacValues.newWorkValue || '').toString().replace(/[^0-9.]/g, '')) || 0)
+            + (Number((vacValues.existingValue || '').toString().replace(/[^0-9.]/g, '')) || 0)))
+  const coverageValueNum = Number((coverageValueRaw || '').toString().replace(/[^0-9.]/g, '')) || 0
+
   return (
     <div className="flex flex-col h-screen font-montserrat overflow-hidden" style={{ background: isDark ? '#131629' : 'white' }}>
       <Confetti />
@@ -270,6 +281,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                   <SumRow label="Program" value={boundCarrier.program} isDark={isDark}/>
                   <SumRow label="Carrier" value={boundCarrier.name} isDark={isDark}/>
                   <SumRow label="Type" value={boundCarrier.type} isDark={isDark}/>
+                  <SumRow label="Coverage Value" value={coverageValueNum > 0 ? money(coverageValueNum) : null} isDark={isDark}/>
                   <SumRow label="Estimated Premium" value={money(boundCarrier.premium || 0)} isDark={isDark}/>
                   <SumRow label="Policy Fee" value={money(policyFee)} isDark={isDark}/>
                   <SumRow label="Commission" value={`${Math.round((boundCarrier.commission || 0) * 100 * 10) / 10}%`} isDark={isDark}/>
@@ -665,6 +677,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       Program: <span className="font-semibold capitalize">{boundCarrier.program}</span>
+                      {coverageValueNum > 0 && <>{' · '}Coverage {money(coverageValueNum)}</>}
                       {' · '}Premium {money(boundCarrier.premium || 0)}
                       {' · '}Fee {money(policyFee)}
                     </p>
@@ -808,6 +821,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                         <SumRow label="Program" value={boundCarrier.program} isDark={isDark}/>
                         <SumRow label="Carrier" value={boundCarrier.name} isDark={isDark}/>
                         <SumRow label="Type" value={boundCarrier.type} isDark={isDark}/>
+                        <SumRow label="Coverage Value" value={coverageValueNum > 0 ? money(coverageValueNum) : null} isDark={isDark}/>
                         <SumRow label="Estimated Premium" value={money(boundCarrier.premium || 0)} isDark={isDark}/>
                         <SumRow label="Policy Fee" value={money(policyFee)} isDark={isDark}/>
                         <SumRow label="Commission" value={`${Math.round((boundCarrier.commission || 0) * 100 * 10) / 10}%`} isDark={isDark}/>
