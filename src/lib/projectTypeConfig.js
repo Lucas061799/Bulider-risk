@@ -126,7 +126,7 @@ export const PROJECT_TYPE_CONFIG = {
   },
 
   [PROJECT_TYPES.REMODEL_WITHOUT_EXISTING]: {
-    label: 'Remodel / Renovation — No Existing Structure Coverage',
+    label: 'Remodel / Renovation · No Existing Structure Coverage',
     shortLabel: 'Remodel (No ES)',
     description: 'Renovation where only the new work is covered, not the existing building.',
     icon: 'remodel-no-es',
@@ -154,7 +154,7 @@ export const PROJECT_TYPE_CONFIG = {
   },
 
   [PROJECT_TYPES.REMODEL_WITH_EXISTING]: {
-    label: 'Remodel / Renovation — With Existing Structure Coverage',
+    label: 'Remodel / Renovation · With Existing Structure Coverage',
     shortLabel: 'Remodel (With ES)',
     description: 'Renovation where both the new work AND the existing building are covered.',
     icon: 'remodel-with-es',

@@ -105,8 +105,8 @@ const PROJECT_TYPE_GROUPS = [
     hint: 'Builder’s Risk marketplace',
     items: [
       { id: PROJECT_TYPES.GROUND_UP,                title: 'New Construction',   subtitle: 'Ground-up build, no existing structure',  icon: 'construction' },
-      { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, title: 'Remodel — No Existing Structure',    subtitle: 'New construction work only',          icon: 'remodel-no' },
-      { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,    title: 'Remodel — With Existing Structure',  subtitle: 'New work + existing building covered', icon: 'remodel-with' },
+      { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, title: 'Remodel · No Existing Structure',    subtitle: 'New construction work only',          icon: 'remodel-no' },
+      { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,    title: 'Remodel · With Existing Structure',  subtitle: 'New work + existing building covered', icon: 'remodel-with' },
     ],
   },
   {
