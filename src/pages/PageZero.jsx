@@ -270,7 +270,7 @@ export default function PageZero({ onStart }) {
                                 </span>
                               )}
                             </div>
-                            <p className="text-[10px] leading-snug mt-0.5" style={{ color: '#9CA3AF' }}>
+                            <p className="text-[10px] leading-snug mt-0.5" style={{ color: '#6B7280' }}>
                               {card.subtitle}
                             </p>
                           </div>
