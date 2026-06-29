@@ -288,30 +288,27 @@ export default function PageZero({ onStart }) {
                 </div>
               )}
 
-              {/* Remodel inline coverage notice — compact two-column scope card */}
+              {/* Remodel inline coverage notice — soft purple card */}
               {showRemodelNotice && (
-                <div className="mb-4 rounded-xl overflow-hidden" style={{ background: 'white', border: '1px solid #EAECEF', boxShadow: '0 1px 2px rgba(15,10,40,0.04)' }}>
-                  <div className="flex">
-                    <div className="w-[3px] shrink-0" style={{ background: 'linear-gradient(180deg, #5C2ED4, #A614C3)' }} />
-                    <div className="flex-1 px-4 py-3">
-                      <div className="grid grid-cols-2 gap-x-4">
-                        <div>
-                          <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#10B981' }}>Covered</p>
-                          <p className="text-[12px] font-semibold mt-0.5" style={{ color: '#1F1B47' }}>
-                            {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING ? 'New work + Existing building' : 'New work only'}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[9px] font-bold tracking-widest uppercase" style={{ color: '#EF4444' }}>Not covered</p>
-                          <p className="text-[12px] font-semibold mt-0.5" style={{ color: '#1F1B47' }}>
-                            {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING ? 'None of the above' : 'Existing building'}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                <div className="mb-4 rounded-xl px-4 py-3" style={{ background: 'linear-gradient(135deg, rgba(92,46,212,0.04), rgba(166,20,195,0.03))', border: '1px solid rgba(92,46,212,0.18)' }}>
+                  <div className="flex items-start gap-2.5">
+                    <svg className="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24">
+                      <defs><linearGradient id="remodelNoticeG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#5C2ED4"/><stop offset="100%" stopColor="#A614C3"/></linearGradient></defs>
+                      <circle cx="12" cy="12" r="9" stroke="url(#remodelNoticeG)" strokeWidth="1.6"/>
+                      <path d="M12 8v5" stroke="url(#remodelNoticeG)" strokeWidth="1.8" strokeLinecap="round"/>
+                      <circle cx="12" cy="16.5" r="0.9" fill="url(#remodelNoticeG)"/>
+                    </svg>
+                    <div className="flex-1">
+                      <p className="text-[11px] font-bold tracking-widest uppercase" style={{ color: '#5C2ED4' }}>Double-check coverage</p>
+                      <p className="text-[11px] text-gray-600 mt-1 leading-relaxed">
                         {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
-                          ? <>Need only the new work covered? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>Remodel (No ES)</span> above.</>
-                          : <>Need the existing building covered too? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>Remodel (With ES)</span> above.</>}
+                          ? 'Both the new construction work AND the existing building are insured under this policy.'
+                          : 'Only the new construction or renovation work is insured. The existing building itself is NOT covered.'}
+                      </p>
+                      <p className="text-[10px] text-gray-400 mt-1.5 leading-relaxed">
+                        {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
+                          ? 'Need only the new work covered? Pick "Remodel (No ES)" above.'
+                          : 'Need the pre-existing structure covered too? Pick "Remodel (With ES)" above.'}
                       </p>
                     </div>
                   </div>
