@@ -156,7 +156,7 @@ function CarrierMark({ name, size = 'sm' }) {
 // Compare page goes straight to Submission once the user clicks Bind.
 const QUOTE_STEPS = [
   { id: 'select', n: 1, label: 'Select Carrier' },
-  { id: 'bind',   n: 2, label: 'Bind & Submit' },
+  { id: 'bind',   n: 2, label: 'Bind & Issue' },
 ]
 
 export default function RightPanel({ onFormReview, onDownloadSummary, formData = {}, isDark = false, projectType, state, inSubmission = false, inCompare = false, selectedCarrierId = null }) {
