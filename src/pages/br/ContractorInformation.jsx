@@ -14,7 +14,12 @@ export default function ContractorInformation({ formData, updateFormData, isDark
   }
 
   const insuredIsGC = data.insuredIsGC
-  const stateAbbr = (applicant.state || '').trim().toUpperCase()
+  // Treat either the contractor's state or the applicant's state as the
+  // trigger — whichever the user fills first opens up the Exception State
+  // block.
+  const contractorAbbr = (data.contractorState || '').trim().toUpperCase()
+  const applicantAbbr = (applicant.state || '').trim().toUpperCase()
+  const stateAbbr = NO_LICENSE_STATES.includes(contractorAbbr) ? contractorAbbr : applicantAbbr
   const isExceptionState = NO_LICENSE_STATES.includes(stateAbbr)
 
   return (
