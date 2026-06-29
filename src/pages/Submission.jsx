@@ -22,6 +22,18 @@ function getSubmissionId() {
   return _cachedSubmissionId
 }
 
+// AdditionalInterests bucket now stores { hasParty, entries: [{name, ...}] };
+// legacy submissions stored a single {name, ...} object directly on the bucket.
+function summarizeParty(bucket) {
+  if (!bucket || bucket.hasParty !== 'Yes') return bucket?.hasParty
+  const entries = Array.isArray(bucket.entries) && bucket.entries.length
+    ? bucket.entries
+    : (bucket.name ? [{ name: bucket.name }] : [])
+  if (!entries.length) return 'Yes'
+  const first = entries[0].name || 'Yes'
+  return entries.length > 1 ? `${first} +${entries.length - 1} more` : first
+}
+
 // Confetti shower — fires once on mount
 function Confetti() {
   const pieces = Array.from({ length: 60 }, (_, i) => ({
@@ -460,9 +472,9 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               </SummaryBlock>
 
               <SummaryBlock title="Additional Interests" icon="users" isDark={isDark}>
-                <SumRow label="Mortgagee" value={ai.mortgagee?.hasParty === 'Yes' ? (ai.mortgagee?.name || 'Yes') : ai.mortgagee?.hasParty} isDark={isDark}/>
-                <SumRow label="Loss Payee" value={ai.lossPayee?.hasParty === 'Yes' ? (ai.lossPayee?.name || 'Yes') : ai.lossPayee?.hasParty} isDark={isDark}/>
-                <SumRow label="Additional Insured" value={ai.additionalInsured?.hasParty === 'Yes' ? (ai.additionalInsured?.name || 'Yes') : ai.additionalInsured?.hasParty} isDark={isDark}/>
+                <SumRow label="Mortgagee" value={summarizeParty(ai.mortgagee)} isDark={isDark}/>
+                <SumRow label="Loss Payee" value={summarizeParty(ai.lossPayee)} isDark={isDark}/>
+                <SumRow label="Additional Insured" value={summarizeParty(ai.additionalInsured)} isDark={isDark}/>
               </SummaryBlock>
 
               <SummaryBlock title="Bind Confirmation" icon="card" isDark={isDark}>

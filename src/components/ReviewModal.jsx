@@ -9,6 +9,19 @@ import btisLogoDark from '../assets/btislogo-dark.png'
 
 const GR = 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)'
 
+// AdditionalInterests buckets are { hasParty, entries: [{name, address...}] }.
+// Older submissions stored a single {name, address...} object directly under
+// the bucket; fall back to that shape so legacy data still renders.
+function summarizeParty(bucket) {
+  if (!bucket || bucket.hasParty !== 'Yes') return bucket?.hasParty
+  const entries = Array.isArray(bucket.entries) && bucket.entries.length
+    ? bucket.entries
+    : (bucket.name ? [{ name: bucket.name }] : [])
+  if (!entries.length) return 'Yes'
+  const first = entries[0].name || 'Yes'
+  return entries.length > 1 ? `${first} +${entries.length - 1} more` : first
+}
+
 const BLOCK_ICON_PATHS = {
   user:     'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z',
   briefcase:'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2',
@@ -398,9 +411,9 @@ export default function ReviewModal({ open, onClose, onConfirm, formData = {}, i
           </SummaryBlock>
 
           <SummaryBlock title="Additional Interests" icon="users" isDark={isDark}>
-            <SumRow label="Mortgagee" value={ai.mortgagee?.hasParty === 'Yes' ? (ai.mortgagee?.name || 'Yes') : ai.mortgagee?.hasParty} isDark={isDark}/>
-            <SumRow label="Loss Payee" value={ai.lossPayee?.hasParty === 'Yes' ? (ai.lossPayee?.name || 'Yes') : ai.lossPayee?.hasParty} isDark={isDark}/>
-            <SumRow label="Additional Insured" value={ai.additionalInsured?.hasParty === 'Yes' ? (ai.additionalInsured?.name || 'Yes') : ai.additionalInsured?.hasParty} isDark={isDark}/>
+            <SumRow label="Mortgagee" value={summarizeParty(ai.mortgagee)} isDark={isDark}/>
+            <SumRow label="Loss Payee" value={summarizeParty(ai.lossPayee)} isDark={isDark}/>
+            <SumRow label="Additional Insured" value={summarizeParty(ai.additionalInsured)} isDark={isDark}/>
           </SummaryBlock>
 
           <SummaryBlock title="Bind Confirmation" icon="card" isDark={isDark}>
