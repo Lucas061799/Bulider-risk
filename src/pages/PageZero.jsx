@@ -303,8 +303,8 @@ export default function PageZero({ onStart }) {
                   </div>
                   <p className="text-[12px] text-gray-700 leading-relaxed">
                     {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
-                      ? <>Both the new work <span className="font-semibold" style={{ color: '#1F1B47' }}>AND</span> the existing building are insured. Need only the new work covered? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>Remodel (No ES)</span> above.</>
-                      : <>Covers new work only. The existing building is <span className="font-semibold" style={{ color: '#1F1B47' }}>NOT covered</span>. Need it covered too? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>Remodel (With ES)</span> above.</>}
+                      ? <>Both the new work <span className="font-semibold" style={{ color: '#1F1B47' }}>AND</span> the existing building are insured. Need only the new work covered? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>{PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITHOUT_EXISTING]?.label}</span> above.</>
+                      : <>Covers new work only. The existing building is <span className="font-semibold" style={{ color: '#1F1B47' }}>NOT covered</span>. Need it covered too? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>{PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITH_EXISTING]?.label}</span> above.</>}
                   </p>
                 </div>
               )}
