@@ -74,12 +74,15 @@ function Row({ label, value, isDark, bold, small }) {
 // Expanded: policy fee / commission / platform breakdown
 const BR_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
 
-function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark }) {
+function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, coverageValue, onCoverageUpdate }) {
   const [expanded, setExpanded] = useState(false)
+  const [pendingCV, setPendingCV] = useState('')
   const fee = calcPolicyFee(carrier.id, premium)
   const total = premium + fee
-  const commissionDollars = Math.round(premium * carrier.commission)
   const monthly = Math.round(premium / 12)
+  const currentCV = Number((coverageValue || '').toString().replace(/[^0-9.]/g, '')) || 0
+  const pendingCVNum = Number((pendingCV || '').toString().replace(/[^0-9.]/g, '')) || 0
+  const cvChanged = pendingCV !== '' && pendingCVNum !== currentCV
 
   const rowBorder = (isSelected || isBest) ? '#7C3AED' : (isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB')
   const rowBg = isDark ? 'rgba(255,255,255,0.04)' : 'white'
@@ -158,15 +161,58 @@ function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark })
         </div>
       </div>
 
-      {/* Expanded details — Policy Fee / Commission / Platform */}
+      {/* Expanded details — two-column: Fee Breakdown + Customize Coverage */}
       {expanded && (
         <div
-          className="px-4 py-3.5 space-y-1.5 text-[12px]"
+          className="px-4 pb-4 pt-3"
           style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}
         >
-          <Row label="Policy Fee" value={`$${fee}`} isDark={isDark} />
-          <Row label="Commission" value={`${(carrier.commission * 100).toFixed(1)}% · $${commissionDollars.toLocaleString()}`} isDark={isDark} />
-          <Row label="Platform" value={carrier.platformFunctionality} isDark={isDark} small />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* Fee breakdown */}
+            <div className="rounded-xl p-4" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : '#F9FAFB', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#EAEAEA'}` }}>
+              <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2.5">Fee Breakdown</div>
+              <Row label="Premium" value={`$${premium.toLocaleString()}`} isDark={isDark} />
+              <Row label="Policy Fee" value={`$${fee}`} isDark={isDark} />
+              <div className="border-t mt-2 pt-2" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB' }}>
+                <Row label="Total Annual Cost" value={`$${total.toLocaleString()}`} isDark={isDark} bold />
+              </div>
+            </div>
+
+            {/* Customize coverage — editable Completed Value + Update Price */}
+            <div className="rounded-xl p-4" style={{ background: isDark ? 'rgba(255,255,255,0.03)' : '#F9FAFB', border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#EAEAEA'}` }}>
+              <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2.5">Customize Coverage</div>
+              <label className="block text-[12px] font-semibold mb-1.5" style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>
+                Completed Value <span className="font-normal text-gray-400">(excluding land)</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={pendingCV !== '' ? pendingCV : currentCV.toLocaleString()}
+                  onChange={(e) => setPendingCV(e.target.value.replace(/[^0-9.]/g, ''))}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full border rounded-lg pl-7 pr-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED]/40"
+                  style={{ borderColor: isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB', background: isDark ? 'rgba(255,255,255,0.04)' : 'white', color: isDark ? '#F9FAFB' : '#111827' }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); if (cvChanged) { onCoverageUpdate(pendingCVNum.toString()); setPendingCV('') } }}
+                disabled={!cvChanged}
+                className="w-full mt-3 inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-white transition disabled:cursor-not-allowed"
+                style={{
+                  background: cvChanged ? BR_GRADIENT : '#D1D5DB',
+                  boxShadow: cvChanged ? '0 2px 10px rgba(92,46,212,0.25)' : 'none',
+                }}
+              >
+                Update Price
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -186,11 +232,14 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
   const isVacant = projectType === 'vacant_dwelling'
   const STEPS = cfg?.steps || []
 
-  const completedValue = coverage.completedValue || coverage.remodelValue || (() => {
+  const initialCompletedValue = coverage.completedValue || coverage.remodelValue || (() => {
     const nw = Number((coverage.newWorkValue || vacValues.newWorkValue || '').toString().replace(/[^0-9.]/g, '')) || 0
     const ex = Number((coverage.existingValue || vacValues.existingValue || '').toString().replace(/[^0-9.]/g, '')) || 0
     return (nw + ex).toString()
   })()
+  // Local override so the user can tweak the coverage value per-carrier card
+  // and re-price without leaving the Compare page.
+  const [completedValue, setCompletedValue] = useState(initialCompletedValue)
 
   const eligibleIds = useMemo(
     () => eligibleCarriers(projectType, projectStateAbbr),
@@ -290,6 +339,8 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
                     key={c.id}
                     carrier={c}
                     premium={c.premium}
+                    coverageValue={completedValue}
+                    onCoverageUpdate={setCompletedValue}
                     isSelected={selectedCarrier === c.id}
                     onSelect={() => {
                       // Just select — Continue button below triggers bind.
