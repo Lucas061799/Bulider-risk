@@ -58,12 +58,14 @@ function Confetti() {
 }
 
 function Row({ label, value, isDark, bold, small }) {
+  // Matches GL-Bop's expanded-card row: text-sm (14px) + py-1, gray-500
+  // label, gray-800 value, weight steps up to 600/700 when bold (for the
+  // Total Annual Cost line).
+  const sizeCls = small ? 'text-[11px]' : 'text-sm'
   return (
-    <div className="flex justify-between items-center">
-      <span className={small ? 'text-[10.5px]' : 'text-[12px]'} style={{ color: '#9CA3AF' }}>{label}</span>
-      <span className={`${bold ? 'font-bold' : 'font-medium'} text-right ${small ? 'text-[10.5px]' : 'text-[12px]'}`} style={{ color: isDark ? '#F9FAFB' : '#1F1B47' }}>
-        {value}
-      </span>
+    <div className={`flex items-center justify-between py-1 ${sizeCls}`}>
+      <span style={{ color: isDark ? '#9CA3AF' : '#6B7280', fontWeight: bold ? 600 : 400 }}>{label}</span>
+      <span style={{ color: isDark ? '#F9FAFB' : '#1F2937', fontWeight: bold ? 700 : 500 }}>{value}</span>
     </div>
   )
 }
