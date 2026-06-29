@@ -258,7 +258,7 @@ export default function PageZero({ onStart }) {
                           <CardIcon icon={card.icon} selected={selected} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1 flex-wrap">
-                              <p className="text-[10.5px] font-bold leading-tight whitespace-nowrap pr-3" style={{ color: selected ? '#5C2ED4' : '#1F1B47' }}>
+                              <p className="text-[12.5px] font-bold leading-tight" style={{ color: selected ? '#5C2ED4' : '#1F1B47' }}>
                                 {card.title}
                               </p>
                               {card.external && (
@@ -303,8 +303,8 @@ export default function PageZero({ onStart }) {
                   </div>
                   <p className="text-[12px] text-gray-700 leading-relaxed">
                     {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
-                      ? <>Both the new work <span className="font-semibold" style={{ color: '#1F1B47' }}>AND</span> the existing building are insured. Need only the new work covered? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>{PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITHOUT_EXISTING]?.label}</span> above.</>
-                      : <>Covers new work only. The existing building is <span className="font-semibold" style={{ color: '#1F1B47' }}>NOT covered</span>. Need it covered too? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>{PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITH_EXISTING]?.label}</span> above.</>}
+                      ? <><span className="font-semibold" style={{ color: '#1F1B47' }}>Both the new work AND the existing building are insured.</span> Need only the new work covered? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>{PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITHOUT_EXISTING]?.label}</span> above.</>
+                      : <>Covers new work only. <span className="font-semibold" style={{ color: '#1F1B47' }}>The existing building is NOT covered.</span> Need it covered too? Pick <span className="font-semibold" style={{ color: '#5C2ED4' }}>{PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITH_EXISTING]?.label}</span> above.</>}
                   </p>
                 </div>
               )}

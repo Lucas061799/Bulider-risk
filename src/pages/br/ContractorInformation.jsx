@@ -30,10 +30,6 @@ export default function ContractorInformation({ formData, updateFormData, isDark
         onChange={set('insuredIsGC')}
       />
 
-      <div className="text-[11px] text-gray-400 -mt-2">
-        Validated via Contractor Licensing Database / API integration.
-      </div>
-
       {showContractorFields && (
         <div className="pt-2 mt-2 space-y-5">
           <FormGrid>
