@@ -309,10 +309,10 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
               const picked = carriers.find(c => c.id === selectedCarrier)
               const canContinue = !!picked
               const ctaLabel = !picked
-                ? 'Select a carrier to continue'
+                ? 'Select a Carrier to Continue'
                 : picked.id === 'atrium'
                   ? 'Send Quote Request →'
-                  : 'Bind →'
+                  : 'Bind & Issue →'
               return (
                 <div className="flex justify-between items-center pt-2 pb-6 gap-3">
                   <button
@@ -324,7 +324,7 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
-                    Edit application
+                    Edit Application
                   </button>
                   <button
                     type="button"
