@@ -258,7 +258,7 @@ export default function PageZero({ onStart }) {
                           <CardIcon icon={card.icon} selected={selected} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1 flex-wrap">
-                              <p className="text-[12.5px] font-bold leading-tight" style={{ color: selected ? '#5C2ED4' : '#1F1B47' }}>
+                              <p className="text-[10.5px] font-bold leading-tight whitespace-nowrap pr-3" style={{ color: selected ? '#5C2ED4' : '#1F1B47' }}>
                                 {card.title}
                               </p>
                               {card.external && (
