@@ -71,8 +71,8 @@ export default function ContractorInformation({ formData, updateFormData, isDark
       </div>
 
       {isExceptionState && (
-        <div className="pt-3 mt-3 space-y-5 rounded-xl p-4" style={{ background: 'rgba(254,243,199,0.6)', border: '1px solid #FDE68A' }}>
-          <p className="text-[11px] font-bold tracking-wider uppercase" style={{ color: '#92400E' }}>
+        <div className="pt-3 mt-3 space-y-5 rounded-xl p-4" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
+          <p className="text-[11px] font-bold tracking-wider uppercase" style={{ color: '#5C2ED4' }}>
             Exception State: {stateAbbr} — GC license not required
           </p>
           <FormGrid>
