@@ -288,9 +288,9 @@ export default function PageZero({ onStart }) {
                 </div>
               )}
 
-              {/* Remodel inline coverage notice — clean white card */}
+              {/* Remodel inline coverage notice — brand-purple tinted card */}
               {showRemodelNotice && (
-                <div className="mb-4 rounded-xl p-4" style={{ background: 'white', border: '1px solid #EAECEF', boxShadow: '0 1px 2px rgba(15,10,40,0.04)' }}>
+                <div className="mb-4 rounded-xl p-4" style={{ background: 'linear-gradient(135deg, rgba(92,46,212,0.05) 0%, rgba(166,20,195,0.04) 100%)', border: '1px solid rgba(166,20,195,0.18)', boxShadow: '0 1px 2px rgba(92,46,212,0.06)' }}>
                   <div className="flex items-center gap-2 mb-2">
                     <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
                       <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
