@@ -105,8 +105,8 @@ const PROJECT_TYPE_GROUPS = [
     hint: 'Builder’s Risk marketplace',
     items: [
       { id: PROJECT_TYPES.GROUND_UP,                title: 'New Construction',   subtitle: 'Ground-up build, no existing structure',  icon: 'construction' },
-      { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, title: 'Remodel (No ES)',    subtitle: 'No Existing Structure Coverage',    icon: 'remodel-no' },
-      { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,    title: 'Remodel (With ES)',  subtitle: 'With Existing Structure Coverage',  icon: 'remodel-with' },
+      { id: PROJECT_TYPES.REMODEL_WITHOUT_EXISTING, title: 'Remodel / Renovation',  subtitle: 'No Existing Structure Coverage',    icon: 'remodel-no' },
+      { id: PROJECT_TYPES.REMODEL_WITH_EXISTING,    title: 'Remodel / Renovation',  subtitle: 'With Existing Structure Coverage',  icon: 'remodel-with' },
     ],
   },
   {
@@ -299,7 +299,7 @@ export default function PageZero({ onStart }) {
                         <circle cx="12" cy="17" r="0.9" fill="#D97706"/>
                       </svg>
                     </div>
-                    <p className="text-[12px] font-bold" style={{ color: '#1F1B47' }}>{cfg?.shortLabel}</p>
+                    <p className="text-[12px] font-bold" style={{ color: '#1F1B47' }}>{cfg?.label}</p>
                   </div>
                   <p className="text-[12px] text-gray-700 leading-relaxed">
                     {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
