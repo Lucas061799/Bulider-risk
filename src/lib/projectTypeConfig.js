@@ -25,7 +25,7 @@ export const CARRIERS = {
   NAVIGATORS: {
     id: 'navigators',
     name: 'Navigators (The Hartford)',
-    program: 'B-Risk',
+    program: 'Rivet',
     type: 'Admitted',
     commission: 0.125,
     apiIntegrated: false,
