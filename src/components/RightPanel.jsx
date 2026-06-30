@@ -138,8 +138,8 @@ function CarrierMark({ name, size = 'sm' }) {
           src={logo}
           alt={name}
           style={{
-            width: isWideLogo ? '85%' : '70%',
-            height: isWideLogo ? '85%' : '70%',
+            width: isWideLogo ? '65%' : '70%',
+            height: isWideLogo ? '65%' : '70%',
             objectFit: 'contain',
           }}
         />
