@@ -641,7 +641,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                 style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}
               >
                 <div className="px-6 py-4">
-                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#9CA3AF' }}>Quote Number</p>
+                  <p className="text-[10px] font-bold tracking-widest uppercase mb-1" style={{ color: '#9CA3AF' }}>Policy Number</p>
                   <p className="text-sm font-bold" style={{
                     background: GR, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
                   }}>{submissionId}</p>
