@@ -297,7 +297,7 @@ export default function PageZero({ onStart }) {
                       <path d="M12 2L4 5v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V5l-8-3z" stroke="url(#remodelNoticeG)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M9 12l2 2 4-4" stroke="url(#remodelNoticeG)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <p className="text-[12px] font-bold leading-none" style={{ color: '#1F1B47' }}>Coverage Summary</p>
+                    <p className="text-[12px] font-bold leading-none" style={{ color: '#1F1B47' }}>Verify Your Selection</p>
                   </div>
                   <p className="text-[12px] text-gray-700 leading-relaxed">
                     {projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
