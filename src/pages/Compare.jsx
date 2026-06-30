@@ -108,10 +108,10 @@ function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, c
           <div className="flex items-center gap-2.5 min-w-0 flex-wrap">
             <span className="rounded-full shrink-0" style={{ width: 8, height: 8, background: BR_GRADIENT }} />
             <span className="text-sm font-semibold truncate" style={{ color: isDark ? '#F9FAFB' : '#1F2937' }}>
-              {carrier.name}
+              {carrier.program}
             </span>
             <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: '#9CA3AF' }}>
-              {carrier.program}
+              {carrier.name}
             </span>
             {isBest && (
               <span
