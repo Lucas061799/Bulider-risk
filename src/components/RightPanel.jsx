@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from 'react'
 import { CARRIERS, eligibleCarriers, PROJECT_TYPE_CONFIG } from '../lib/projectTypeConfig'
 import oneshotLogo from '../assets/oneshot-logo.png'
+import rivetLogo from '../assets/rivet-navigators.svg'
 
 const BRAND_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0.11%, #A614C3 63.8%)'
 
@@ -119,17 +120,29 @@ function SkeletonRow({ isDark = false }) {
 // monogram. Match by name (e.g. "Great American (OneShot)").
 const CARRIER_LOGOS = {
   'great american': oneshotLogo,
+  'navigators (the hartford)': rivetLogo,
 }
 function CarrierMark({ name, size = 'sm' }) {
   const dim = size === 'lg' ? 56 : 40
-  const logo = CARRIER_LOGOS[(name || '').toLowerCase()]
+  const key = (name || '').toLowerCase()
+  const logo = CARRIER_LOGOS[key]
+  // Rivet wordmark is wide — let it fill more of the badge so it reads.
+  const isWideLogo = key === 'navigators (the hartford)'
   if (logo) {
     return (
       <div
         className="rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
         style={{ width: dim, height: dim, background: 'white', border: '1px solid #E5E7EB' }}
       >
-        <img src={logo} alt={name} style={{ width: '70%', height: '70%', objectFit: 'contain' }} />
+        <img
+          src={logo}
+          alt={name}
+          style={{
+            width: isWideLogo ? '85%' : '70%',
+            height: isWideLogo ? '85%' : '70%',
+            objectFit: 'contain',
+          }}
+        />
       </div>
     )
   }
