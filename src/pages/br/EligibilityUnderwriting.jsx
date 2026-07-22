@@ -55,7 +55,7 @@ export default function EligibilityUnderwriting({ formData, updateFormData }) {
           onChange={set('multipleStructures')}
         />
         {data.multipleStructures === 'Yes' && (
-          <div className="mt-3 space-y-4 p-4 rounded-xl" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
+          <div className="mt-4 space-y-4">
             <FormGrid>
               <Input label="How many structures? (1–20)" value={data.numStructures} onChange={set('numStructures')} />
               <Input label="Value per structure" value={data.valuePerStructure} onChange={set('valuePerStructure')} placeholder="$" />

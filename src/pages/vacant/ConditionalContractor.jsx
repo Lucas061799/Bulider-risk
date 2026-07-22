@@ -33,7 +33,7 @@ export default function VacConditionalContractor({ formData, updateFormData }) {
       />
 
       {hasContractor && (
-        <div className="space-y-5 p-4 rounded-xl" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
+        <div className="space-y-5">
           <RadioGroup label="Is Named Insured also the General Contractor?" options={['Yes', 'No']} value={data.insuredIsGC} onChange={set('insuredIsGC')} />
 
           {data.insuredIsGC === 'No' && (

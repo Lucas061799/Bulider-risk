@@ -30,7 +30,7 @@ export default function ExistingCoverage({ formData, updateFormData, isDark }) {
         />
         {data.constructionBegun === 'Yes' && (
           <>
-            <div className="mt-3 space-y-4 p-4 rounded-xl" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
+            <div className="mt-4 space-y-4">
               <FormGrid>
                 <DateInput label="Start Date" value={data.startDate} onChange={set('startDate')} />
                 <Input label="% Complete" value={data.percentComplete} onChange={set('percentComplete')} placeholder="0–100" />

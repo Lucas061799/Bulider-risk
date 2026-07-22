@@ -48,7 +48,7 @@ export default function ExistingStructure({ formData, updateFormData, isDark = f
       </div>
 
       {loadBearingMod && (
-        <div className="pt-3 space-y-4 rounded-xl p-4" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
+        <div className="pt-3 space-y-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <label className="text-[13px] font-semibold text-gray-600 tracking-wide">
