@@ -14,15 +14,10 @@ export default function VacPropertyConditionRisk({ formData, updateFormData }) {
 
   return (
     <div className="w-full space-y-5">
-      <div className="rounded-xl p-4" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
-        <p className="text-[11px] font-bold tracking-wider uppercase mb-2.5" style={{ color: '#5C2ED4' }}>
-          System-Populated (Risk Meter API)
-        </p>
-        <FormGrid>
-          <Input label="Protection Class" value={data.protectionClass} onChange={set('protectionClass')} placeholder="API will populate" />
-          <Input label="Wildfire Score" value={data.wildfireScore} onChange={set('wildfireScore')} placeholder="API will populate" />
-        </FormGrid>
-      </div>
+      <FormGrid>
+        <Input label="Protection Class" value={data.protectionClass} onChange={set('protectionClass')} placeholder="API will populate" />
+        <Input label="Wildfire Score" value={data.wildfireScore} onChange={set('wildfireScore')} placeholder="API will populate" />
+      </FormGrid>
 
       <RadioGroup
         label="Is there an active wildfire within 50 miles?"
