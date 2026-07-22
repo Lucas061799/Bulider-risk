@@ -76,15 +76,32 @@ function Row({ label, value, isDark, bold, small }) {
 // Expanded: policy fee / commission / platform breakdown
 const BR_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
 
-// Flat-fee placeholders — adjust once we have the real numbers.
-const BROKER_FEE = 50
-const BTIS_FEE = 25
+// Small inline currency input used inside the Fee Breakdown so the broker
+// can type in Broker Fee / BTIS Fee directly.
+function FeeInput({ value, onChange, isDark }) {
+  return (
+    <div className="relative inline-flex items-center">
+      <span className="text-sm mr-0.5" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>$</span>
+      <input
+        type="text"
+        inputMode="numeric"
+        value={value}
+        onChange={(e) => onChange(e.target.value.replace(/[^0-9.]/g, ''))}
+        onClick={(e) => e.stopPropagation()}
+        className="w-16 text-right text-sm font-medium bg-transparent border-b focus:outline-none focus:border-[#7C3AED]"
+        style={{ color: isDark ? '#F9FAFB' : '#1F2937', borderColor: isDark ? 'rgba(255,255,255,0.16)' : '#D1D5DB' }}
+      />
+    </div>
+  )
+}
 
-function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, coverageValue, onCoverageUpdate }) {
+function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, coverageValue, onCoverageUpdate, brokerFee, btisFee, onBrokerFeeChange, onBtisFeeChange }) {
   const [expanded, setExpanded] = useState(false)
   const [pendingCV, setPendingCV] = useState('')
   const fee = calcPolicyFee(carrier.id, premium)
-  const total = premium + fee + BROKER_FEE + BTIS_FEE
+  const brokerFeeNum = Number((brokerFee || '').toString().replace(/[^0-9.]/g, '')) || 0
+  const btisFeeNum = Number((btisFee || '').toString().replace(/[^0-9.]/g, '')) || 0
+  const total = premium + fee + brokerFeeNum + btisFeeNum
   const monthly = Math.round(total / 12)
   const currentCV = Number((coverageValue || '').toString().replace(/[^0-9.]/g, '')) || 0
   const pendingCVNum = Number((pendingCV || '').toString().replace(/[^0-9.]/g, '')) || 0
@@ -179,8 +196,14 @@ function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, c
               <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 mb-2.5">Fee Breakdown</div>
               <Row label="Premium" value={`$${premium.toLocaleString()}`} isDark={isDark} />
               <Row label="Policy Fee" value={`$${fee}`} isDark={isDark} />
-              <Row label="Broker Fee" value={`$${BROKER_FEE}`} isDark={isDark} />
-              <Row label="BTIS Fee" value={`$${BTIS_FEE}`} isDark={isDark} />
+              <div className="flex items-center justify-between py-1 text-sm">
+                <span style={{ color: isDark ? '#9CA3AF' : '#6B7280', fontWeight: 400 }}>Broker Fee</span>
+                <FeeInput value={brokerFee} onChange={onBrokerFeeChange} isDark={isDark} />
+              </div>
+              <div className="flex items-center justify-between py-1 text-sm">
+                <span style={{ color: isDark ? '#9CA3AF' : '#6B7280', fontWeight: 400 }}>BTIS Fee</span>
+                <FeeInput value={btisFee} onChange={onBtisFeeChange} isDark={isDark} />
+              </div>
               <div className="border-t mt-2 pt-2" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB' }}>
                 <Row label="Total Annual Cost" value={`$${total.toLocaleString()}`} isDark={isDark} bold />
               </div>
@@ -248,6 +271,10 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
   // Local override so the user can tweak the coverage value per-carrier card
   // and re-price without leaving the Compare page.
   const [completedValue, setCompletedValue] = useState(initialCompletedValue)
+  // Broker + BTIS fees are per-producer flat fees; the broker types them
+  // in on the compare page and they flow into every carrier card's total.
+  const [brokerFee, setBrokerFee] = useState('50')
+  const [btisFee, setBtisFee] = useState('25')
 
   const eligibleIds = useMemo(
     () => eligibleCarriers(projectType, projectStateAbbr),
@@ -349,6 +376,10 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
                     premium={c.premium}
                     coverageValue={completedValue}
                     onCoverageUpdate={setCompletedValue}
+                    brokerFee={brokerFee}
+                    btisFee={btisFee}
+                    onBrokerFeeChange={setBrokerFee}
+                    onBtisFeeChange={setBtisFee}
                     isSelected={selectedCarrier === c.id}
                     onSelect={() => {
                       // Just select — Continue button below triggers bind.
