@@ -566,7 +566,7 @@ export default function Submission({ formData, projectType, state, boundCarrier,
             standalone "receipt" view; the app-flow chrome would just be noise. */}
 
         <main className="flex-1 overflow-y-auto custom-scroll" style={{ background: isDark ? '#131629' : 'white' }}>
-          <div className="max-w-4xl 2xl:max-w-5xl mx-auto px-4 md:px-10 py-6 md:py-10 space-y-5 md:space-y-6">
+          <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-6 md:py-10 space-y-5 md:space-y-6">
 
             {/* Submission Complete Card — commercial-auto / GL pattern:
                 gradient top bar + inline icon/title row + horizontal info grid */}
