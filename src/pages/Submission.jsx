@@ -431,7 +431,6 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                 <SumRow label="Property in Transit" value={coverage.transit} isDark={isDark}/>
                 <SumRow label="Soft Costs" value={coverage.softCosts} isDark={isDark}/>
                 <SumRow label="Equipment Breakdown" value={coverage.equipmentBreakdown} isDark={isDark}/>
-                <SumRow label="Premises Liability" value={coverage.premisesLiability} isDark={isDark}/>
               </SummaryBlock>
 
               <SummaryBlock title="Property Protection" icon="home" isDark={isDark}>
@@ -939,7 +938,6 @@ export default function Submission({ formData, projectType, state, boundCarrier,
                       <SumRow label="Property in Transit" value={coverage.transit} isDark={isDark}/>
                       <SumRow label="Soft Costs" value={coverage.softCosts} isDark={isDark}/>
                       <SumRow label="Equipment Breakdown" value={coverage.equipmentBreakdown} isDark={isDark}/>
-                      <SumRow label="Premises Liability" value={coverage.premisesLiability} isDark={isDark}/>
                     </SummaryBlock>
 
                     <SummaryBlock title="Property Protection" icon="home" isDark={isDark}>
