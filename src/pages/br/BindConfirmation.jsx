@@ -1,13 +1,25 @@
 import { useState } from 'react'
+import { PROJECT_TYPES, PROJECT_TYPE_CONFIG } from '../../lib/projectTypeConfig'
 
 const BRAND_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
 
-export default function BindConfirmation({ formData, updateFormData, config, isDark = false }) {
+export default function BindConfirmation({ formData, updateFormData, config, projectType, isDark = false }) {
   const data = formData.bindConfirmation || {}
   const set = (key) => (val) => updateFormData('bindConfirmation', { [key]: val })
 
   const attestation = config?.bindAttestation
   const [open, setOpen] = useState(false)
+
+  // Remodel variants: point the user to the other variant if they picked
+  // the wrong scope (No ES vs With ES). Same "double-check" recovery
+  // prompt as the PageZero notice, but re-surfaced here because binding
+  // is the point of no return.
+  const otherRemodel =
+    projectType === PROJECT_TYPES.REMODEL_WITHOUT_EXISTING
+      ? PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITH_EXISTING]
+      : projectType === PROJECT_TYPES.REMODEL_WITH_EXISTING
+        ? PROJECT_TYPE_CONFIG[PROJECT_TYPES.REMODEL_WITHOUT_EXISTING]
+        : null
 
   if (!attestation) {
     return (
@@ -95,6 +107,15 @@ export default function BindConfirmation({ formData, updateFormData, config, isD
             <p className="text-[12px] leading-relaxed" style={{ color: isDark ? '#D1D5DB' : '#4B5563' }}>
               {attestation.body}
             </p>
+            {otherRemodel && (
+              <p className="text-[11px] leading-relaxed mt-3" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
+                {projectType === PROJECT_TYPES.REMODEL_WITHOUT_EXISTING
+                  ? 'Actually need the existing building covered too? '
+                  : 'Actually need only the new work covered? '}
+                Go back to <span className="font-semibold" style={{ color: '#5C2ED4' }}>Project Type</span> and pick{' '}
+                <span className="font-semibold" style={{ color: '#5C2ED4' }}>{otherRemodel.label}</span> instead.
+              </p>
+            )}
             <p className="text-[12px] leading-relaxed mt-3 italic" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>
               {attestation.checkbox}
             </p>
