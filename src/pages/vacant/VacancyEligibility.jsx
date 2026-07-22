@@ -21,7 +21,7 @@ export default function VacVacancyEligibility({ formData, updateFormData, isDark
       <RadioGroup label="Is the property currently vacant?" options={['Yes', 'No']} value={data.currentlyVacant} onChange={set('currentlyVacant')} />
 
       {data.currentlyVacant === 'Yes' && (
-        <div className="space-y-4 p-4 rounded-xl" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
+        <div className="space-y-4">
           <Input label="Vacancy duration (months, 1–72)" value={data.vacancyMonths} onChange={set('vacancyMonths')} />
           <RadioGroup label="Continuously insured since becoming vacant?" options={['Yes', 'No']} value={data.continuouslyInsured} onChange={set('continuouslyInsured')} />
           <RadioGroup label="Secured against unauthorized entry?" options={['Yes', 'No']} value={data.secured} onChange={set('secured')} />
