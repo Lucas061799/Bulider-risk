@@ -71,10 +71,7 @@ export default function ContractorInformation({ formData, updateFormData, isDark
       </div>
 
       {isExceptionState && (
-        <div className="pt-3 mt-3 space-y-5 rounded-xl p-4" style={{ background: 'rgba(248,246,255,0.5)', border: '1px solid rgba(92,46,212,0.12)' }}>
-          <p className="text-[11px] font-bold tracking-wider uppercase" style={{ color: '#5C2ED4' }}>
-            Exception State: {stateAbbr} — GC license not required
-          </p>
+        <>
           <FormGrid>
             <Input label="Acting Contractor Name" value={data.actingContractor} onChange={set('actingContractor')} />
             <Input label="Years of Experience" value={data.actingYearsExperience} onChange={set('actingYearsExperience')} />
@@ -85,7 +82,7 @@ export default function ContractorInformation({ formData, updateFormData, isDark
             value={data.inGCTrade}
             onChange={set('inGCTrade')}
           />
-        </div>
+        </>
       )}
     </div>
   )
