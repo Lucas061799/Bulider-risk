@@ -562,21 +562,8 @@ export default function Submission({ formData, projectType, state, boundCarrier,
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="hidden md:block">
-          <Sidebar
-            steps={STEPS}
-            activeStep={STEPS.length + 1}
-            onStepClick={(id) => { if (id <= STEPS.length) onBack() }}
-            formData={formData}
-            onCheckErrors={() => {}}
-            showSubmission={true}
-            bound={true}
-            isDark={isDark}
-            onToggleDark={onToggleDark}
-            flowTitle={flowTitle}
-            projectType={projectType}
-          />
-        </div>
+        {/* Sidebar and RightPanel hidden on the bound page — post-bind is a
+            standalone "receipt" view; the app-flow chrome would just be noise. */}
 
         <main className="flex-1 overflow-y-auto custom-scroll" style={{ background: isDark ? '#131629' : 'white' }}>
           <div className="max-w-4xl 2xl:max-w-5xl mx-auto px-4 md:px-10 py-6 md:py-10 space-y-5 md:space-y-6">
@@ -754,39 +741,18 @@ export default function Submission({ formData, projectType, state, boundCarrier,
               </div>
             )}
 
-            {/* Print & View Full Submission — sits INSIDE the Bind submitted
-                card as a footer toggle. Border-top instead of a separate card
-                so it reads as one document (commercial-auto pattern). */}
+            {/* Full submission summary — always expanded on the bound page
+                (was a collapsible toggle; on this receipt-style view it's
+                redundant to hide by default). Sits INSIDE the Bind
+                submitted card as a footer section, border-top hairline so
+                it reads as one document. */}
             <div
               style={{
                 borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}`,
               }}
             >
-              <button
-                type="button"
-                onClick={() => setSummaryOpen(o => !o)}
-                className="w-full flex items-center justify-between px-5 py-3.5 transition-all"
-                style={{
-                  background: summaryOpen
-                    ? (isDark ? 'rgba(92,46,212,0.18)' : 'linear-gradient(88.09deg, rgba(92,46,212,0.06) 0%, rgba(166,20,195,0.06) 100%)')
-                    : (isDark ? 'rgba(92,46,212,0.08)' : 'linear-gradient(88.09deg, rgba(92,46,212,0.03) 0%, rgba(166,20,195,0.03) 100%)'),
-                }}
-              >
-                <span className="flex items-center gap-2">
-                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24">
-                    <defs><linearGradient id="prntIcon" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor={isDark ? '#A78BFA' : '#5C2ED4'}/><stop offset="100%" stopColor={isDark ? '#E879F9' : '#A614C3'}/></linearGradient></defs>
-                    <path stroke="url(#prntIcon)" strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                  </svg>
-                  <span className="text-xs font-semibold text-gradient">Print &amp; View Full Submission</span>
-                </span>
-                <svg className="w-4 h-4 shrink-0 transition-transform" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ transform: summaryOpen ? 'rotate(180deg)' : 'none' }}>
-                  <path d="M6 9l6 6 6-6"/>
-                </svg>
-              </button>
-
-              {summaryOpen && (
-                <div id="submission-print-area" className="px-5 py-5" style={{ borderTop: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : '#F3F4F6'}` }}>
+              {true && (
+                <div id="submission-print-area" className="px-5 py-5">
 
                   {/* Print-only document header — hidden on screen, shown when printing.
                       Matches commercial-auto pattern: logos row + single info row. */}
@@ -1169,16 +1135,6 @@ export default function Submission({ formData, projectType, state, boundCarrier,
           </div>
         </main>
 
-        <div className="hidden lg:block">
-          <RightPanel
-            formData={formData}
-            isDark={isDark}
-            projectType={projectType}
-            state={state}
-            inSubmission={true}
-            onFormReview={() => {}}
-          />
-        </div>
       </div>
     </div>
   )
