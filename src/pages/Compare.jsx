@@ -76,8 +76,11 @@ function Row({ label, value, isDark, bold, small }) {
 // Expanded: policy fee / commission / platform breakdown
 const BR_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
 
+// BTIS platform fee — fixed, not user-editable.
+const BTIS_FEE = 25
+
 // Small inline currency input used inside the Fee Breakdown so the broker
-// can type in Broker Fee / BTIS Fee directly.
+// can type in Broker Fee directly.
 function FeeInput({ value, onChange, isDark }) {
   return (
     <div className="relative inline-flex items-center">
@@ -95,13 +98,12 @@ function FeeInput({ value, onChange, isDark }) {
   )
 }
 
-function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, coverageValue, onCoverageUpdate, brokerFee, btisFee, onBrokerFeeChange, onBtisFeeChange }) {
+function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, coverageValue, onCoverageUpdate, brokerFee, onBrokerFeeChange }) {
   const [expanded, setExpanded] = useState(false)
   const [pendingCV, setPendingCV] = useState('')
   const fee = calcPolicyFee(carrier.id, premium)
   const brokerFeeNum = Number((brokerFee || '').toString().replace(/[^0-9.]/g, '')) || 0
-  const btisFeeNum = Number((btisFee || '').toString().replace(/[^0-9.]/g, '')) || 0
-  const total = premium + fee + brokerFeeNum + btisFeeNum
+  const total = premium + fee + brokerFeeNum + BTIS_FEE
   const monthly = Math.round(total / 12)
   const currentCV = Number((coverageValue || '').toString().replace(/[^0-9.]/g, '')) || 0
   const pendingCVNum = Number((pendingCV || '').toString().replace(/[^0-9.]/g, '')) || 0
@@ -200,10 +202,7 @@ function CarrierCard({ carrier, premium, isSelected, isBest, onSelect, isDark, c
                 <span style={{ color: isDark ? '#9CA3AF' : '#6B7280', fontWeight: 400 }}>Broker Fee</span>
                 <FeeInput value={brokerFee} onChange={onBrokerFeeChange} isDark={isDark} />
               </div>
-              <div className="flex items-center justify-between py-1 text-sm">
-                <span style={{ color: isDark ? '#9CA3AF' : '#6B7280', fontWeight: 400 }}>BTIS Fee</span>
-                <FeeInput value={btisFee} onChange={onBtisFeeChange} isDark={isDark} />
-              </div>
+              <Row label="BTIS Fee" value={`$${BTIS_FEE}`} isDark={isDark} />
               <div className="border-t mt-2 pt-2" style={{ borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E5E7EB' }}>
                 <Row label="Total Annual Cost" value={`$${total.toLocaleString()}`} isDark={isDark} bold />
               </div>
@@ -271,10 +270,10 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
   // Local override so the user can tweak the coverage value per-carrier card
   // and re-price without leaving the Compare page.
   const [completedValue, setCompletedValue] = useState(initialCompletedValue)
-  // Broker + BTIS fees are per-producer flat fees; the broker types them
-  // in on the compare page and they flow into every carrier card's total.
+  // Broker Fee is a per-producer flat fee the broker types in; it flows
+  // into every carrier card's total. BTIS Fee is a fixed platform fee
+  // (BTIS_FEE constant), not user-editable.
   const [brokerFee, setBrokerFee] = useState('50')
-  const [btisFee, setBtisFee] = useState('25')
 
   const eligibleIds = useMemo(
     () => eligibleCarriers(projectType, projectStateAbbr),
@@ -377,9 +376,7 @@ export default function Compare({ formData, projectType, state, onBack, onBind, 
                     coverageValue={completedValue}
                     onCoverageUpdate={setCompletedValue}
                     brokerFee={brokerFee}
-                    btisFee={btisFee}
                     onBrokerFeeChange={setBrokerFee}
-                    onBtisFeeChange={setBtisFee}
                     isSelected={selectedCarrier === c.id}
                     onSelect={() => {
                       // Just select — Continue button below triggers bind.
