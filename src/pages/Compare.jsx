@@ -80,19 +80,24 @@ const BR_GRADIENT = 'linear-gradient(88.09deg, #5C2ED4 0%, #A614C3 100%)'
 const BTIS_FEE = 25
 
 // Small inline currency input used inside the Fee Breakdown so the broker
-// can type in Broker Fee directly.
+// can type in Broker Fee directly. Matches the app's standard Input style —
+// bordered rounded box with $ prefix inside.
 function FeeInput({ value, onChange, isDark }) {
   return (
     <div className="relative inline-flex items-center">
-      <span className="text-sm mr-0.5" style={{ color: isDark ? '#9CA3AF' : '#6B7280' }}>$</span>
+      <span className="absolute left-2 text-sm pointer-events-none" style={{ color: isDark ? '#9CA3AF' : '#9CA3AF' }}>$</span>
       <input
         type="text"
         inputMode="numeric"
         value={value}
         onChange={(e) => onChange(e.target.value.replace(/[^0-9.]/g, ''))}
         onClick={(e) => e.stopPropagation()}
-        className="w-16 text-right text-sm font-medium bg-transparent border-b focus:outline-none focus:border-[#7C3AED]"
-        style={{ color: isDark ? '#F9FAFB' : '#1F2937', borderColor: isDark ? 'rgba(255,255,255,0.16)' : '#D1D5DB' }}
+        className="w-24 pl-6 pr-2 py-1 rounded-md border text-sm font-medium text-right focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/10 focus:border-[#7C3AED]/40 transition-all"
+        style={{
+          color: isDark ? '#F9FAFB' : '#1F2937',
+          background: isDark ? 'rgba(255,255,255,0.04)' : 'white',
+          borderColor: isDark ? 'rgba(255,255,255,0.12)' : '#E5E7EB',
+        }}
       />
     </div>
   )
